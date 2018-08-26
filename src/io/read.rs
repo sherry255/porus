@@ -10,18 +10,22 @@ pub fn fread<I: Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) -> bool {
     Consumer::consume(c, s)
 }
 
+pub fn is_whitespace(c: u8) -> bool {
+    match c {
+        b' ' | b'\t'...b'\r' => true,
+        _ => false,
+    }
+}
+
 pub struct Whitespace;
 
 impl Consumer for Whitespace {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
         while let Some(&c) = s.peek() {
-            match c {
-                b' ' | b'\t'...b'\r' => {
-                    s.consume();
-                }
-                _ => {
-                    break;
-                }
+            if is_whitespace(c) {
+                s.consume();
+            } else {
+                break;
             }
         }
         true

@@ -104,6 +104,7 @@ pub mod list;
 pub mod deque;
 pub mod stack;
 
+pub mod string;
 #[macro_use]
 pub mod static_array;
 #[macro_use]

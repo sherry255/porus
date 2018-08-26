@@ -36,6 +36,7 @@
 | [ALDS1_2_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_2_C) | [Stable Sort](solutions/AOJ/ALDS1/ALDS1_2_C.rs) |
 | [ALDS1_2_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_2_D) | [Shell Sort](solutions/AOJ/ALDS1/ALDS1_2_D.rs) |
 | [ALDS1_3_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_A) | [Stack](solutions/AOJ/ALDS1/ALDS1_3_A.rs) |
+| [ALDS1_3_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_B) | [Queue](solutions/AOJ/ALDS1/ALDS1_3_B.rs) |
 | [ALDS1_6_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_B) | [Partition](solutions/AOJ/ALDS1/ALDS1_6_B.rs) |
 | [ALDS1_6_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_C) | [Quick Sort](solutions/AOJ/ALDS1/ALDS1_2_6.rs) |
 

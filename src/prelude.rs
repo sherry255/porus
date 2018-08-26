@@ -19,6 +19,7 @@ pub use super::stack;
 
 pub use super::array::Array;
 pub use super::dlist::DoublyLinkedList;
+pub use super::string::{String, StringBuffer};
 
 pub use super::io::read::Char;
 pub use super::io::write::join;

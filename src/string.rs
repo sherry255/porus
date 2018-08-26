@@ -1,65 +1,196 @@
-use core::clone::Clone;
-use core::cmp::{PartialEq, Eq};
-use core::ops::{Deref, Add, Mul};
-use core::mem::{size_of, transmute};
-use core::ptr::{copy_nonoverlapping, drop_in_place};
+use super::alloc::{allocate, deallocate, reallocate, Allocator};
+use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use super::io::read::{is_whitespace, Consumer};
+use super::io::{write, PeekableSource, Sink, Source};
+use super::os::OSAllocator;
+use core::marker::PhantomData;
+use core::mem::{forget, size_of, transmute_copy};
+use core::ptr::copy_nonoverlapping;
 use core::slice::from_raw_parts;
-use super::libc::{malloc, realloc, free};
-use super::traits::InputStream;
 
+#[cfg(all(target_endian = "little"))]
+#[derive(Clone, Copy)]
+struct SharedStringBuffer {
+    s: *mut u8,
+    capacity: isize,
+    offset: isize,
+}
 
+#[cfg(all(target_endian = "little", target_pointer_width = "64"))]
+#[derive(Clone, Copy)]
+struct InlineStringBuffer {
+    offset: u8,
+    s: [u8; 23],
+}
+
+impl InlineStringBuffer {
+    fn offset(&self) -> u8 {
+        self.offset >> 2
+    }
+}
+
+union StringBufferUnion {
+    shared: SharedStringBuffer,
+    inline: InlineStringBuffer,
+}
+
+impl StringBufferUnion {
+    fn is_inline(&self) -> bool {
+        match unsafe { self.inline.offset & 0x3 } {
+            0 => false,
+            1 => true,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub struct StringBuffer<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
+    buffer: StringBufferUnion,
+    allocator: A,
+    _policy: PhantomData<P>,
+}
+
+impl<P: CapacityPolicy, A: Allocator + Default> Default for StringBuffer<P, A> {
+    fn default() -> Self {
+        StringBuffer {
+            buffer: StringBufferUnion {
+                inline: InlineStringBuffer {
+                    offset: 1,
+                    s: [0; 23],
+                },
+            },
+            allocator: Default::default(),
+            _policy: PhantomData,
+        }
+    }
+}
+
+impl<P: CapacityPolicy, A: Allocator> Sink for StringBuffer<P, A> {
+    fn write(&mut self, c: u8) {
+        let counter_size = size_of::<usize>() as isize;
+
+        if self.buffer.is_inline() {
+            unsafe {
+                let offset = self.buffer.inline.offset() as usize;
+                let size = self.buffer.inline.s.len();
+                if offset < size {
+                    self.buffer.inline.s[offset] = c;
+                    self.buffer.inline.offset = ((offset as u8 + 1) << 2) | 1;
+                    return;
+                } else {
+                    let capacity = P::initial(size as isize);
+                    let s: *mut u8 = allocate(&mut self.allocator, counter_size + capacity);
+                    copy_nonoverlapping(
+                        self.buffer.inline.s.as_ptr(),
+                        s.offset(counter_size),
+                        size,
+                    );
+                    self.buffer.shared = SharedStringBuffer {
+                        s,
+                        capacity,
+                        offset: offset as isize,
+                    };
+                }
+            }
+        }
+
+        unsafe {
+            let offset = self.buffer.shared.offset;
+            if offset == self.buffer.shared.capacity {
+                let capacity = P::grow(self.buffer.shared.capacity);
+                self.buffer.shared.capacity = capacity;
+                self.buffer.shared.s = reallocate(
+                    &mut self.allocator,
+                    self.buffer.shared.s,
+                    counter_size + capacity,
+                );
+            }
+            *self.buffer.shared.s.offset(counter_size + offset) = c;
+            self.buffer.shared.offset += 1;
+        }
+    }
+}
+
+impl<'a, P: CapacityPolicy, A: Allocator> Consumer for &'a mut StringBuffer<P, A> {
+    fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
+        while let Some(&c) = s.peek() {
+            if !is_whitespace(c) {
+                Sink::write(self, c);
+                s.consume();
+            } else {
+                break;
+            }
+        }
+
+        true
+    }
+}
+
+impl<P: CapacityPolicy, A: Allocator> Drop for StringBuffer<P, A> {
+    fn drop(&mut self) {
+        if !self.buffer.is_inline() {
+            unsafe {
+                deallocate(&mut self.allocator, self.buffer.shared.s);
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 struct SharedString {
     counter: *mut usize,
-    length: usize,
+    length: isize,
     s: *const u8,
 }
 
-#[cfg(all(target_endian="big", target_pointer_width="64"))]
+#[cfg(all(target_endian = "big", target_pointer_width = "64"))]
+#[derive(Clone, Copy)]
 struct InlineString {
-    s: [u8;23],
+    s: [u8; 23],
     length: u8,
 }
 
-#[cfg(all(target_endian="little", target_pointer_width="64"))]
+#[cfg(all(target_endian = "little", target_pointer_width = "64"))]
+#[derive(Clone, Copy)]
 struct InlineString {
     length: u8,
-    s: [u8;23],
+    s: [u8; 23],
 }
 
-#[cfg(all(target_endian="big", target_pointer_width="32"))]
+#[cfg(all(target_endian = "big", target_pointer_width = "32"))]
 struct InlineString {
-    s: [u8;11],
+    s: [u8; 11],
     length: u8,
 }
 
-#[cfg(all(target_endian="little", target_pointer_width="32"))]
+#[cfg(all(target_endian = "little", target_pointer_width = "32"))]
+#[derive(Clone, Copy)]
 struct InlineString {
     length: u8,
-    s: [u8;11],
+    s: [u8; 11],
 }
 
-#[cfg(target_endian="big")]
+#[cfg(target_endian = "big")]
+#[derive(Clone, Copy)]
 struct StaticString {
     s: *const u8,
-    length: usize,
+    length: isize,
     padding: usize,
 }
 
-#[cfg(target_endian="little")]
+#[cfg_attr(feature = "cargo-clippy", allow(dead_code))]
+#[cfg(target_endian = "little")]
+#[derive(Clone, Copy)]
 struct StaticString {
     padding: usize,
-    length: usize,
+    length: isize,
     s: *const u8,
 }
 
-#[cfg(target_pointer_width="64")]
-pub struct String {
-    _data: [u8;24],
-}
-
-#[cfg(target_pointer_width="32")]
-pub struct String {
-    _data: [u8;12],
+union StringUnion {
+    shared: SharedString,
+    inline: InlineString,
+    static_: StaticString,
 }
 
 enum Tag {
@@ -70,413 +201,166 @@ enum Tag {
 
 use self::Tag::*;
 
-
-impl Clone for SharedString {
-    fn clone(&self) -> Self {
-        unsafe {
-            *self.counter += 1;
-        }
-        SharedString {
-            counter: self.counter,
-            length: self.length,
-            s: self.s,
-        }
-    }
-}
-
-impl Clone for InlineString {
-    fn clone(&self) -> Self {
-        InlineString {
-            length: self.length,
-            s: self.s,
-        }
-    }
-}
-
-impl Clone for StaticString {
-    fn clone(&self) -> Self {
-        StaticString {
-            padding: self.padding,
-            length: self.length,
-            s: self.s,
-        }
-    }
-}
-
-impl Drop for SharedString {
-    fn drop(&mut self) {
-        unsafe{
-            *self.counter -= 1;
-            if *self.counter == 0 {
-                free(self.counter as *mut _)
-            }
-        }
-    }
-}
-
-impl String {
-    fn as_inline(&self) -> &InlineString {
-        unsafe {
-            &*(self as *const _ as *const _)
-        }
-    }
-
-    fn as_inline_mut(&mut self) -> &mut InlineString {
-        unsafe {
-            &mut *(self as *mut _ as *mut _)
-        }
-    }
-
-    fn as_shared(&self) -> &SharedString {
-        unsafe {
-            &*(self as *const _ as *const _)
-        }
-    }
-
-    fn as_shared_mut(&mut self) -> &mut SharedString {
-        unsafe {
-            &mut *(self as *mut _ as *mut _)
-        }
-    }
-
-    fn as_static(&self) -> &StaticString {
-        unsafe {
-            &*(self as *const _ as *const _)
-        }
-    }
-
-    fn as_static_mut(&mut self) -> &mut StaticString {
-        unsafe {
-            &mut *(self as *mut _ as *mut _)
-        }
-    }
-
+impl StringUnion {
     fn tag(&self) -> Tag {
-        match self.as_inline().length & 0x3 {
+        match unsafe { self.inline.length & 0x3 } {
             0 => Shared,
             1 => Inline,
-            3 => Static,
-            _ => abort!("bad string tag"),
+            2 => Static,
+            _ => unreachable!(),
         }
     }
 
-    pub fn len(&self) -> usize {
+    fn len(&self) -> isize {
+        unsafe {
+            match self.tag() {
+                Shared => self.shared.length,
+                Inline => (self.inline.length >> 2) as isize,
+                Static => self.static_.length,
+            }
+        }
+    }
+
+    unsafe fn as_ptr(&self) -> *const u8 {
         match self.tag() {
-            Shared => self.as_shared().length,
-            Inline => (self.as_inline().length >> 3) as usize,
-            Static => self.as_static().length,
+            Shared => self.shared.s,
+            Inline => self.inline.s.as_ptr(),
+            Static => self.static_.s,
         }
     }
 
-    fn as_ptr(&self) -> *const u8 {
-        match self.tag() {
-            Shared => self.as_shared().s,
-            Inline => self.as_inline().s.as_ptr(),
-            Static => self.as_static().s,
-        }
-    }
-
-    pub fn as_bytes(&self) -> &[u8] {
-        unsafe {
-            from_raw_parts(self.as_ptr(), self.len())
-        }
-    }
-
-    #[cfg(target_pointer_width="64")]
-    fn new_inline() -> InlineString {
-        InlineString {
-            length: 1,
-            s: [0;23],
-        }
-    }
-
-    #[cfg(target_pointer_width="32")]
-    fn new_inline() -> InlineString {
-        InlineString {
-            length: 1,
-            s: [0;11],
-        }
-    }
-
-    fn new_by_length(length: usize) -> Self {
-        if length < size_of::<String>() {
-            let mut i = String::new_inline();
-            i.length |= (length as u8) << 3;
-            unsafe {
-                transmute(i)
-            }
-        } else {
-            let ptr =
-                unsafe {
-                    malloc(size_of::<usize>() + length)
-                };
-
-            let s = SharedString {
-                counter: ptr as *mut usize,
-                length: length,
-                s: unsafe { ptr.offset(size_of::<usize>() as isize) }
-            };
-
-            unsafe {
-                *(s.counter) = 1;
-                transmute(s)
-            }
-        }
+    fn as_bytes(&self) -> &[u8] {
+        unsafe { from_raw_parts(self.as_ptr(), self.len() as usize) }
     }
 }
 
-impl Deref for String {
-    type Target = [u8];
-
-    fn deref(&self) -> &Self::Target {
-        unsafe {
-            from_raw_parts(self.as_ptr(), self.len())
-        }
-    }
+pub struct String<A: Allocator = OSAllocator> {
+    s: StringUnion,
+    allocator: A,
 }
 
-impl Clone for String {
-    fn clone(&self) -> Self {
-        match self.tag() {
-            Shared =>
-                unsafe {
-                    transmute(self.as_shared().clone())
-                },
-            Inline =>
-                unsafe {
-                    transmute(self.as_inline().clone())
-                },
-            Static =>
-                unsafe {
-                    transmute(self.as_static().clone())
-                },
-        }
-    }
+struct StringBufferTransmute<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator>
+{
+    buffer: StringBufferUnion,
+    allocator: A,
+    _policy: PhantomData<P>,
 }
 
-impl Drop for String {
-    fn drop(&mut self) {
-        match self.tag() {
-            Shared =>
-                unsafe {
-                    drop_in_place(self.as_shared_mut() as *mut _);
-                },
-            Inline =>
-                unsafe {
-                    drop_in_place(self.as_inline_mut() as *mut _);
-                },
-            Static =>
-                unsafe {
-                    drop_in_place(self.as_static_mut() as *mut _);
-                },
-        }
-    }
-}
-
-impl PartialEq for String {
-    fn eq(&self, other: &String) -> bool {
-        let p = self.as_ptr();
-        let q = other.as_ptr();
-
-        if self.len() != other.len() {
-            false
-        } else if p == q {
-            true
-        } else {
-            for i in 0..self.len() {
-                if unsafe { *p.offset(i as isize) != *q.offset(i as isize) } {
-                    return false;
-                }
-            }
-            true
-        }
-    }
-}
-
-impl Eq for String {
-}
-
-impl<'a,'b> Add<&'b String> for &'a String {
-    type Output = String;
-
-    fn add(self, other: &'b String) -> String {
-        if self.len() == 0 {
-            return other.clone();
-        } else if other.len() == 0 {
-            return self.clone();
-        } else if unsafe { self.as_ptr().offset(self.len() as isize) == other.as_ptr() } {
-            if let (Shared,Shared) = (self.tag(), other.tag()) {
-                let counter = self.as_shared().counter;
-                if counter == other.as_shared().counter {
-                    unsafe {
-                        *(counter) += 1;
-                        return transmute(
-                            SharedString {
-                                counter: counter,
-                                length: self.len() + other.len(),
-                                s: self.as_ptr(),
-                            }
-                        );
-                    }
-                }
-            } else if let (Static,Static) = (self.tag(), other.tag()) {
-                unsafe {
-                    return transmute(
-                        StaticString {
-                            s: self.as_ptr(),
-                            length: self.len() + other.len(),
-                            padding: 3,
-                        });
-                }
-            }
-        }
-
-        let z = String::new_by_length(self.len() + other.len());
-        unsafe {
-            copy_nonoverlapping(self.as_ptr(), z.as_ptr() as *mut _, self.len());
-            copy_nonoverlapping(other.as_ptr(), z.as_ptr().offset(self.len() as isize) as *mut _, other.len());
-        }
-        return z;
-    }
-}
-
-impl Add<String> for String {
-    type Output = String;
-
-    fn add(self, other: String) -> String {
-        &self + &other
-    }
-}
-
-impl<'a> Mul<usize> for &'a String {
-    type Output = String;
-
-    fn mul(self, other: usize) -> String {
-        if other == 1 {
-            self.clone()
-        } else {
-            let length = self.len();
-            let z = String::new_by_length(length * other);
-            for i in 0..other {
-                unsafe {
-                    copy_nonoverlapping(self.as_ptr(), z.as_ptr().offset((i * length) as isize) as *mut _, length);
-                }
-            }
-            z
-        }
-    }
-}
-
-impl Mul<usize> for String {
-    type Output = String;
-    fn mul(self, other: usize) -> String {
-        &self * other
-    }
-}
-
-
-pub fn string(s: &'static [u8]) -> String {
-    let length = s.len();
-    if length < size_of::<String>() {
-        let mut i = String::new_inline();
-        i.length |= (length as u8) << 3;
-
-        unsafe {
-            copy_nonoverlapping(s.as_ptr(), i.s.as_mut_ptr(), length);
-            return transmute(i);
-        }
-    } else {
-        unsafe {
-            transmute(
-                StaticString {
-                    length: length,
+impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
+    fn from(s: &'static [u8]) -> Self {
+        String {
+            s: StringUnion {
+                static_: StaticString {
                     s: s.as_ptr(),
-                    padding: 3,
-                })
-        }
-    }
-}
-
-
-pub fn read_string_until<Stream: InputStream, Fun: Fn(u8)->bool>(stream: &mut Stream, end: Fun, buffer_size: usize) -> String {
-    let mut inline = String::new_inline();
-    let inline_size = size_of::<String>()-1;
-
-    for i in 0 .. inline_size {
-        match stream.peek() {
-            None => {
-                inline.length |= (i as u8) << 3;
-                unsafe {
-                    return transmute(inline);
-                }
-            },
-            Some(&c) if end(c) => {
-                inline.length |= (i as u8) << 3;
-                unsafe {
-                    return transmute(inline);
-                }
-            },
-            Some(&c) =>
-                unsafe {
-                    *(inline.s.as_mut_ptr().offset(i as isize)) = c;
+                    length: s.len() as isize,
+                    padding: 2,
                 },
-        }
-
-        stream.consume();
-    }
-
-    let ptr =
-        unsafe {
-            malloc(size_of::<usize>() + buffer_size)
-        };
-
-    let mut s = SharedString {
-        counter: ptr as *mut usize,
-        length: buffer_size,
-        s: unsafe { ptr.offset(size_of::<usize>() as isize) },
-    };
-
-    unsafe {
-        *(s.counter) = 1;
-        copy_nonoverlapping(inline.s.as_ptr(), s.s as *mut _, inline_size);
-    }
-
-    for i in inline_size .. buffer_size {
-        match stream.peek() {
-            None => {
-                s.length = i;
-                break;
             },
-            Some(&c) if end(c) => {
-                s.length = i;
-                break;
-            },
-            Some(&c) =>
-                unsafe {
-                    *(s.s.offset(i as isize) as *mut _) = c;
-                },
+            allocator: Default::default(),
         }
-
-        stream.consume();
-    }
-
-    unsafe {
-        let ptr = realloc(ptr, size_of::<usize>() + s.length);
-        s.counter = ptr as *mut _;
-        s.s = ptr.offset(size_of::<usize>() as isize);
-        return transmute(s);
     }
 }
 
+impl<P: CapacityPolicy, A: Allocator> From<StringBuffer<P, A>> for String<A> {
+    fn from(x: StringBuffer<P, A>) -> Self {
+        let mut buf: StringBufferTransmute<P, A> = unsafe { transmute_copy(&x) };
+        forget(x);
 
-pub fn read_string<Stream: InputStream>(stream: &mut Stream, buffer_size: usize) -> String {
-    read_string_until(stream, |_| {false}, buffer_size)
+        let counter_size = size_of::<usize>() as isize;
+
+        if buf.buffer.is_inline() {
+            unsafe {
+                String {
+                    s: StringUnion {
+                        inline: InlineString {
+                            length: buf.buffer.inline.offset,
+                            s: buf.buffer.inline.s,
+                        },
+                    },
+                    allocator: buf.allocator,
+                }
+            }
+        } else {
+            unsafe {
+                let length = buf.buffer.shared.offset;
+                let s = reallocate(
+                    &mut buf.allocator,
+                    buf.buffer.shared.s,
+                    counter_size + length,
+                );
+                #[cfg_attr(feature = "cargo-clippy", allow(cast_ptr_alignment))]
+                let counter = s as *mut usize;
+                *counter = 1;
+
+                String {
+                    s: StringUnion {
+                        shared: SharedString {
+                            counter,
+                            length,
+                            s: s.offset(counter_size),
+                        },
+                    },
+                    allocator: buf.allocator,
+                }
+            }
+        }
+    }
 }
 
+impl<A: Allocator> AsRef<[u8]> for String<A> {
+    fn as_ref(&self) -> &[u8] {
+        self.s.as_bytes()
+    }
+}
 
-#[macro_export]
-macro_rules! str {
-    ($s:expr) => {
-        &($crate::string::string($s))
+impl<A: Allocator> PartialEq for String<A> {
+    fn eq(&self, other: &Self) -> bool {
+        PartialEq::eq(self.as_ref(), other.as_ref())
+    }
+}
+
+impl<A: Allocator> Drop for String<A> {
+    fn drop(&mut self) {
+        if let Shared = self.s.tag() {
+            unsafe {
+                *self.s.shared.counter -= 1;
+                if *self.s.shared.counter == 0 {
+                    deallocate(&mut self.allocator, self.s.shared.counter);
+                }
+            }
+        }
+    }
+}
+
+impl<'a> write::String for &'a String {
+    fn write<S: Sink>(self, s: &mut S) {
+        write::fwrite_str(s, self);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::io::read::fread;
+    use super::super::io::slice::SliceSource;
+    use super::{String, StringBuffer};
+
+    #[test]
+    fn test_inline_string_buffer() {
+        let source = &mut SliceSource::new(b"abc ");
+        let mut buffer: StringBuffer = Default::default();
+        fread(source, &mut buffer);
+        let s1: String = From::from(buffer);
+        let s2: String = From::from(b"abc" as &'static [u8]);
+        assert!(s1 == s2);
+    }
+
+    #[test]
+    fn test_shared_string_buffer() {
+        let source = &mut SliceSource::new(b"abcdefghijklmnopqrstuvwxyz");
+        let mut buffer: StringBuffer = Default::default();
+        fread(source, &mut buffer);
+        let s1: String = From::from(buffer);
+        let s2: String = From::from(b"abcdefghijklmnopqrstuvwxyz" as &'static [u8]);
+        assert!(s1 == s2);
     }
 }
