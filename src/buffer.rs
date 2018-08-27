@@ -9,9 +9,9 @@ use core::marker::PhantomData;
 
 #[derive(List, ListMut)]
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
-    front: isize,
-    back: isize,
-    capacity: isize,
+    front: usize,
+    back: usize,
+    capacity: usize,
     data: *mut T,
     allocator: A,
     _policy: PhantomData<P>,
@@ -22,7 +22,7 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
         Self::new_with_capacity(0)
     }
 
-    pub fn new_with_capacity(capacity: isize) -> Self {
+    pub fn new_with_capacity(capacity: usize) -> Self {
         let capacity = P::initial(capacity) + 1;
         let mut allocator = Default::default();
         let data = unsafe { allocate(&mut allocator, capacity) };
@@ -44,7 +44,7 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Default for Buffer<T, P, A> {
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
-    fn increase_index(&self, index: isize) -> isize {
+    fn increase_index(&self, index: usize) -> usize {
         if index + 1 == self.capacity {
             0
         } else {
@@ -52,7 +52,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
         }
     }
 
-    fn decrease_index(&self, index: isize) -> isize {
+    fn decrease_index(&self, index: usize) -> usize {
         if index == 0 {
             self.capacity - 1
         } else {
@@ -60,7 +60,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
         }
     }
 
-    fn grow_to(&mut self, new_capacity: isize) {
+    fn grow_to(&mut self, new_capacity: usize) {
         self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
         if self.back < self.front {
             let grow = new_capacity - self.capacity;
@@ -77,7 +77,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
         self.capacity = new_capacity;
     }
 
-    fn shrink_to(&mut self, new_capacity: isize) {
+    fn shrink_to(&mut self, new_capacity: usize) {
         if self.back < self.front {
             let shrink = self.capacity - new_capacity;
             unsafe {
@@ -118,7 +118,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> Collection for Buffer<T, P, A> {
-    fn size(&self) -> isize {
+    fn size(&self) -> usize {
         if self.front <= self.back {
             self.back - self.front
         } else {
@@ -131,7 +131,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Buffer<T, P, A> {
     type Elem = T;
 
     #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
-    fn get(&self, index: isize) -> Option<&T> {
+    fn get(&self, index: usize) -> Option<&T> {
         if self.front <= self.back {
             if self.front + index >= self.back {
                 None
@@ -152,7 +152,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Buffer<T, P, A> {
 
 impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Buffer<T, P, A> {
     #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
-    fn get_mut(&mut self, index: isize) -> Option<&mut T> {
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if self.front <= self.back {
             if self.front + index >= self.back {
                 None

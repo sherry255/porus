@@ -13,16 +13,16 @@ impl<'a, T: 'a> StaticArray<'a, T> {
 }
 
 impl<'a, T: 'a> Collection for StaticArray<'a, T> {
-    fn size(&self) -> isize {
-        self.slice.len() as isize
+    fn size(&self) -> usize {
+        self.slice.len()
     }
 }
 
 impl<'a, T: 'a> ListBase for StaticArray<'a, T> {
     type Elem = T;
 
-    fn get(&self, index: isize) -> Option<&T> {
-        self.slice.get(index as usize)
+    fn get(&self, index: usize) -> Option<&T> {
+        self.slice.get(index)
     }
 }
 

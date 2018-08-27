@@ -12,8 +12,8 @@ use core::slice::from_raw_parts;
 #[derive(Clone, Copy)]
 struct SharedStringBuffer {
     s: *mut u8,
-    capacity: isize,
-    offset: isize,
+    capacity: usize,
+    offset: usize,
 }
 
 #[cfg(all(target_endian = "little", target_pointer_width = "64"))]
@@ -67,7 +67,7 @@ impl<P: CapacityPolicy, A: Allocator + Default> Default for StringBuffer<P, A> {
 
 impl<P: CapacityPolicy, A: Allocator> Sink for StringBuffer<P, A> {
     fn write(&mut self, c: u8) {
-        let counter_size = size_of::<usize>() as isize;
+        let counter_size = size_of::<usize>();
 
         if self.buffer.is_inline() {
             unsafe {
@@ -78,17 +78,17 @@ impl<P: CapacityPolicy, A: Allocator> Sink for StringBuffer<P, A> {
                     self.buffer.inline.offset = ((offset as u8 + 1) << 2) | 1;
                     return;
                 } else {
-                    let capacity = P::initial(size as isize);
+                    let capacity = P::initial(size);
                     let s: *mut u8 = allocate(&mut self.allocator, counter_size + capacity);
                     copy_nonoverlapping(
                         self.buffer.inline.s.as_ptr(),
-                        s.offset(counter_size),
+                        s.offset(counter_size as isize),
                         size,
                     );
                     self.buffer.shared = SharedStringBuffer {
                         s,
                         capacity,
-                        offset: offset as isize,
+                        offset,
                     };
                 }
             }
@@ -105,7 +105,11 @@ impl<P: CapacityPolicy, A: Allocator> Sink for StringBuffer<P, A> {
                     counter_size + capacity,
                 );
             }
-            *self.buffer.shared.s.offset(counter_size + offset) = c;
+            *self
+                .buffer
+                .shared
+                .s
+                .offset((counter_size + offset) as isize) = c;
             self.buffer.shared.offset += 1;
         }
     }
@@ -139,7 +143,7 @@ impl<P: CapacityPolicy, A: Allocator> Drop for StringBuffer<P, A> {
 #[derive(Clone, Copy)]
 struct SharedString {
     counter: *mut usize,
-    length: isize,
+    length: usize,
     s: *const u8,
 }
 
@@ -174,7 +178,7 @@ struct InlineString {
 #[derive(Clone, Copy)]
 struct StaticString {
     s: *const u8,
-    length: isize,
+    length: usize,
     padding: usize,
 }
 
@@ -183,7 +187,7 @@ struct StaticString {
 #[derive(Clone, Copy)]
 struct StaticString {
     padding: usize,
-    length: isize,
+    length: usize,
     s: *const u8,
 }
 
@@ -211,11 +215,11 @@ impl StringUnion {
         }
     }
 
-    fn len(&self) -> isize {
+    fn len(&self) -> usize {
         unsafe {
             match self.tag() {
                 Shared => self.shared.length,
-                Inline => (self.inline.length >> 2) as isize,
+                Inline => (self.inline.length >> 2) as usize,
                 Static => self.static_.length,
             }
         }
@@ -252,7 +256,7 @@ impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
             s: StringUnion {
                 static_: StaticString {
                     s: s.as_ptr(),
-                    length: s.len() as isize,
+                    length: s.len(),
                     padding: 2,
                 },
             },
@@ -266,7 +270,7 @@ impl<P: CapacityPolicy, A: Allocator> From<StringBuffer<P, A>> for String<A> {
         let mut buf: StringBufferTransmute<P, A> = unsafe { transmute_copy(&x) };
         forget(x);
 
-        let counter_size = size_of::<usize>() as isize;
+        let counter_size = size_of::<usize>();
 
         if buf.buffer.is_inline() {
             unsafe {
@@ -297,7 +301,7 @@ impl<P: CapacityPolicy, A: Allocator> From<StringBuffer<P, A>> for String<A> {
                         shared: SharedString {
                             counter,
                             length,
-                            s: s.offset(counter_size),
+                            s: s.offset(counter_size as isize),
                         },
                     },
                     allocator: buf.allocator,

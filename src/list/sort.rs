@@ -3,7 +3,7 @@ use super::slice::ListMutView;
 use super::{get_mut, iter, List, ListMut};
 use core::mem;
 
-fn swap<L: ListMut>(list: &mut L, i: isize, j: isize) {
+fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
     if i == j {
         return;
     }
@@ -20,15 +20,19 @@ pub fn is_stable_sort<
     E,
     L: List<Elem = E> + Collection,
     F: Fn(&E, &E) -> bool,
-    I: List<Elem = isize>,
+    I: List<Elem = usize>,
 >(
     list: &L,
     lt: &F,
     index: &I,
 ) -> bool {
-    for i in 0..(Collection::size(list) - 1) {
-        if !lt(&list[index[i]], &list[index[i + 1]]) && !(index[i] < index[i + 1]) {
-            return false;
+    let size = Collection::size(list);
+
+    if size > 0 {
+        for i in 0..(size - 1) {
+            if !lt(&list[index[i]], &list[index[i + 1]]) && !(index[i] < index[i + 1]) {
+                return false;
+            }
         }
     }
     true
@@ -40,17 +44,15 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
 ) -> usize {
     let mut count = 0;
     let size = Collection::size(list);
-    if size >= 2 {
-        let mut i = size - 1;
-        while i > 0 {
+    if size > 0 {
+        for i in (1..size).rev() {
             if lt(&list[i], &list[i - 1]) {
                 swap(list, i, i - 1);
                 count += 1;
             }
-
-            i -= 1;
         }
     }
+
     count
 }
 
@@ -61,7 +63,7 @@ pub fn bubble_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     let mut count = 0;
     let size = Collection::size(list);
     for i in 0..size - 1 {
-        count += bubble(slice_mut!(list, [i, size]), lt);
+        count += bubble(slice_mut!(list, [i as isize, size as isize]), lt);
     }
     count
 }
@@ -84,14 +86,14 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
 fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: &F,
-    g: isize,
+    g: usize,
 ) -> usize {
     let mut count = 0;
     let size = Collection::size(list);
 
     for i in g..size {
         let mut j = i;
-        while ((j - g) >= 0) && lt(&list[j], &list[j - g]) {
+        while (j >= g) && lt(&list[j], &list[j - g]) {
             swap(list, j, j - g);
             count += 1;
             j -= g;
@@ -118,7 +120,7 @@ pub fn shell_sort<
     E,
     L: ListMut<Elem = E> + Collection,
     F: Fn(&E, &E) -> bool,
-    G: List<Elem = isize> + Collection,
+    G: List<Elem = usize> + Collection,
 >(
     list: &mut L,
     lt: &F,
@@ -159,7 +161,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
 pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: &F,
-) -> isize {
+) -> usize {
     let size = Collection::size(list);
     let mut i = 0;
     for j in 0..size - 1 {
@@ -183,8 +185,8 @@ fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E
     }
 
     let p = partition(list, lt);
-    quick_sort_aux::<E, L, F>(slice_mut!(list, [,p]), lt);
-    quick_sort_aux::<E, L, F>(slice_mut!(list, [p + 1,]), lt);
+    quick_sort_aux::<E, L, F>(slice_mut!(list, [,p as isize]), lt);
+    quick_sort_aux::<E, L, F>(slice_mut!(list, [(p + 1) as isize,]), lt);
 }
 
 pub fn quick_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(

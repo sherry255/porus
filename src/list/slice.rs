@@ -48,16 +48,20 @@ fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
     }
 }
 
+fn slice_index(base: usize, index: usize, step: isize) -> usize {
+    ((base as isize) + step * (index as isize)) as usize
+}
+
 #[derive(List)]
 pub struct ListView<'a, T: 'a + List> {
     list: &'a T,
-    offset: isize,
-    size: isize,
+    offset: usize,
+    size: usize,
     step: isize,
 }
 
 impl<'a, T: List> Collection for ListView<'a, T> {
-    fn size(&self) -> isize {
+    fn size(&self) -> usize {
         self.size
     }
 }
@@ -65,9 +69,9 @@ impl<'a, T: List> Collection for ListView<'a, T> {
 impl<'a, T: List> ListBase for ListView<'a, T> {
     type Elem = T::Elem;
 
-    fn get(&self, index: isize) -> Option<&Self::Elem> {
+    fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            ListBase::get(self.list, self.offset + self.step * index)
+            ListBase::get(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }
@@ -80,12 +84,12 @@ pub trait Slice<'a, T: List + Collection> {
 
 impl<'a, 'b: 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
     fn new(&'b self, range: &Range) -> ListView<'b, T> {
-        let (offset, size, step) = slice(Collection::size(self), range);
+        let (offset, size, step) = slice(Collection::size(self) as isize, range);
 
         ListView {
             list: self.list,
-            offset: self.offset + offset * self.step,
-            size,
+            offset: slice_index(self.offset, offset as usize, self.step),
+            size: size as usize,
             step: self.step * step,
         }
     }
@@ -93,11 +97,11 @@ impl<'a, 'b: 'a, T: List + Collection> Slice<'b, T> for ListView<'a, T> {
 
 impl<'a, T: List + Collection> Slice<'a, T> for T {
     fn new(&'a self, range: &Range) -> ListView<'a, T> {
-        let (offset, size, step) = slice(Collection::size(self), range);
+        let (offset, size, step) = slice(Collection::size(self) as isize, range);
         ListView {
             list: self,
-            offset,
-            size,
+            offset: offset as usize,
+            size: size as usize,
             step,
         }
     }
@@ -113,13 +117,13 @@ macro_rules! slice {
 #[derive(List, ListMut)]
 pub struct ListMutView<'a, T: 'a + ListMut> {
     list: &'a mut T,
-    offset: isize,
-    size: isize,
+    offset: usize,
+    size: usize,
     step: isize,
 }
 
 impl<'a, T: ListMut> Collection for ListMutView<'a, T> {
-    fn size(&self) -> isize {
+    fn size(&self) -> usize {
         self.size
     }
 }
@@ -127,9 +131,9 @@ impl<'a, T: ListMut> Collection for ListMutView<'a, T> {
 impl<'a, T: ListMut> ListBase for ListMutView<'a, T> {
     type Elem = T::Elem;
 
-    fn get(&self, index: isize) -> Option<&Self::Elem> {
+    fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            ListBase::get(self.list, self.offset + self.step * index)
+            ListBase::get(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }
@@ -137,9 +141,9 @@ impl<'a, T: ListMut> ListBase for ListMutView<'a, T> {
 }
 
 impl<'a, T: ListMut> ListMutBase for ListMutView<'a, T> {
-    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Elem> {
+    fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem> {
         if index < self.size {
-            ListMutBase::get_mut(self.list, self.offset + self.step * index)
+            ListMutBase::get_mut(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }
@@ -152,12 +156,12 @@ pub trait SliceMut<'a, T: ListMut + Collection> {
 
 impl<'a, 'b: 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T> {
     fn new(&'b mut self, range: &Range) -> ListMutView<'b, T> {
-        let (offset, size, step) = slice(Collection::size(self), range);
+        let (offset, size, step) = slice(Collection::size(self) as isize, range);
 
         ListMutView {
             list: self.list,
-            offset: self.offset + offset * self.step,
-            size,
+            offset: slice_index(self.offset, offset as usize, self.step),
+            size: size as usize,
             step: self.step * step,
         }
     }
@@ -165,11 +169,11 @@ impl<'a, 'b: 'a, T: ListMut + Collection> SliceMut<'b, T> for ListMutView<'a, T>
 
 impl<'a, T: ListMut + Collection> SliceMut<'a, T> for T {
     fn new(&'a mut self, range: &Range) -> ListMutView<'a, T> {
-        let (offset, size, step) = slice(Collection::size(self), range);
+        let (offset, size, step) = slice(Collection::size(self) as isize, range);
         ListMutView {
             list: self,
-            offset,
-            size,
+            offset: offset as usize,
+            size: size as usize,
             step,
         }
     }

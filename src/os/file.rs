@@ -50,14 +50,14 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), OSError> {
 
 pub struct FileSource {
     fd: i32,
-    size: isize,
-    offset: isize,
-    capacity: isize,
+    size: usize,
+    offset: usize,
+    capacity: usize,
     buffer: *mut u8,
 }
 
 impl FileSource {
-    pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
+    pub const fn new(fd: i32, size: usize, buffer: *mut u8) -> Self {
         FileSource {
             fd,
             size,
@@ -74,7 +74,7 @@ impl Iterator for FileSource {
     fn next(&mut self) -> Option<u8> {
         if (self.offset == self.size) && (self.size == self.capacity) {
             self.offset = 0;
-            self.size = read(self.fd, self.buffer, self.capacity as usize).unwrap() as isize;
+            self.size = read(self.fd, self.buffer, self.capacity).unwrap();
         }
 
         if self.offset < self.size {
@@ -89,13 +89,13 @@ impl Iterator for FileSource {
 
 pub struct FileSink {
     fd: i32,
-    offset: isize,
-    capacity: isize,
+    offset: usize,
+    capacity: usize,
     buffer: *mut u8,
 }
 
 impl FileSink {
-    pub const fn new(fd: i32, size: isize, buffer: *mut u8) -> Self {
+    pub const fn new(fd: i32, size: usize, buffer: *mut u8) -> Self {
         FileSink {
             fd,
             offset: 0,
@@ -108,7 +108,7 @@ impl FileSink {
 impl Sink for FileSink {
     fn write(&mut self, c: u8) {
         if self.offset == self.capacity {
-            write(self.fd, self.buffer, self.capacity as usize).unwrap();
+            write(self.fd, self.buffer, self.capacity).unwrap();
             self.offset = 0;
         }
 
@@ -119,6 +119,6 @@ impl Sink for FileSink {
 
 impl Drop for FileSink {
     fn drop(&mut self) {
-        write(self.fd, self.buffer, self.offset as usize).unwrap();
+        write(self.fd, self.buffer, self.offset).unwrap();
     }
 }

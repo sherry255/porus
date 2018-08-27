@@ -23,10 +23,10 @@ fn stable(b: bool) -> &'static str {
 }
 
 fn solve() {
-    let n: isize = read!();
+    let n: usize = read!();
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
-    let bi = &mut Array::<isize>::new_from_iter(0..n);
+    let bi = &mut Array::<usize>::new_from_iter(0..n);
     list::quick_sort(bi, &|i, j| a[*i].1 <= a[*j].1);
     writelnf!(
         "{:s}",

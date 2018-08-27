@@ -11,8 +11,8 @@ fn solve() {
 
     let pivot = list::sort::partition(a, &PartialOrd::le);
 
-    let l = slice!(a, [, pivot]);
-    let r = slice!(a, [pivot + 1,]);
+    let l = slice!(a, [, pivot as isize]);
+    let r = slice!(a, [(pivot + 1) as isize,]);
 
     writelnf!(
         "{}[{:d}]{}",

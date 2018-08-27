@@ -12,16 +12,13 @@ pub trait Allocator {
 pub unsafe fn reallocate<T, A: Allocator>(
     allocator: &mut A,
     ptr: *mut T,
-    mut capacity: isize,
+    capacity: usize,
 ) -> *mut T {
-    if capacity < 0 {
-        capacity = 0
-    }
     let size = size_of::<T>();
-    Allocator::reallocate(allocator, ptr as *mut _, size * (capacity as usize)).unwrap() as *mut _
+    Allocator::reallocate(allocator, ptr as *mut _, size * capacity).unwrap() as *mut _
 }
 
-pub unsafe fn allocate<T, A: Allocator>(allocator: &mut A, capacity: isize) -> *mut T {
+pub unsafe fn allocate<T, A: Allocator>(allocator: &mut A, capacity: usize) -> *mut T {
     reallocate(allocator, null_mut(), capacity)
 }
 

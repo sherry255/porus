@@ -6,7 +6,7 @@ where
     T::Elem: Copy,
 {
     list: &'a T,
-    index: isize,
+    index: usize,
 }
 
 impl<'a, T: 'a + ListBase> Iterator for ListIter<'a, T>
@@ -35,7 +35,7 @@ where
 
 pub struct ListIterRef<'a, T: 'a + ListBase> {
     list: &'a T,
-    index: isize,
+    index: usize,
 }
 
 impl<'a, T: 'a + ListBase> IterRef for ListIterRef<'a, T> {
@@ -55,7 +55,7 @@ pub fn iter_ref<T: ListBase>(list: &T) -> ListIterRef<T> {
 
 pub struct ListIterRefMut<'a, T: 'a + ListMutBase> {
     list: &'a mut T,
-    index: isize,
+    index: usize,
 }
 
 impl<'a, T: 'a + ListMutBase> IterRefMut for ListIterRefMut<'a, T> {

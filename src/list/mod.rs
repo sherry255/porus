@@ -3,22 +3,22 @@ use core::ops::{Index, IndexMut};
 pub trait ListBase {
     type Elem;
 
-    fn get(&self, index: isize) -> Option<&Self::Elem>;
+    fn get(&self, index: usize) -> Option<&Self::Elem>;
 }
 
 pub trait ListMutBase: ListBase {
-    fn get_mut(&mut self, index: isize) -> Option<&mut Self::Elem>;
+    fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem>;
 }
 
-pub trait List: ListBase + Index<isize, Output = <Self as ListBase>::Elem> {}
+pub trait List: ListBase + Index<usize, Output = <Self as ListBase>::Elem> {}
 
-pub trait ListMut: ListMutBase + IndexMut<isize, Output = <Self as ListBase>::Elem> {}
+pub trait ListMut: ListMutBase + IndexMut<usize, Output = <Self as ListBase>::Elem> {}
 
-pub fn get<T: List>(list: &T, index: isize) -> Option<&T::Elem> {
+pub fn get<T: List>(list: &T, index: usize) -> Option<&T::Elem> {
     ListBase::get(list, index)
 }
 
-pub fn get_mut<T: ListMut>(list: &mut T, index: isize) -> Option<&mut T::Elem> {
+pub fn get_mut<T: ListMut>(list: &mut T, index: usize) -> Option<&mut T::Elem> {
     ListMutBase::get_mut(list, index)
 }
 

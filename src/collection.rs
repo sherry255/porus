@@ -1,7 +1,7 @@
 pub trait Collection {
-    fn size(&self) -> isize;
+    fn size(&self) -> usize;
 }
 
-pub fn size<T: Collection>(c: &T) -> isize {
+pub fn size<T: Collection>(c: &T) -> usize {
     Collection::size(c)
 }

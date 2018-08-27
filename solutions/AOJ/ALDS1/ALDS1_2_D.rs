@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n: isize = read!();
+    let n: usize = read!();
     let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
 
     let gaps =
@@ -16,7 +16,7 @@ fn solve() {
     while (gaps[skip] > n) && (gaps[skip] != 1) {
         skip += 1;
     }
-    let g = slice!(gaps, [skip,]);
+    let g = slice!(gaps, [skip as isize,]);
 
     let count = list::shell_sort(a, &PartialOrd::lt, g);
 

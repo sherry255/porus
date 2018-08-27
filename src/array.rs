@@ -10,8 +10,8 @@ use core::marker::PhantomData;
 
 #[derive(List, ListMut)]
 pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
-    size: isize,
-    capacity: isize,
+    size: usize,
+    capacity: usize,
     data: *mut T,
     allocator: A,
     _policy: PhantomData<P>,
@@ -19,7 +19,7 @@ pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OS
 
 impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
     pub fn new_from_iter<I: ExactSizeIterator<Item = T>>(mut it: I) -> Self {
-        let size = ExactSizeIterator::len(&it) as isize;
+        let size = ExactSizeIterator::len(&it);
         let mut allocator = Default::default();
         let capacity = P::initial(size);
         let data = unsafe { allocate(&mut allocator, capacity) };
@@ -45,7 +45,7 @@ impl<T: Clone, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> Collection for Array<T, P, A> {
-    fn size(&self) -> isize {
+    fn size(&self) -> usize {
         self.size
     }
 }
@@ -53,8 +53,8 @@ impl<T, P: CapacityPolicy, A: Allocator> Collection for Array<T, P, A> {
 impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
     type Elem = T;
 
-    fn get(&self, index: isize) -> Option<&T> {
-        if (0 <= index) && (index < self.size) {
+    fn get(&self, index: usize) -> Option<&T> {
+        if index < self.size {
             Some(unsafe { get(self.data, index) })
         } else {
             None
@@ -63,8 +63,8 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Array<T, P, A> {
-    fn get_mut(&mut self, index: isize) -> Option<&mut T> {
-        if (0 <= index) && (index < self.size) {
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        if index < self.size {
             Some(unsafe { get_mut(self.data, index) })
         } else {
             None

@@ -1,21 +1,21 @@
 pub trait CapacityPolicy {
-    fn initial(capacity: isize) -> isize;
-    fn grow(capacity: isize) -> isize;
-    fn shrink(size: isize, capacity: isize) -> isize;
+    fn initial(capacity: usize) -> usize;
+    fn grow(capacity: usize) -> usize;
+    fn shrink(size: usize, capacity: usize) -> usize;
 }
 
 pub struct FixedCapacityPolicy {}
 
 impl CapacityPolicy for FixedCapacityPolicy {
-    fn initial(size: isize) -> isize {
+    fn initial(size: usize) -> usize {
         size
     }
 
-    fn grow(capacity: isize) -> isize {
+    fn grow(capacity: usize) -> usize {
         capacity
     }
 
-    fn shrink(_size: isize, capacity: isize) -> isize {
+    fn shrink(_size: usize, capacity: usize) -> usize {
         capacity
     }
 }
@@ -23,7 +23,7 @@ impl CapacityPolicy for FixedCapacityPolicy {
 pub struct DefaultCapacityPolicy {}
 
 impl CapacityPolicy for DefaultCapacityPolicy {
-    fn initial(size: isize) -> isize {
+    fn initial(size: usize) -> usize {
         if size < 10 {
             10
         } else {
@@ -31,11 +31,11 @@ impl CapacityPolicy for DefaultCapacityPolicy {
         }
     }
 
-    fn grow(capacity: isize) -> isize {
+    fn grow(capacity: usize) -> usize {
         capacity + (capacity / 2)
     }
 
-    fn shrink(size: isize, capacity: isize) -> isize {
+    fn shrink(size: usize, capacity: usize) -> usize {
         let new_capacity = if size * 9 / 4 < capacity {
             size * 3 / 2
         } else {
