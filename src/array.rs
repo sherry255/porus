@@ -1,14 +1,13 @@
 use super::alloc::{allocate, deallocate, reallocate, Allocator};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::collection::Collection;
-use super::list::{List, ListBase, ListMut, ListMutBase};
+use super::list::{List, ListMut};
 use super::os::OSAllocator;
 use super::ptr::{get, get_mut, read, write};
 use super::stack::Stack;
 use core::iter::{ExactSizeIterator, Iterator};
 use core::marker::PhantomData;
 
-#[derive(List, ListMut)]
 pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     size: usize,
     capacity: usize,
@@ -50,7 +49,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Collection for Array<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> List for Array<T, P, A> {
     type Elem = T;
 
     fn get(&self, index: usize) -> Option<&T> {
@@ -62,7 +61,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Array<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Array<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> ListMut for Array<T, P, A> {
     fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if index < self.size {
             Some(unsafe { get_mut(self.data, index) })

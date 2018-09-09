@@ -27,7 +27,7 @@ fn solve() {
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
     let bi = &mut Array::<usize>::new_from_iter(0..n);
-    list::quick_sort(bi, &|i, j| a[*i].1 <= a[*j].1);
+    list::quick_sort(bi, &|i, j| list::get(a, *i).1 <= list::get(a, *j).1);
     writelnf!(
         "{:s}",
         stable(list::is_stable_sort(a, &|x, y| x.1 < y.1, bi))
@@ -36,7 +36,7 @@ fn solve() {
         "{}",
         join(
             f!("\n"),
-            list::iter(bi).map(|i| f!("{:c} {:d}", a[i].0, a[i].1))
+            list::iter(bi).map(|i| f!("{:c} {:d}", list::get(a, i).0, list::get(a, i).1))
         )
     );
 }

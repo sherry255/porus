@@ -1,6 +1,6 @@
 use super::super::collection::Collection;
 use super::super::range::Range;
-use super::{List, ListBase, ListMut, ListMutBase};
+use super::{List, ListMut};
 
 fn slice(size: isize, range: &Range) -> (isize, isize, isize) {
     let start = range.start(size);
@@ -52,7 +52,6 @@ fn slice_index(base: usize, index: usize, step: isize) -> usize {
     ((base as isize) + step * (index as isize)) as usize
 }
 
-#[derive(List)]
 pub struct ListView<'a, T: 'a + List> {
     list: &'a T,
     offset: usize,
@@ -66,12 +65,12 @@ impl<'a, T: List> Collection for ListView<'a, T> {
     }
 }
 
-impl<'a, T: List> ListBase for ListView<'a, T> {
+impl<'a, T: List> List for ListView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            ListBase::get(self.list, slice_index(self.offset, index, self.step))
+            List::get(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }
@@ -114,7 +113,6 @@ macro_rules! slice {
     }
 }
 
-#[derive(List, ListMut)]
 pub struct ListMutView<'a, T: 'a + ListMut> {
     list: &'a mut T,
     offset: usize,
@@ -128,22 +126,22 @@ impl<'a, T: ListMut> Collection for ListMutView<'a, T> {
     }
 }
 
-impl<'a, T: ListMut> ListBase for ListMutView<'a, T> {
+impl<'a, T: ListMut> List for ListMutView<'a, T> {
     type Elem = T::Elem;
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            ListBase::get(self.list, slice_index(self.offset, index, self.step))
+            List::get(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }
     }
 }
 
-impl<'a, T: ListMut> ListMutBase for ListMutView<'a, T> {
+impl<'a, T: ListMut> ListMut for ListMutView<'a, T> {
     fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem> {
         if index < self.size {
-            ListMutBase::get_mut(self.list, slice_index(self.offset, index, self.step))
+            ListMut::get_mut(self.list, slice_index(self.offset, index, self.step))
         } else {
             None
         }

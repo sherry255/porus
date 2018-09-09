@@ -2,12 +2,11 @@ use super::alloc::{allocate, deallocate, reallocate, Allocator};
 use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use super::collection::Collection;
 use super::deque::Deque;
-use super::list::{List, ListBase, ListMut, ListMutBase};
+use super::list::{List, ListMut};
 use super::os::OSAllocator;
 use super::ptr::{copy, get, get_mut, read, write};
 use core::marker::PhantomData;
 
-#[derive(List, ListMut)]
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     front: usize,
     back: usize,
@@ -127,7 +126,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Collection for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> ListBase for Buffer<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> List for Buffer<T, P, A> {
     type Elem = T;
 
     #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
@@ -150,7 +149,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListBase for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> ListMutBase for Buffer<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> ListMut for Buffer<T, P, A> {
     #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
     fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if self.front <= self.back {

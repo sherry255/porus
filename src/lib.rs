@@ -82,7 +82,6 @@
 //! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
 
-#[macro_use]
 extern crate porus_macros;
 
 pub mod tests;

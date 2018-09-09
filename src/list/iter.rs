@@ -1,7 +1,7 @@
-use super::super::iter::{IterRef, IterRefMut, Iterator};
-use super::{ListBase, ListMutBase};
+use super::List;
+use core::iter::Iterator;
 
-pub struct ListIter<'a, T: 'a + ListBase>
+pub struct ListIter<'a, T: 'a + List>
 where
     T::Elem: Copy,
 {
@@ -9,7 +9,7 @@ where
     index: usize,
 }
 
-impl<'a, T: 'a + ListBase> Iterator for ListIter<'a, T>
+impl<'a, T: 'a + List> Iterator for ListIter<'a, T>
 where
     T::Elem: Copy,
 {
@@ -17,7 +17,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.index;
-        let it = ListBase::get(self.list, index);
+        let it = List::get(self.list, index);
         self.index += 1;
         match it {
             None => None,
@@ -26,49 +26,9 @@ where
     }
 }
 
-pub fn iter<T: ListBase>(list: &T) -> ListIter<T>
+pub fn iter<T: List>(list: &T) -> ListIter<T>
 where
     T::Elem: Copy,
 {
     ListIter { list, index: 0 }
-}
-
-pub struct ListIterRef<'a, T: 'a + ListBase> {
-    list: &'a T,
-    index: usize,
-}
-
-impl<'a, T: 'a + ListBase> IterRef for ListIterRef<'a, T> {
-    type Item = T::Elem;
-
-    fn next(&mut self) -> Option<&Self::Item> {
-        let index = self.index;
-        let it = ListBase::get(self.list, index);
-        self.index += 1;
-        it
-    }
-}
-
-pub fn iter_ref<T: ListBase>(list: &T) -> ListIterRef<T> {
-    ListIterRef { list, index: 0 }
-}
-
-pub struct ListIterRefMut<'a, T: 'a + ListMutBase> {
-    list: &'a mut T,
-    index: usize,
-}
-
-impl<'a, T: 'a + ListMutBase> IterRefMut for ListIterRefMut<'a, T> {
-    type Item = T::Elem;
-
-    fn next(&mut self) -> Option<&mut Self::Item> {
-        let index = self.index;
-        let it = ListMutBase::get_mut(self.list, index);
-        self.index += 1;
-        it
-    }
-}
-
-pub fn iter_ref_mut<T: ListMutBase>(list: &mut T) -> ListIterRefMut<T> {
-    ListIterRefMut { list, index: 0 }
 }

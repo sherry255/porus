@@ -17,7 +17,7 @@ fn solve() {
     writelnf!(
         "{}[{:d}]{}",
         join(f!(""), list::iter(l).map(|e| f!("{e:d} "))),
-        a[pivot],
+        *list::get(a, pivot),
         join(f!(""), list::iter(r).map(|e| f!(" {e:d}")))
     );
 }

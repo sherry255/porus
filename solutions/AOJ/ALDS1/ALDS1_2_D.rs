@@ -13,7 +13,7 @@ fn solve() {
         static_array![797161, 265720, 88573, 29524, 9841, 3280, 1093, 364, 121, 40, 13, 4, 1];
 
     let mut skip = 0;
-    while (gaps[skip] > n) && (gaps[skip] != 1) {
+    while (list::get(gaps, skip) > &n) && (list::get(gaps, skip) != &1) {
         skip += 1;
     }
     let g = slice!(gaps, [skip as isize,]);

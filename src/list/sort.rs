@@ -1,6 +1,6 @@
 use super::super::collection::Collection;
 use super::slice::ListMutView;
-use super::{get_mut, iter, List, ListMut};
+use super::{get, get_mut, iter, List, ListMut};
 use core::mem;
 
 fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
@@ -9,9 +9,9 @@ fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
     }
 
     let mut t = unsafe { mem::uninitialized() };
-    mem::swap(&mut t, get_mut(list, i).unwrap());
-    mem::swap(&mut t, get_mut(list, j).unwrap());
-    mem::swap(&mut t, get_mut(list, i).unwrap());
+    mem::swap(&mut t, get_mut(list, i));
+    mem::swap(&mut t, get_mut(list, j));
+    mem::swap(&mut t, get_mut(list, i));
     mem::forget(t);
 }
 
@@ -30,7 +30,9 @@ pub fn is_stable_sort<
 
     if size > 0 {
         for i in 0..(size - 1) {
-            if !lt(&list[index[i]], &list[index[i + 1]]) && !(index[i] < index[i + 1]) {
+            if !lt(get(list, *get(index, i)), get(list, *get(index, i + 1)))
+                && !(get(index, i) < get(index, i + 1))
+            {
                 return false;
             }
         }
@@ -46,7 +48,7 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     let size = Collection::size(list);
     if size > 0 {
         for i in (1..size).rev() {
-            if lt(&list[i], &list[i - 1]) {
+            if lt(get(list, i), get(list, i - 1)) {
                 swap(list, i, i - 1);
                 count += 1;
             }
@@ -75,7 +77,7 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
     let mut count = 0;
     let size = Collection::size(list);
     let mut i = size - 1;
-    while (i > 0) && lt(&list[i], &list[i - 1]) {
+    while (i > 0) && lt(get(list, i), get(list, i - 1)) {
         swap(list, i, i - 1);
         count += 1;
         i -= 1;
@@ -93,7 +95,7 @@ fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>
 
     for i in g..size {
         let mut j = i;
-        while (j >= g) && lt(&list[j], &list[j - g]) {
+        while (j >= g) && lt(get(list, j), get(list, j - g)) {
             swap(list, j, j - g);
             count += 1;
             j -= g;
@@ -145,7 +147,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     for i in 0..size {
         let mut min = i;
         for j in i + 1..size {
-            if lt(&list[j], &list[min]) {
+            if lt(get(list, j), get(list, min)) {
                 min = j;
             }
         }
@@ -165,7 +167,7 @@ pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     let size = Collection::size(list);
     let mut i = 0;
     for j in 0..size - 1 {
-        if lt(&list[j], &list[size - 1]) {
+        if lt(get(list, j), get(list, size - 1)) {
             swap(list, j, i);
             i += 1;
         }

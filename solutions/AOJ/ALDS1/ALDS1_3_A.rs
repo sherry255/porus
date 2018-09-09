@@ -81,5 +81,5 @@ fn solve() {
         }
     }
 
-    writelnf!("{:d}", a[0]);
+    writelnf!("{:d}", *list::get(a, 0));
 }

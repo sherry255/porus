@@ -27,12 +27,12 @@ fn solve() {
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
     let bi = &mut Array::<usize>::new_from_iter(0..n);
-    list::bubble_sort(bi, &|i, j| a[*i].1 < a[*j].1);
+    list::bubble_sort(bi, &|i, j| list::get(a, *i).1 < list::get(a, *j).1);
     writelnf!(
         "{}",
         join(
             f!(" "),
-            list::iter(bi).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))
+            list::iter(bi).map(|i| f!("{:c}{:d}", list::get(a, i).0, list::get(a, i).1))
         )
     );
     writelnf!(
@@ -41,12 +41,12 @@ fn solve() {
     );
 
     let si = &mut Array::<usize>::new_from_iter(0..n);
-    list::selection_sort(si, &|i, j| a[*i].1 < a[*j].1);
+    list::selection_sort(si, &|i, j| list::get(a, *i).1 < list::get(a, *j).1);
     writelnf!(
         "{}",
         join(
             f!(" "),
-            list::iter(si).map(|i| f!("{:c}{:d}", a[i].0, a[i].1))
+            list::iter(si).map(|i| f!("{:c}{:d}", list::get(a, i).0, list::get(a, i).1))
         )
     );
     writelnf!(

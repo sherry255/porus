@@ -16,7 +16,7 @@ fn solve() {
             stack::push(vec, x);
         } else if op == 1 {
             let p: usize = read!();
-            writelnf!("{:d}", vec[p]);
+            writelnf!("{:d}", *list::get(vec, p));
         } else if op == 2 {
             stack::pop(vec);
         }

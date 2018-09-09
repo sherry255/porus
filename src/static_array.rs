@@ -1,7 +1,6 @@
 use super::collection::Collection;
-use super::list::{List, ListBase};
+use super::list::List;
 
-#[derive(List)]
 pub struct StaticArray<'a, T: 'a> {
     slice: &'a [T],
 }
@@ -18,7 +17,7 @@ impl<'a, T: 'a> Collection for StaticArray<'a, T> {
     }
 }
 
-impl<'a, T: 'a> ListBase for StaticArray<'a, T> {
+impl<'a, T: 'a> List for StaticArray<'a, T> {
     type Elem = T;
 
     fn get(&self, index: usize) -> Option<&T> {
