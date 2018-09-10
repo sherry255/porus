@@ -9,7 +9,7 @@ matrix:
   include:
   - name: Lint
     language: rust
-    rust: nightly
+    rust: nightly-2018-08-28
     install:
     - rustup component add rustfmt-preview
     - rustup component add clippy-preview
