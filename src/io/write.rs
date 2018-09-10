@@ -3,16 +3,15 @@ use super::Sink;
 use core::convert::TryInto;
 use core::ops::{Div, Neg, Rem};
 
-pub fn fwrite<'a, S: 'a + Sink, F: FnMut(&'a mut S)>(sink: &'a mut S, f: &mut F) {
+pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, f: &mut F) {
     f(sink)
 }
 
-#[cfg(not(doc))]
-pub fn join<'a, S: 'a + Sink, Sep: FnMut(&'a mut S), F: FnMut(&'a mut S), I: Iterator<Item = F>>(
+pub fn join<S: Sink, Sep: FnMut(&mut S), F: FnMut(&mut S), I: Iterator<Item = F>>(
     mut sep: Sep,
     mut it: I,
-) -> impl FnMut(&'a mut S) {
-    move |s: &'a mut S| {
+) -> impl FnMut(&mut S) {
+    move |s: &mut S| {
         let iter = &mut it;
 
         match Iterator::next(iter) {
@@ -28,16 +27,6 @@ pub fn join<'a, S: 'a + Sink, Sep: FnMut(&'a mut S), F: FnMut(&'a mut S), I: Ite
             sep(s);
             f(s);
         }
-    }
-}
-
-#[cfg(doc)]
-pub fn join<'a, S: 'a + Sink, Sep: FnMut(&'a mut S), F: FnMut(&'a mut S), I: Iterator<Item = F>>(
-    mut sep: Sep,
-    mut it: I,
-) -> impl FnMut(&'a mut S) {
-    move |s: &'a mut S| {
-        panic!();
     }
 }
 
