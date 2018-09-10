@@ -1,5 +1,5 @@
 use super::super::collection::Collection;
-use super::slice::ListMutView;
+use super::slice::{slice_mut, ListMutView};
 use super::{get, get_mut, iter, List, ListMut};
 use core::mem;
 
@@ -65,7 +65,7 @@ pub fn bubble_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     let mut count = 0;
     let size = Collection::size(list);
     for i in 0..size - 1 {
-        count += bubble(slice_mut!(list, [i as isize, size as isize]), lt);
+        count += bubble(&mut slice_mut(list, i..size), lt);
     }
     count
 }
@@ -187,13 +187,13 @@ fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E
     }
 
     let p = partition(list, lt);
-    quick_sort_aux::<E, L, F>(slice_mut!(list, [,p as isize]), lt);
-    quick_sort_aux::<E, L, F>(slice_mut!(list, [(p + 1) as isize,]), lt);
+    quick_sort_aux::<E, L, F>(&mut slice_mut(list, ..p), lt);
+    quick_sort_aux::<E, L, F>(&mut slice_mut(list, (p + 1)..), lt);
 }
 
 pub fn quick_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: &F,
 ) {
-    quick_sort_aux(slice_mut!(list, [0,]), lt);
+    quick_sort_aux::<E, L, F>(&mut slice_mut(list, 0..), lt);
 }

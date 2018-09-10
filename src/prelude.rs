@@ -14,7 +14,6 @@ pub use super::iter::{into_iter, IterRef, IterRefMut, Iterator};
 pub use super::collection;
 pub use super::deque::Deque;
 pub use super::list;
-pub use super::list::slice;
 pub use super::stack;
 
 pub use super::array::Array;

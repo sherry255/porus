@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n: isize = read!();
+    let n: usize = read!();
 
     'outer: for i in (0..n).map(|x| x + 1) {
         if (i % 3) != 0 {

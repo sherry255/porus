@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n: isize = read!();
+    let n: usize = read!();
 
     let list = &mut DoublyLinkedList::new();
     let mut cursor = list.front();

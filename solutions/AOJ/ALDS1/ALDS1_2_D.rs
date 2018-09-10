@@ -16,7 +16,7 @@ fn solve() {
     while (list::get(gaps, skip) > &n) && (list::get(gaps, skip) != &1) {
         skip += 1;
     }
-    let g = slice!(gaps, [skip as isize,]);
+    let g = &list::slice(gaps, skip..);
 
     let count = list::shell_sort(a, &PartialOrd::lt, g);
 

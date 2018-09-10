@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let n: isize = read!();
+    let n: usize = read!();
 
     let mut min = isize::max_value();
     let mut max = isize::min_value();

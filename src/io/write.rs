@@ -104,6 +104,12 @@ macro_rules! unsigned {
                 write_unsigned(s, self, <$t>::from(radix), width)
             }
         }
+
+        impl<'a> Int for &'a $t {
+            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+                Int::write(*self, s, radix, width)
+            }
+        }
     };
 }
 
@@ -112,6 +118,12 @@ macro_rules! signed {
         impl Int for $t {
             fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
                 write_signed(s, self, <$t>::from(radix), width)
+            }
+        }
+
+        impl<'a> Int for &'a $t {
+            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+                Int::write(*self, s, radix, width)
             }
         }
     };
@@ -165,5 +177,11 @@ impl Float for f64 {
         }
 
         panic!("floating number out of range");
+    }
+}
+
+impl<'a> Float for &'a f64 {
+    fn write<S: Sink>(self, s: &mut S, prec: i32) {
+        Float::write(*self, s, prec)
     }
 }

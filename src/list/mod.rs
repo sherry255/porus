@@ -1,4 +1,6 @@
-pub trait List {
+use super::collection::Collection;
+
+pub trait List: Collection {
     type Elem;
 
     fn get(&self, index: usize) -> Option<&Self::Elem>;
@@ -8,16 +10,11 @@ pub trait ListMut: List {
     fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem>;
 }
 
-pub fn get<T: List>(list: &T, index: usize) -> &T::Elem {
-    List::get(list, index).unwrap()
-}
+mod index;
+pub use self::index::{get, get_mut};
 
-pub fn get_mut<T: ListMut>(list: &mut T, index: usize) -> &mut T::Elem {
-    ListMut::get_mut(list, index).unwrap()
-}
-
-#[macro_use]
-pub mod slice;
+mod slice;
+pub use self::slice::{slice, slice_mut};
 
 mod iter;
 pub use self::iter::iter;

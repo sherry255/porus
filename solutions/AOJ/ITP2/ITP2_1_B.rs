@@ -22,7 +22,7 @@ fn solve() {
             }
         } else if op == 1 {
             let p: usize = read!();
-            writelnf!("{:d}", *list::get(buf, p));
+            writelnf!("{:d}", list::get(buf, p));
         } else if op == 2 {
             let d: usize = read!();
             if d == 0 {
