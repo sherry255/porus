@@ -21,16 +21,22 @@ pub struct DoublyLinkedList<T, H: Handle = OSHandle, P: Pool<Node<H, T>, Handle 
     _data: PhantomData<T>,
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> DoublyLinkedList<T, H, P> {
-    pub fn new() -> Self {
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
+    pub fn new_with_pool(pool: P) -> Self {
         DoublyLinkedList {
-            pool: Default::default(),
+            pool,
             sentinel: Link {
                 prev: None,
                 next: None,
             },
             _data: PhantomData,
         }
+    }
+}
+
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> DoublyLinkedList<T, H, P> {
+    pub fn new() -> Self {
+        DoublyLinkedList::new_with_pool(Default::default())
     }
 }
 

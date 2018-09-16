@@ -16,13 +16,19 @@ pub struct SinglyLinkedList<T, H: Handle = OSHandle, P: Pool<Node<H, T>, Handle 
     _data: PhantomData<T>,
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> SinglyLinkedList<T, H, P> {
-    pub fn new() -> Self {
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> SinglyLinkedList<T, H, P> {
+    pub fn new_with_pool(pool: P) -> Self {
         SinglyLinkedList {
-            pool: Default::default(),
+            pool,
             sentinel: None,
             _data: PhantomData,
         }
+    }
+}
+
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> SinglyLinkedList<T, H, P> {
+    pub fn new() -> Self {
+        SinglyLinkedList::new_with_pool(Default::default())
     }
 }
 

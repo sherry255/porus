@@ -9,7 +9,7 @@ fn solve() {
     let n: usize = read!();
     let q: isize = read!();
 
-    let a = &mut DoublyLinkedList::<_>::new();
+    let a = &mut DoublyLinkedList::new_with_pool(Chunk::<_>::new_with_capacity(100000));
 
     for _ in 0..n {
         let b: StringBuffer = read!();

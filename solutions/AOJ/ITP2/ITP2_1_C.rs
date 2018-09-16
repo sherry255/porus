@@ -8,7 +8,7 @@ prelude!();
 fn solve() {
     let n: usize = read!();
 
-    let list = &mut DoublyLinkedList::<_>::new();
+    let list = &mut DoublyLinkedList::new_with_pool(Chunk::<_>::new_with_capacity(500000));
     let mut cursor = list.front();
 
     for _ in 0..n {

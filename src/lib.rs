@@ -6,6 +6,7 @@
 #![feature(try_from)]
 #![feature(specialization)]
 #![feature(refcell_replace_swap)]
+#![feature(untagged_unions)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
 #![cfg_attr(
     not(any(test, debug_assertions)),
@@ -98,6 +99,8 @@ pub mod pool;
 
 pub mod io;
 pub mod os;
+
+pub mod chunk;
 
 pub mod collection;
 #[macro_use]
