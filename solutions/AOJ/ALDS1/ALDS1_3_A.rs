@@ -55,7 +55,7 @@ impl<'a> Consumer for &'a mut Symbol {
 }
 
 fn solve() {
-    let a = array![0isize; 0];
+    let a = &mut SinglyLinkedList::<_>::new();
 
     while let Some(s) = read_opt!() {
         match s {
@@ -81,5 +81,5 @@ fn solve() {
         }
     }
 
-    writelnf!("{:d}", list::get(a, 0));
+    writelnf!("{:d}", stack::pop(a));
 }

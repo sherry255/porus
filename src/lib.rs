@@ -108,6 +108,7 @@ pub mod array;
 #[macro_use]
 pub mod buffer;
 pub mod dlist;
+pub mod flist;
 
 pub mod io;
 pub mod os;

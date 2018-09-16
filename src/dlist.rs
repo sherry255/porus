@@ -4,7 +4,7 @@ use super::os::OSAllocator;
 use super::pool::{Handle, Pool};
 use core::marker::PhantomData;
 
-pub struct Link<H: Handle> {
+struct Link<H: Handle> {
     prev: Option<H>,
     next: Option<H>,
 }

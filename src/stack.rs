@@ -3,7 +3,7 @@ pub trait Stack {
 
     fn is_empty(&self) -> bool;
     fn push(&mut self, elem: Self::Elem);
-    fn pop(&mut self) -> Self::Elem;
+    fn pop(&mut self) -> Option<Self::Elem>;
 }
 
 pub fn is_empty<T: Stack>(s: &T) -> bool {
@@ -15,5 +15,5 @@ pub fn push<T: Stack>(s: &mut T, elem: T::Elem) {
 }
 
 pub fn pop<T: Stack>(s: &mut T) -> T::Elem {
-    Stack::pop(s)
+    Stack::pop(s).unwrap()
 }

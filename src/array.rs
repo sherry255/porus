@@ -88,22 +88,22 @@ impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
         self.size += 1;
     }
 
-    fn pop(&mut self) -> T {
+    fn pop(&mut self) -> Option<T> {
         if self.is_empty() {
-            panic!("empty");
+            None
+        } else {
+            self.size -= 1;
+            let item = unsafe { read(self.data, self.size) };
+
+            let new_capacity = P::shrink(self.size, self.capacity);
+
+            if new_capacity < self.capacity {
+                self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
+                self.capacity = new_capacity;
+            }
+
+            Some(item)
         }
-
-        self.size -= 1;
-        let item = unsafe { read(self.data, self.size) };
-
-        let new_capacity = P::shrink(self.size, self.capacity);
-
-        if new_capacity < self.capacity {
-            self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
-            self.capacity = new_capacity;
-        }
-
-        item
     }
 }
 
