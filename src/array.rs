@@ -127,11 +127,11 @@ macro_rules! array {
 mod tests {
     use super::super::tests::Item;
     use super::Array;
-    use core::cell::RefCell;
+    use core::cell::Cell;
 
     #[test]
     fn test_drop() {
-        let counter = RefCell::new(0);
+        let counter = Cell::new(0);
         {
             Array::<_>::new_from_iter((0..10).map(|_| Item::new(&counter)));
         }
