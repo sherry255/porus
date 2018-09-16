@@ -88,9 +88,6 @@ pub mod tests;
 
 pub mod ptr;
 
-#[macro_use]
-pub mod range;
-
 pub mod alloc;
 pub mod capacity;
 pub mod pool;
