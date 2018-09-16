@@ -9,25 +9,25 @@ fn solve() {
     let n: usize = read!();
     let q: isize = read!();
 
-    let a = &mut DoublyLinkedList::new();
+    let a = &mut DoublyLinkedList::<_>::new();
 
     for _ in 0..n {
         let b: StringBuffer = read!();
         let name: String = From::from(b);
         let time: isize = read!();
-        Deque::push_back(a, (name, time));
+        deque::push_back(a, (name, time));
     }
 
     let mut sum: isize = 0;
 
-    while !Deque::is_empty(a) {
-        let (name, time) = Deque::pop_front(a);
+    while !deque::is_empty(a) {
+        let (name, time) = deque::pop_front(a);
         if time <= q {
             sum += time;
             writelnf!("{:s} {sum:d}", &name);
         } else {
             sum += q;
-            Deque::push_back(a, (name, time - q));
+            deque::push_back(a, (name, time - q));
         }
     }
 }

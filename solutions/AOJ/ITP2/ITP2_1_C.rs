@@ -8,14 +8,14 @@ prelude!();
 fn solve() {
     let n: usize = read!();
 
-    let list = &mut DoublyLinkedList::new();
+    let list = &mut DoublyLinkedList::<_>::new();
     let mut cursor = list.front();
 
     for _ in 0..n {
         let op: isize = read!();
         if op == 0 {
             let x: isize = read!();
-            cursor = list.insert_before(x, cursor);
+            cursor = Some(list.insert_before(x, cursor));
         } else if op == 1 {
             let d: isize = read!();
 
@@ -30,12 +30,12 @@ fn solve() {
             }
         } else if op == 2 {
             let next = list.next(cursor);
-            list.remove(cursor);
+            list.remove(cursor.unwrap());
             cursor = next;
         }
     }
 
-    while !Deque::is_empty(list) {
-        writelnf!("{:d}", Deque::pop_front(list));
+    while !deque::is_empty(list) {
+        writelnf!("{:d}", deque::pop_front(list));
     }
 }

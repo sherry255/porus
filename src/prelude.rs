@@ -12,7 +12,7 @@ pub fn sqrt(x: f64) -> f64 {
 pub use super::iter::{into_iter, IterRef, IterRefMut, Iterator};
 
 pub use super::collection;
-pub use super::deque::Deque;
+pub use super::deque;
 pub use super::list;
 pub use super::stack;
 

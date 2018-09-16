@@ -186,15 +186,15 @@ impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
         unsafe { write(self.data, self.front, elem) };
     }
 
-    fn pop_front(&mut self) -> T {
+    fn pop_front(&mut self) -> Option<T> {
         if self.is_empty() {
-            panic!("empty");
+            None
+        } else {
+            let elem = unsafe { read(self.data, self.front) };
+            self.front = self.increase_index(self.front);
+            self.shrink();
+            Some(elem)
         }
-
-        let elem = unsafe { read(self.data, self.front) };
-        self.front = self.increase_index(self.front);
-        self.shrink();
-        elem
     }
 
     fn push_back(&mut self, elem: T) {
@@ -206,15 +206,15 @@ impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
         self.back = self.increase_index(self.back);
     }
 
-    fn pop_back(&mut self) -> T {
+    fn pop_back(&mut self) -> Option<T> {
         if self.is_empty() {
-            panic!("empty");
+            None
+        } else {
+            self.back = self.decrease_index(self.back);
+            let elem = unsafe { read(self.data, self.back) };
+            self.shrink();
+            Some(elem)
         }
-
-        self.back = self.decrease_index(self.back);
-        let elem = unsafe { read(self.data, self.back) };
-        self.shrink();
-        elem
     }
 }
 

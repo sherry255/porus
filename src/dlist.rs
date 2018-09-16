@@ -5,8 +5,8 @@ use super::pool::{Handle, Pool};
 use core::marker::PhantomData;
 
 pub struct Link<H: Handle> {
-    prev: H,
-    next: H,
+    prev: Option<H>,
+    next: Option<H>,
 }
 
 pub struct Node<H: Handle, T> {
@@ -14,72 +14,73 @@ pub struct Node<H: Handle, T> {
     data: T,
 }
 
-pub struct DoublyLinkedList<T, H: Handle, P: Pool<Node<H, T>, Handle = H> = OSAllocator> {
+pub struct DoublyLinkedList<T, H: Handle = OSHandle, P: Pool<Node<H, T>, Handle = H> = OSAllocator>
+{
     pool: P,
     sentinel: Link<H>,
     _data: PhantomData<T>,
 }
 
-impl<T> DoublyLinkedList<T, OSHandle, OSAllocator> {
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> DoublyLinkedList<T, H, P> {
     pub fn new() -> Self {
         DoublyLinkedList {
-            pool: OSAllocator {},
+            pool: Default::default(),
             sentinel: Link {
-                prev: Default::default(),
-                next: Default::default(),
+                prev: None,
+                next: None,
             },
             _data: PhantomData,
         }
     }
 }
 
-impl<T> Default for DoublyLinkedList<T, OSHandle, OSAllocator> {
+impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> Default
+    for DoublyLinkedList<T, H, P>
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
 impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
-    pub fn front(&self) -> H {
+    pub fn front(&self) -> Option<H> {
         self.sentinel.next
     }
 
-    pub fn back(&self) -> H {
+    pub fn back(&self) -> Option<H> {
         self.sentinel.prev
     }
 
     fn add_node(&mut self, data: T) -> H {
         let node = Node {
             link: Link {
-                prev: Default::default(),
-                next: Default::default(),
+                prev: None,
+                next: None,
             },
             data,
         };
         Pool::add(&mut self.pool, node)
     }
 
-    fn get_link(&self, handle: H) -> &Link<H> {
-        if handle == <H as Default>::default() {
-            &self.sentinel
-        } else {
-            &Pool::get(&self.pool, handle).link
+    fn get_link(&self, handle: Option<H>) -> &Link<H> {
+        match handle {
+            None => &self.sentinel,
+            Some(h) => &Pool::get(&self.pool, h).link,
         }
     }
 
-    fn get_node_mut(&mut self, handle: H) -> &mut Link<H> {
-        if handle == <H as Default>::default() {
-            &mut self.sentinel
-        } else {
-            &mut Pool::get_mut(&mut self.pool, handle).link
+    fn get_node_mut(&mut self, handle: Option<H>) -> &mut Link<H> {
+        match handle {
+            None => &mut self.sentinel,
+            Some(h) => &mut Pool::get_mut(&mut self.pool, h).link,
         }
     }
 
-    pub fn prev(&self, handle: H) -> H {
+    pub fn prev(&self, handle: Option<H>) -> Option<H> {
         self.get_link(handle).prev
     }
 
-    pub fn next(&self, handle: H) -> H {
+    pub fn next(&self, handle: Option<H>) -> Option<H> {
         self.get_link(handle).next
     }
 
@@ -91,29 +92,29 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
         &mut Pool::get_mut(&mut self.pool, handle).data
     }
 
-    pub fn insert_before(&mut self, data: T, reference: H) -> H {
+    pub fn insert_before(&mut self, data: T, reference: Option<H>) -> H {
         let new = self.add_node(data);
         let prev = self.prev(reference);
-        self.get_node_mut(reference).prev = new;
-        self.get_node_mut(new).next = reference;
-        self.get_node_mut(new).prev = prev;
-        self.get_node_mut(prev).next = new;
+        self.get_node_mut(reference).prev = Some(new);
+        self.get_node_mut(Some(new)).next = reference;
+        self.get_node_mut(Some(new)).prev = prev;
+        self.get_node_mut(prev).next = Some(new);
         new
     }
 
-    pub fn insert_after(&mut self, data: T, reference: H) -> H {
+    pub fn insert_after(&mut self, data: T, reference: Option<H>) -> H {
         let new = self.add_node(data);
         let next = self.next(reference);
-        self.get_node_mut(reference).next = new;
-        self.get_node_mut(new).prev = reference;
-        self.get_node_mut(new).next = next;
-        self.get_node_mut(next).prev = new;
+        self.get_node_mut(reference).next = Some(new);
+        self.get_node_mut(Some(new)).prev = reference;
+        self.get_node_mut(Some(new)).next = next;
+        self.get_node_mut(next).prev = Some(new);
         new
     }
 
     pub fn remove(&mut self, handle: H) -> T {
-        let prev = self.prev(handle);
-        let next = self.next(handle);
+        let prev = self.prev(Some(handle));
+        let next = self.next(Some(handle));
         self.get_node_mut(prev).next = next;
         self.get_node_mut(next).prev = prev;
         Pool::remove(&mut self.pool, handle).data
@@ -124,7 +125,7 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Deque for DoublyLinkedList<T
     type Elem = T;
 
     fn is_empty(&self) -> bool {
-        self.front() == Default::default()
+        self.front().is_none()
     }
 
     fn push_front(&mut self, elem: T) {
@@ -132,9 +133,11 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Deque for DoublyLinkedList<T
         self.insert_before(elem, front);
     }
 
-    fn pop_front(&mut self) -> T {
-        let front = self.front();
-        self.remove(front)
+    fn pop_front(&mut self) -> Option<T> {
+        match self.front() {
+            None => None,
+            Some(handle) => Some(self.remove(handle)),
+        }
     }
 
     fn push_back(&mut self, elem: T) {
@@ -142,8 +145,10 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Deque for DoublyLinkedList<T
         self.insert_after(elem, back);
     }
 
-    fn pop_back(&mut self) -> T {
-        let back = self.back();
-        self.remove(back)
+    fn pop_back(&mut self) -> Option<T> {
+        match self.back() {
+            None => None,
+            Some(handle) => Some(self.remove(handle)),
+        }
     }
 }

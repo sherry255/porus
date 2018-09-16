@@ -179,14 +179,13 @@ struct InlineString {
 struct StaticString {
     s: *const u8,
     length: usize,
-    padding: usize,
+    _padding: usize,
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(dead_code))]
 #[cfg(target_endian = "little")]
 #[derive(Clone, Copy)]
 struct StaticString {
-    padding: usize,
+    _padding: usize,
     length: usize,
     s: *const u8,
 }
@@ -257,7 +256,7 @@ impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
                 static_: StaticString {
                     s: s.as_ptr(),
                     length: s.len(),
-                    padding: 2,
+                    _padding: 2,
                 },
             },
             allocator: Default::default(),

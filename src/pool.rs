@@ -1,4 +1,4 @@
-pub trait Handle: Copy + Eq + Default {}
+pub trait Handle: Copy {}
 
 pub trait Pool<T> {
     type Handle: Handle;

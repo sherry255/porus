@@ -16,9 +16,9 @@ fn solve() {
             let d: usize = read!();
             let x: isize = read!();
             if d == 0 {
-                Deque::push_front(buf, x);
+                deque::push_front(buf, x);
             } else if d == 1 {
-                Deque::push_back(buf, x);
+                deque::push_back(buf, x);
             }
         } else if op == 1 {
             let p: usize = read!();
@@ -26,9 +26,9 @@ fn solve() {
         } else if op == 2 {
             let d: usize = read!();
             if d == 0 {
-                Deque::pop_front(buf);
+                deque::pop_front(buf);
             } else if d == 1 {
-                Deque::pop_back(buf);
+                deque::pop_back(buf);
             }
         }
     }

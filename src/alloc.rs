@@ -1,7 +1,7 @@
-use super::pool::{Handle as PoolHandle, Pool};
+use super::pool::{self, Pool};
 use core::fmt::Debug;
 use core::mem::size_of;
-use core::ptr::{null_mut, read, write};
+use core::ptr::{null_mut, read, write, NonNull};
 
 pub trait Allocator {
     type Error: Debug;
@@ -26,47 +26,46 @@ pub unsafe fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
     reallocate(allocator, ptr, 0);
 }
 
-#[derive(Copy, Clone, Eq)]
-pub struct Handle(*mut u8);
+#[derive(Clone, Copy)]
+pub struct Handle(NonNull<u8>);
 
-impl PartialEq for Handle {
-    fn eq(&self, rhs: &Self) -> bool {
-        self.0 == rhs.0
-    }
-}
-
-impl Default for Handle {
-    fn default() -> Self {
-        Handle(null_mut())
-    }
-}
-
-impl PoolHandle for Handle {}
+impl pool::Handle for Handle {}
 
 impl<T, A: Allocator> Pool<T> for A {
     type Handle = Handle;
 
     fn get(&self, handle: Self::Handle) -> &T {
-        unsafe { &*(handle.0 as *mut T) }
+        unsafe { &*handle.0.cast().as_ptr() }
     }
 
     fn get_mut(&mut self, handle: Self::Handle) -> &mut T {
-        unsafe { &mut *(handle.0 as *mut T) }
+        unsafe { &mut *handle.0.cast().as_ptr() }
     }
 
     fn add(&mut self, item: T) -> Self::Handle {
         unsafe {
             let ptr = allocate(self, 1);
-            write(ptr as *mut T, item);
-            Handle(ptr as *mut _)
+            write(ptr, item);
+            Handle(NonNull::new(ptr as *mut _).unwrap())
         }
     }
 
     fn remove(&mut self, handle: Self::Handle) -> T {
         unsafe {
-            let item = read(handle.0 as *mut T);
-            deallocate(self, handle.0 as *mut T);
+            let item = read(handle.0.cast().as_ptr());
+            deallocate(self, handle.0.as_ptr());
             item
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Handle;
+    use core::mem::size_of;
+
+    #[test]
+    fn test_handle_size() {
+        assert!(size_of::<Handle>() == size_of::<Option<Handle>>());
     }
 }
