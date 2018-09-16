@@ -9,20 +9,18 @@ pub fn sqrt(x: f64) -> f64 {
     unsafe { sqrtf64(x) }
 }
 
-pub use super::iter::{into_iter, IterRef, IterRefMut, Iterator};
+pub use porus::collection;
+pub use porus::deque;
+pub use porus::list;
+pub use porus::stack;
 
-pub use super::collection;
-pub use super::deque;
-pub use super::list;
-pub use super::stack;
+pub use porus::array::Array;
+pub use porus::dlist::DoublyLinkedList;
+pub use porus::flist::SinglyLinkedList;
+pub use porus::string::{String, StringBuffer};
 
-pub use super::array::Array;
-pub use super::dlist::DoublyLinkedList;
-pub use super::flist::SinglyLinkedList;
-pub use super::string::{String, StringBuffer};
-
-pub use super::io::read::Char;
-pub use super::io::write::join;
+pub use porus::io::read::Char;
+pub use porus::io::write::join;
 pub use porus_macros::{f, writef, writelnf};
 
 pub fn default<T: Default>() -> T {
@@ -63,7 +61,7 @@ macro_rules! prelude {
     };
     ($size:expr) => {
         #[allow(unused_imports)]
-        use $crate::prelude::*;
+        use porus::prelude::*;
 
         mod io {
             #[cfg(debug_assertions)]
@@ -72,10 +70,10 @@ macro_rules! prelude {
             #[cfg(not(debug_assertions))]
             use core::ptr::drop_in_place;
 
-            use $crate::io::read::{fread, Consumer, Whitespace};
-            use $crate::io::stdio;
-            use $crate::io::write::fwrite;
-            use $crate::io::Sink;
+            use porus::io::read::{fread, Consumer, Whitespace};
+            use porus::io::stdio;
+            use porus::io::write::fwrite;
+            use porus::io::Sink;
 
             #[allow(dead_code)]
             static mut STDIN: stdio::Input = stdio::stdin(&mut [0; $size]);

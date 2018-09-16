@@ -1,5 +1,5 @@
-use super::super::iter::Iterator;
 use super::{PeekableSource, Sink};
+use core::iter::Iterator;
 
 pub struct SliceSource<'a> {
     offset: usize,

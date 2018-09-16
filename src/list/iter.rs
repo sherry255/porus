@@ -1,6 +1,6 @@
-use super::super::collection;
 use super::List;
 use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
+use porus::collection;
 
 pub struct ListIter<'a, T: 'a + List>
 where

@@ -1,6 +1,6 @@
-use super::super::iter::Iterator;
 use super::Sink;
 use core::convert::TryInto;
+use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
 
 pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, f: &mut F) {

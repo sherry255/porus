@@ -1,8 +1,8 @@
-use super::alloc::Handle as OSHandle;
-use super::deque::Deque;
-use super::os::OSAllocator;
-use super::pool::{Handle, Pool};
 use core::marker::PhantomData;
+use porus::alloc::Handle as OSHandle;
+use porus::deque::Deque;
+use porus::os::OSAllocator;
+use porus::pool::{Handle, Pool};
 
 struct Link<H: Handle> {
     prev: Option<H>,

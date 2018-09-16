@@ -1,7 +1,7 @@
-use super::super::collection::Collection;
 use super::{List, ListMut};
 use core::ops::Bound::*;
 use core::ops::RangeBounds;
+use porus::collection::Collection;
 
 pub fn start_bound<T: RangeBounds<usize>>(bound: &T) -> usize {
     match RangeBounds::start_bound(bound) {

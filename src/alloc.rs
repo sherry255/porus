@@ -1,7 +1,7 @@
-use super::pool::{self, Pool};
 use core::fmt::Debug;
 use core::mem::size_of;
 use core::ptr::{null_mut, read, write, NonNull};
+use porus::pool::{self, Pool};
 
 pub trait Allocator {
     type Error: Debug;

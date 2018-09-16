@@ -1,7 +1,7 @@
-use super::super::collection::Collection;
 use super::slice::{slice_mut, ListMutView};
 use super::{get, get_mut, iter, List, ListMut};
 use core::mem;
+use porus::collection::Collection;
 
 fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
     if i == j {

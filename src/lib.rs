@@ -82,6 +82,10 @@
 //! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
 
+pub mod porus {
+    pub use super::*;
+}
+
 extern crate porus_macros;
 
 pub mod tests;
@@ -92,8 +96,9 @@ pub mod alloc;
 pub mod capacity;
 pub mod pool;
 
-#[macro_use]
-pub mod iter;
+pub mod io;
+pub mod os;
+
 pub mod collection;
 #[macro_use]
 pub mod list;
@@ -110,8 +115,6 @@ pub mod buffer;
 pub mod dlist;
 pub mod flist;
 
-pub mod io;
-pub mod os;
 #[macro_use]
 pub mod prelude;
 

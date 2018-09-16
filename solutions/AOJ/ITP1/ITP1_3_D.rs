@@ -9,5 +9,5 @@ fn solve() {
     let a: isize = read!();
     let b: isize = read!();
     let c: isize = read!();
-    writelnf!("{:d}", into_iter(a..=b).filter(|x| (&c) % x == 0).count());
+    writelnf!("{:d}", (a..=b).filter(|x| (&c) % x == 0).count());
 }

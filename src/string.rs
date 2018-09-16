@@ -1,12 +1,12 @@
-use super::alloc::{allocate, deallocate, reallocate, Allocator};
-use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use super::io::read::{is_whitespace, Consumer};
-use super::io::{write, PeekableSource, Sink, Source};
-use super::os::OSAllocator;
 use core::marker::PhantomData;
 use core::mem::{forget, size_of, transmute_copy};
 use core::ptr::copy_nonoverlapping;
 use core::slice::from_raw_parts;
+use porus::alloc::{allocate, deallocate, reallocate, Allocator};
+use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use porus::io::read::{is_whitespace, Consumer};
+use porus::io::{write, PeekableSource, Sink, Source};
+use porus::os::OSAllocator;
 
 #[cfg(all(target_endian = "little"))]
 #[derive(Clone, Copy)]

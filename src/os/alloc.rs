@@ -1,7 +1,7 @@
-use super::super::alloc::Allocator;
 use super::libc::{free, get_error, malloc, realloc};
 use super::OSError;
 use core::ptr::null_mut;
+use porus::alloc::Allocator;
 
 pub struct OSAllocator {}
 

@@ -1,8 +1,8 @@
-use super::super::io::Sink;
-use super::super::iter::Iterator;
-use super::super::ptr;
 use super::libc;
 use super::OSError;
+use core::iter::Iterator;
+use porus::io::Sink;
+use porus::ptr;
 
 pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, OSError> {
     let mut length = 0;

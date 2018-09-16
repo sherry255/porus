@@ -1,4 +1,4 @@
-use super::iter::Iterator;
+use core::iter::Iterator;
 
 pub trait Source: Iterator<Item = u8> {}
 

@@ -1,11 +1,11 @@
-use super::alloc::{allocate, deallocate, reallocate, Allocator};
-use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use super::collection::Collection;
-use super::deque::Deque;
-use super::list::{List, ListMut};
-use super::os::OSAllocator;
-use super::ptr::{copy, get, get_mut, read, write};
 use core::marker::PhantomData;
+use porus::alloc::{allocate, deallocate, reallocate, Allocator};
+use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use porus::collection::Collection;
+use porus::deque::Deque;
+use porus::list::{List, ListMut};
+use porus::os::OSAllocator;
+use porus::ptr::{copy, get, get_mut, read, write};
 
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     front: usize,

@@ -1,5 +1,5 @@
-use super::super::os::file::{FileSink, FileSource};
 use super::PeekableSource;
+use porus::os::file::{FileSink, FileSource};
 
 pub type Input = PeekableSource<FileSource>;
 pub type Output = FileSink;

@@ -1,8 +1,8 @@
-use super::alloc::Handle as OSHandle;
-use super::os::OSAllocator;
-use super::pool::{Handle, Pool};
-use super::stack::Stack;
 use core::marker::PhantomData;
+use porus::alloc::Handle as OSHandle;
+use porus::os::OSAllocator;
+use porus::pool::{Handle, Pool};
+use porus::stack::Stack;
 
 pub struct Node<H: Handle, T> {
     next: Option<H>,

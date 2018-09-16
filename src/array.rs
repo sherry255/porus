@@ -1,12 +1,12 @@
-use super::alloc::{allocate, deallocate, reallocate, Allocator};
-use super::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use super::collection::Collection;
-use super::list::{List, ListMut};
-use super::os::OSAllocator;
-use super::ptr::{get, get_mut, read, write};
-use super::stack::Stack;
 use core::iter::{ExactSizeIterator, Iterator};
 use core::marker::PhantomData;
+use porus::alloc::{allocate, deallocate, reallocate, Allocator};
+use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use porus::collection::Collection;
+use porus::list::{List, ListMut};
+use porus::os::OSAllocator;
+use porus::ptr::{get, get_mut, read, write};
+use porus::stack::Stack;
 
 pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
     size: usize,
@@ -125,9 +125,9 @@ macro_rules! array {
 
 #[cfg(test)]
 mod tests {
-    use super::super::tests::Item;
     use super::Array;
     use core::cell::Cell;
+    use porus::tests::Item;
 
     #[test]
     fn test_drop() {
