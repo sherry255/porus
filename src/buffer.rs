@@ -1,19 +1,15 @@
-use core::marker::PhantomData;
-use porus::alloc::{allocate, deallocate, reallocate, Allocator};
+use porus::alloc::Allocator;
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;
 use porus::deque::Deque;
+use porus::excess::Excess;
 use porus::list::{List, ListMut};
 use porus::os;
-use porus::ptr::{copy, get, get_mut, read, write};
 
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     front: usize,
     back: usize,
-    capacity: usize,
-    data: *mut T,
-    allocator: A,
-    _policy: PhantomData<P>,
+    data: Excess<T, P, A>,
 }
 
 impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
@@ -22,16 +18,12 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
     }
 
     pub fn new_with_capacity(capacity: usize) -> Self {
-        let capacity = P::initial(capacity) + 1;
-        let mut allocator = Default::default();
-        let data = unsafe { allocate(&mut allocator, capacity) };
+        let data = Excess::new(Default::default(), capacity + 1);
+
         Buffer {
             front: 0,
             back: 0,
-            capacity,
             data,
-            allocator,
-            _policy: PhantomData,
         }
     }
 }
@@ -44,7 +36,8 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Default for Buffer<T, P, A> {
 
 impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
     fn increase_index(&self, index: usize) -> usize {
-        if index + 1 == self.capacity {
+        assert!(index < self.data.capacity());
+        if index + 1 == self.data.capacity() {
             0
         } else {
             index + 1
@@ -52,51 +45,12 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
     }
 
     fn decrease_index(&self, index: usize) -> usize {
+        assert!(index < self.data.capacity());
         if index == 0 {
-            self.capacity - 1
+            self.data.capacity() - 1
         } else {
             index - 1
         }
-    }
-
-    fn grow_to(&mut self, new_capacity: usize) {
-        self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
-        if self.back < self.front {
-            let grow = new_capacity - self.capacity;
-            unsafe {
-                copy(
-                    self.data,
-                    self.front,
-                    self.front + grow,
-                    self.capacity - self.front,
-                )
-            };
-            self.front += grow;
-        }
-        self.capacity = new_capacity;
-    }
-
-    fn shrink_to(&mut self, new_capacity: usize) {
-        if self.back < self.front {
-            let shrink = self.capacity - new_capacity;
-            unsafe {
-                copy(
-                    self.data,
-                    self.front,
-                    self.front - shrink,
-                    self.capacity - self.front,
-                )
-            };
-            self.front -= shrink;
-        } else if self.back > new_capacity {
-            let size = self.back - self.front;
-            unsafe { copy(self.data, self.front, 0, size) };
-            self.front = 0;
-            self.back = size;
-        }
-
-        self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
-        self.capacity = new_capacity;
     }
 
     fn is_full(&self) -> bool {
@@ -104,14 +58,40 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
     }
 
     fn grow(&mut self) {
-        let new_capacity = P::grow(self.capacity - 1) + 1;
-        self.grow_to(new_capacity);
+        if self.front <= self.back {
+            assert!(self.data.grow(0) > 0);
+        } else {
+            let grow = self.data.grow(self.data.capacity() - self.front);
+            self.front += grow;
+            assert!(grow > 0);
+        }
     }
 
     fn shrink(&mut self) {
-        let new_capacity = P::shrink(Collection::size(self), self.capacity - 1) + 1;
-        if new_capacity < self.capacity {
-            self.shrink_to(new_capacity);
+        let size = Collection::size(self);
+        if self.front <= self.back {
+            let shrink = self.data.shrink(size, Some(self.front), size);
+            if shrink > 0 {
+                self.front = 0;
+                self.back = size;
+            }
+        } else {
+            let shrink = self
+                .data
+                .shrink(size, None, self.data.capacity() - self.front);
+            self.front -= shrink;
+        }
+    }
+
+    fn index(&self, index: usize) -> Option<usize> {
+        if index < Collection::size(self) {
+            if self.front + index < self.data.capacity() {
+                Some(self.front + index)
+            } else {
+                Some(self.front + index - self.data.capacity())
+            }
+        } else {
+            None
         }
     }
 }
@@ -121,7 +101,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Collection for Buffer<T, P, A> {
         if self.front <= self.back {
             self.back - self.front
         } else {
-            self.back + self.capacity - self.front
+            self.back + self.data.capacity() - self.front
         }
     }
 }
@@ -129,43 +109,19 @@ impl<T, P: CapacityPolicy, A: Allocator> Collection for Buffer<T, P, A> {
 impl<T, P: CapacityPolicy, A: Allocator> List for Buffer<T, P, A> {
     type Elem = T;
 
-    #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
     fn get(&self, index: usize) -> Option<&T> {
-        if self.front <= self.back {
-            if self.front + index >= self.back {
-                None
-            } else {
-                Some(unsafe { get(self.data, self.front + index) })
-            }
-        } else {
-            if self.front + index >= self.back + self.capacity {
-                None
-            } else if self.front + index >= self.capacity {
-                Some(unsafe { get(self.data, self.front + index - self.capacity) })
-            } else {
-                Some(unsafe { get(self.data, self.front + index) })
-            }
+        match self.index(index) {
+            None => None,
+            Some(i) => Some(self.data.get(i)),
         }
     }
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> ListMut for Buffer<T, P, A> {
-    #[cfg_attr(feature = "cargo-clippy", allow(collapsible_if))]
     fn get_mut(&mut self, index: usize) -> Option<&mut T> {
-        if self.front <= self.back {
-            if self.front + index >= self.back {
-                None
-            } else {
-                Some(unsafe { get_mut(self.data, self.front + index) })
-            }
-        } else {
-            if self.front + index >= self.back + self.capacity {
-                None
-            } else if self.front + index >= self.capacity {
-                Some(unsafe { get_mut(self.data, self.front + index - self.capacity) })
-            } else {
-                Some(unsafe { get_mut(self.data, self.front + index) })
-            }
+        match self.index(index) {
+            None => None,
+            Some(i) => Some(self.data.get_mut(i)),
         }
     }
 }
@@ -183,14 +139,14 @@ impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
         }
 
         self.front = self.decrease_index(self.front);
-        unsafe { write(self.data, self.front, elem) };
+        self.data.write(self.front, elem);
     }
 
     fn pop_front(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {
-            let elem = unsafe { read(self.data, self.front) };
+            let elem = self.data.read(self.front);
             self.front = self.increase_index(self.front);
             self.shrink();
             Some(elem)
@@ -202,7 +158,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
             self.grow();
         }
 
-        unsafe { write(self.data, self.back, elem) };
+        self.data.write(self.back, elem);
         self.back = self.increase_index(self.back);
     }
 
@@ -211,7 +167,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Deque for Buffer<T, P, A> {
             None
         } else {
             self.back = self.decrease_index(self.back);
-            let elem = unsafe { read(self.data, self.back) };
+            let elem = self.data.read(self.back);
             self.shrink();
             Some(elem)
         }
@@ -222,18 +178,17 @@ impl<T, P: CapacityPolicy, A: Allocator> Drop for Buffer<T, P, A> {
     fn drop(&mut self) {
         if self.back < self.front {
             for i in 0..self.back {
-                unsafe { read(self.data, i) };
+                self.data.read(i);
             }
 
-            for i in self.front..self.capacity {
-                unsafe { read(self.data, i) };
+            for i in self.front..self.data.capacity() {
+                self.data.read(i);
             }
         } else {
             for i in self.front..self.back {
-                unsafe { read(self.data, i) };
+                self.data.read(i);
             }
         }
-        unsafe { deallocate(&mut self.allocator, self.data) };
     }
 }
 

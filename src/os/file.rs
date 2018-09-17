@@ -1,8 +1,8 @@
 use super::libc;
 use super::OSError;
 use core::iter::Iterator;
+use core::ptr;
 use porus::io::Sink;
-use porus::ptr;
 
 pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, OSError> {
     let mut length = 0;
@@ -78,7 +78,7 @@ impl Iterator for FileSource {
         }
 
         if self.offset < self.size {
-            let c = unsafe { ptr::read(self.buffer, self.offset) };
+            let c = unsafe { ptr::read(self.buffer.offset(self.offset as isize)) };
             self.offset += 1;
             Some(c)
         } else {
@@ -112,7 +112,7 @@ impl Sink for FileSink {
             self.offset = 0;
         }
 
-        unsafe { ptr::write(self.buffer, self.offset, c) };
+        unsafe { ptr::write(self.buffer.offset(self.offset as isize), c) };
         self.offset += 1;
     }
 }

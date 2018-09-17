@@ -91,12 +91,11 @@ extern crate porus_macros;
 
 pub mod tests;
 
-pub mod ptr;
-
 pub mod alloc;
 pub mod capacity;
 pub mod pool;
 
+pub mod excess;
 pub mod io;
 pub mod os;
 
