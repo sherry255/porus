@@ -7,6 +7,7 @@
 #![feature(specialization)]
 #![feature(refcell_replace_swap)]
 #![feature(untagged_unions)]
+#![feature(custom_attribute)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
 #![cfg_attr(
     not(any(test, debug_assertions)),
@@ -87,8 +88,12 @@ pub mod porus {
     pub use super::*;
 }
 
+#[cfg(test)]
+extern crate trait_tests;
+
 extern crate porus_macros;
 
+#[cfg(test)]
 pub mod tests;
 
 pub mod alloc;

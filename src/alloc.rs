@@ -87,14 +87,3 @@ impl<T, A: Allocator> pool::Pool for Pool<T, A> {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::Handle;
-    use core::mem::size_of;
-
-    #[test]
-    fn test_handle_size() {
-        assert!(size_of::<Handle>() == size_of::<Option<Handle>>());
-    }
-}

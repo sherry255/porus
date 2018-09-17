@@ -78,14 +78,3 @@ impl<T, P: CapacityPolicy, A: Allocator> Pool for Chunk<T, P, A> {
         unsafe { node.data }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::Handle;
-    use core::mem::size_of;
-
-    #[test]
-    fn test_handle_size() {
-        assert!(size_of::<Handle>() == size_of::<Option<Handle>>());
-    }
-}

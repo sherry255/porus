@@ -25,3 +25,19 @@ pub fn add<P: Pool>(pool: &mut P, item: P::Elem) -> P::Handle {
 pub fn remove<P: Pool>(pool: &mut P, handle: P::Handle) -> P::Elem {
     Pool::remove(pool, handle)
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::Pool;
+    use core::mem::size_of;
+    use trait_tests::*;
+
+    pub trait PoolTestTrait: Pool {}
+
+    #[trait_tests]
+    pub trait PoolTestTraitTests: PoolTestTrait {
+        fn test() {
+            assert!(size_of::<Self::Handle>() == size_of::<Option<Self::Handle>>());
+        }
+    }
+}
