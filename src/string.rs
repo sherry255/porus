@@ -6,7 +6,7 @@ use porus::alloc::{allocate, deallocate, reallocate, Allocator};
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::io::read::{is_whitespace, Consumer};
 use porus::io::{write, PeekableSource, Sink, Source};
-use porus::os::OSAllocator;
+use porus::os;
 
 #[cfg(all(target_endian = "little"))]
 #[derive(Clone, Copy)]
@@ -44,7 +44,7 @@ impl StringBufferUnion {
     }
 }
 
-pub struct StringBuffer<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
+pub struct StringBuffer<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     buffer: StringBufferUnion,
     allocator: A,
     _policy: PhantomData<P>,
@@ -237,13 +237,12 @@ impl StringUnion {
     }
 }
 
-pub struct String<A: Allocator = OSAllocator> {
+pub struct String<A: Allocator = os::Allocator> {
     s: StringUnion,
     allocator: A,
 }
 
-struct StringBufferTransmute<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator>
-{
+struct StringBufferTransmute<P: CapacityPolicy, A: Allocator> {
     buffer: StringBufferUnion,
     allocator: A,
     _policy: PhantomData<P>,
@@ -343,9 +342,9 @@ impl<'a> write::String for &'a String {
 
 #[cfg(test)]
 mod tests {
-    use super::super::io::read::fread;
-    use super::super::io::slice::SliceSource;
     use super::{String, StringBuffer};
+    use porus::io::read::fread;
+    use porus::io::slice::SliceSource;
 
     #[test]
     fn test_inline_string_buffer() {

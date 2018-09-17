@@ -4,10 +4,10 @@ use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;
 use porus::deque::Deque;
 use porus::list::{List, ListMut};
-use porus::os::OSAllocator;
+use porus::os;
 use porus::ptr::{copy, get, get_mut, read, write};
 
-pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
+pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     front: usize,
     back: usize,
     capacity: usize,

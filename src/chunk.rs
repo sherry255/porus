@@ -2,7 +2,7 @@ use core::marker::PhantomData;
 use core::num::NonZeroUsize;
 use porus::alloc::{allocate, deallocate, reallocate, Allocator};
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::os::OSAllocator;
+use porus::os;
 use porus::pool::{self, Pool};
 use porus::ptr::{get, get_mut, read, write};
 
@@ -17,7 +17,7 @@ union Node<T> {
     next: Option<NonZeroUsize>,
 }
 
-pub struct Chunk<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
+pub struct Chunk<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     size: usize,
     capacity: usize,
     next: Option<NonZeroUsize>,
@@ -53,8 +53,9 @@ impl<T, P: CapacityPolicy, A: Allocator> Drop for Chunk<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Pool<T> for Chunk<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> Pool for Chunk<T, P, A> {
     type Handle = Handle;
+    type Elem = T;
 
     fn get(&self, handle: Handle) -> &T {
         unsafe { &get(self.data, !handle.0.get()).data }

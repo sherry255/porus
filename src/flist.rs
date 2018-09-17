@@ -1,7 +1,6 @@
 use core::marker::PhantomData;
-use porus::alloc::Handle as OSHandle;
-use porus::os::OSAllocator;
-use porus::pool::{Handle, Pool};
+use porus::alloc;
+use porus::pool::{self, Handle, Pool};
 use porus::stack::Stack;
 
 pub struct Node<H: Handle, T> {
@@ -9,14 +8,17 @@ pub struct Node<H: Handle, T> {
     data: T,
 }
 
-pub struct SinglyLinkedList<T, H: Handle = OSHandle, P: Pool<Node<H, T>, Handle = H> = OSAllocator>
-{
+pub struct SinglyLinkedList<
+    T,
+    H: Handle = alloc::Handle,
+    P: Pool<Elem = Node<H, T>, Handle = H> = alloc::Pool<Node<H, T>>,
+> {
     pool: P,
     sentinel: Option<H>,
     _data: PhantomData<T>,
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> SinglyLinkedList<T, H, P> {
+impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> SinglyLinkedList<T, H, P> {
     pub fn new_with_pool(pool: P) -> Self {
         SinglyLinkedList {
             pool,
@@ -26,13 +28,13 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> SinglyLinkedList<T, H, P> {
     }
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> SinglyLinkedList<T, H, P> {
+impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H> + Default> SinglyLinkedList<T, H, P> {
     pub fn new() -> Self {
         SinglyLinkedList::new_with_pool(Default::default())
     }
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> Default
+impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H> + Default> Default
     for SinglyLinkedList<T, H, P>
 {
     fn default() -> Self {
@@ -40,7 +42,7 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H> + Default> Default
     }
 }
 
-impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Stack for SinglyLinkedList<T, H, P> {
+impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> Stack for SinglyLinkedList<T, H, P> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -52,7 +54,7 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Stack for SinglyLinkedList<T
             next: self.sentinel,
             data: elem,
         };
-        let handle = Pool::add(&mut self.pool, node);
+        let handle = pool::add(&mut self.pool, node);
         self.sentinel = Some(handle);
     }
 
@@ -60,7 +62,7 @@ impl<T, H: Handle, P: Pool<Node<H, T>, Handle = H>> Stack for SinglyLinkedList<T
         match self.sentinel {
             None => None,
             Some(handle) => {
-                let node = Pool::remove(&mut self.pool, handle);
+                let node = pool::remove(&mut self.pool, handle);
                 self.sentinel = node.next;
                 Some(node.data)
             }

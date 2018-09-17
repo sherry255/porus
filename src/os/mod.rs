@@ -13,6 +13,6 @@ impl Display for OSError {
 mod libc;
 
 mod alloc;
-pub use self::alloc::OSAllocator;
+pub use self::alloc::Allocator;
 
 pub mod file;

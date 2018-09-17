@@ -1,7 +1,9 @@
 use core::fmt::Debug;
+use core::marker::PhantomData;
 use core::mem::size_of;
 use core::ptr::{null_mut, read, write, NonNull};
-use porus::pool::{self, Pool};
+use porus::os;
+use porus::pool;
 
 pub trait Allocator {
     type Error: Debug;
@@ -31,29 +33,56 @@ pub struct Handle(NonNull<u8>);
 
 impl pool::Handle for Handle {}
 
-impl<T, A: Allocator> Pool<T> for A {
-    type Handle = Handle;
+pub struct Pool<T, A: Allocator = os::Allocator> {
+    allocator: A,
+    _type: PhantomData<T>,
+}
 
-    fn get(&self, handle: Self::Handle) -> &T {
+impl<T, A: Allocator> Pool<T, A> {
+    pub fn new_with_allocator(allocator: A) -> Self {
+        Pool {
+            allocator,
+            _type: PhantomData,
+        }
+    }
+}
+
+impl<T, A: Allocator + Default> Pool<T, A> {
+    pub fn new() -> Self {
+        Pool::new_with_allocator(Default::default())
+    }
+}
+
+impl<T, A: Allocator + Default> Default for Pool<T, A> {
+    fn default() -> Self {
+        Pool::new()
+    }
+}
+
+impl<T, A: Allocator> pool::Pool for Pool<T, A> {
+    type Handle = Handle;
+    type Elem = T;
+
+    fn get(&self, handle: Handle) -> &T {
         unsafe { &*handle.0.cast().as_ptr() }
     }
 
-    fn get_mut(&mut self, handle: Self::Handle) -> &mut T {
+    fn get_mut(&mut self, handle: Handle) -> &mut T {
         unsafe { &mut *handle.0.cast().as_ptr() }
     }
 
-    fn add(&mut self, item: T) -> Self::Handle {
+    fn add(&mut self, item: T) -> Handle {
         unsafe {
-            let ptr = allocate(self, 1);
+            let ptr = allocate(&mut self.allocator, 1);
             write(ptr, item);
             Handle(NonNull::new(ptr as *mut _).unwrap())
         }
     }
 
-    fn remove(&mut self, handle: Self::Handle) -> T {
+    fn remove(&mut self, handle: Handle) -> T {
         unsafe {
             let item = read(handle.0.cast().as_ptr());
-            deallocate(self, handle.0.as_ptr());
+            deallocate(&mut self.allocator, handle.0.as_ptr());
             item
         }
     }

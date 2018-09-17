@@ -4,11 +4,11 @@ use porus::alloc::{allocate, deallocate, reallocate, Allocator};
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;
 use porus::list::{List, ListMut};
-use porus::os::OSAllocator;
+use porus::os;
 use porus::ptr::{get, get_mut, read, write};
 use porus::stack::Stack;
 
-pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = OSAllocator> {
+pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     size: usize,
     capacity: usize,
     data: *mut T,

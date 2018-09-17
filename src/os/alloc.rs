@@ -1,17 +1,11 @@
 use super::libc::{free, get_error, malloc, realloc};
 use super::OSError;
 use core::ptr::null_mut;
-use porus::alloc::Allocator;
+use porus::alloc;
 
-pub struct OSAllocator {}
+pub struct Allocator {}
 
-impl Default for OSAllocator {
-    fn default() -> Self {
-        OSAllocator {}
-    }
-}
-
-impl Allocator for OSAllocator {
+impl alloc::Allocator for Allocator {
     type Error = OSError;
 
     unsafe fn reallocate(&mut self, ptr: *mut u8, size: usize) -> Result<*mut u8, OSError> {
@@ -36,8 +30,14 @@ impl Allocator for OSAllocator {
     }
 }
 
-impl OSAllocator {
+impl Allocator {
     pub fn new() -> Self {
-        OSAllocator {}
+        Allocator {}
+    }
+}
+
+impl Default for Allocator {
+    fn default() -> Self {
+        Allocator {}
     }
 }
