@@ -9,10 +9,7 @@
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
-#![cfg_attr(
-    not(any(test, debug_assertions)),
-    feature(panic_implementation)
-)]
+#![cfg_attr(not(any(test, debug_assertions)), feature(panic_handler))]
 #![no_std]
 
 //! [`porus`](self) is a library for competitive programming. It is at
@@ -131,7 +128,7 @@ pub mod prelude;
 pub extern "C" fn eh_personality() {}
 
 #[cfg(not(any(test, debug_assertions)))]
-#[panic_implementation]
+#[panic_handler]
 #[no_mangle]
 pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
     unsafe { ::core::intrinsics::abort() }

@@ -7,18 +7,18 @@ prelude!();
 
 fn solve() {
     let n: usize = read!();
-    let q: isize = read!();
+    let q: usize = read!();
 
     let a = &mut DoublyLinkedList::new_with_pool(Chunk::<_>::new_with_capacity(100000));
 
     for _ in 0..n {
         let b: StringBuffer = read!();
         let name: String = From::from(b);
-        let time: isize = read!();
+        let time: usize = read!();
         deque::push_back(a, (name, time));
     }
 
-    let mut sum: isize = 0;
+    let mut sum: usize = 0;
 
     while !deque::is_empty(a) {
         let (name, time) = deque::pop_front(a);

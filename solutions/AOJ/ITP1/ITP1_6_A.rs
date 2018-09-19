@@ -7,7 +7,7 @@ prelude!();
 
 fn solve() {
     let n: usize = read!();
-    let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
+    let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
     writelnf!(
         "{}",
         join(f!(" "), list::iter(a).rev().map(|e| f!("{e:d}")))

@@ -6,8 +6,8 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let a: isize = read!();
-    let b: isize = read!();
-    let c: isize = read!();
+    let a: usize = read!();
+    let b: usize = read!();
+    let c: usize = read!();
     writelnf!("{:s}", if (a < b) && (b < c) { "Yes" } else { "No" });
 }

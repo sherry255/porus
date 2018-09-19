@@ -7,8 +7,8 @@ prelude!();
 
 fn solve() {
     loop {
-        let h: isize = read!();
-        let w: isize = read!();
+        let h: usize = read!();
+        let w: usize = read!();
         if (h == 0) && (w == 0) {
             break;
         }

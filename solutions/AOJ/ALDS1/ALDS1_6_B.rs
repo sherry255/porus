@@ -7,7 +7,7 @@ prelude!();
 
 fn solve() {
     let n: usize = read!();
-    let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
+    let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
 
     let pivot = list::sort::partition(a, &PartialOrd::le);
 

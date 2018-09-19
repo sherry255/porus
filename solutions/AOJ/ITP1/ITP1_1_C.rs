@@ -6,7 +6,7 @@ extern crate porus;
 prelude!();
 
 fn solve() {
-    let a: isize = read!();
-    let b: isize = read!();
+    let a: usize = read!();
+    let b: usize = read!();
     writelnf!("{:d} {:d}", a * b, (a + b) * 2);
 }
