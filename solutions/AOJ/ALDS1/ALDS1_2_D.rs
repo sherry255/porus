@@ -21,8 +21,8 @@ fn solve() {
     let count = list::shell_sort(a, &PartialOrd::lt, g);
 
     writelnf!("{:d}", collection::size(g));
-    writelnf!("{}", join(f!(" "), list::iter(g).map(|e| f!("{e:d}"))));
+    writelnf!("{}", join(f!(" "), list::iter(g).map(|e| f!("{:d}", e))));
 
-    writelnf!("{count:d}");
-    writelnf!("{}", join(f!("\n"), list::iter(a).map(|e| f!("{e:d}"))));
+    writelnf!("{:d}", count);
+    writelnf!("{}", join(f!("\n"), list::iter(a).map(|e| f!("{:d}", e))));
 }

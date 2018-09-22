@@ -10,6 +10,6 @@ fn solve() {
     let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
     writelnf!(
         "{}",
-        join(f!(" "), list::iter(a).rev().map(|e| f!("{e:d}")))
+        join(f!(" "), list::iter(a).rev().map(|e| f!("{:d}", e)))
     );
 }

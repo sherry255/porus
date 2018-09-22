@@ -15,7 +15,7 @@ pub fn default<T: Default>() -> T {
 
 pub use porus::io::read::Char;
 pub use porus::io::write::join;
-pub use porus_macros::{f, writef, writelnf};
+pub use porus_macros::f;
 
 pub use porus::alloc;
 pub use porus::pool;
@@ -56,6 +56,20 @@ macro_rules! read {
         $(
             ::io::read_skip_ws($expr);
         )*
+    )
+}
+
+#[macro_export]
+macro_rules! writef {
+    ($($arg:tt)*) => (
+        ::io::write(&mut f!($($arg)*));
+    )
+}
+
+#[macro_export]
+macro_rules! writelnf {
+    ($($arg:tt)*) => (
+        ::io::writeln(&mut f!($($arg)*));
     )
 }
 

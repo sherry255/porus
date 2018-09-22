@@ -11,6 +11,6 @@ fn solve() {
 
     let count = list::selection_sort(a, &PartialOrd::lt);
 
-    writelnf!("{}", join(f!(" "), list::iter(a).map(|e| f!("{e:d}"))));
-    writelnf!("{count:d}");
+    writelnf!("{}", join(f!(" "), list::iter(a).map(|e| f!("{:d}", e))));
+    writelnf!("{:d}", count);
 }

@@ -11,5 +11,5 @@ fn solve() {
     let mut m = t / 60;
     let h = m / 60;
     m = m % 60;
-    writelnf!("{h:d}:{m:d}:{s:d}");
+    writelnf!("{:d}:{:d}:{:d}", h, m, s);
 }

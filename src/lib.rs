@@ -12,21 +12,12 @@
 #![cfg_attr(not(any(test, debug_assertions)), feature(panic_handler))]
 #![no_std]
 
-//! [`porus`](self) is a library for competitive programming. It is at
-//! a very early stage of development. USE AT YOUR OWN RISK.
-//!
-
-//! Competitive programming still stucks in the 1950s when you have to
-//! build everything from scratch. Everyone is rolling their own
-//! ad-hoc implementations of data structures and algorithms, since
+//! [`porus`](self) is a library for competitive programming. Since
 //! most popular online judges accept only a single file within tens
-//! of kilobytes which is orders of magnitude smaller than the size of
-//! libraries used in real world.
-//!
-
-//! Thus, solutions have to be preproccessed before submitting to
-//! online judges. Right now, [`porus`](self) piggybacks on `ix` to do
-//! the preprocessing.  For example, to submit to
+//! of kilobytes, solutions have to be preproccessed before submitting
+//! to online judges. Right now, [`porus`](self) piggybacks on
+//! [ix](https://github.com/bhuztez/ix) to do the preprocessing. For
+//! example, to submit to
 //! [AOJ](http://judge.u-aizu.ac.jp/onlinejudge/) the solution to
 //! [ITP1_1_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_1_A)
 //!
@@ -41,16 +32,6 @@
 //! [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
 //! $
 //! ```
-//!
-
-//! Under the hood, Rust code is first compiled to assembly with
-//! link-time optimization. Because of name mangling, labels in the
-//! assembly code might consist of tens of characters. So, then all
-//! labels is renamed, to reduce the size of the assembly
-//! code. Finally, the assembly code is compressed with [Sequitur
-//! algorithm](https://en.wikipedia.org/wiki/Sequitur_algorithm) to
-//! furthur reduce the size, and wrapped with `__asm__()`, so that it
-//! could be submitted as C code.
 //!
 
 //! Currently Rust nightly is required, and following code have to be

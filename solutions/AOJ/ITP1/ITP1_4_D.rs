@@ -20,5 +20,5 @@ fn solve() {
         sum = sum + a;
     }
 
-    writelnf!("{min:d} {max:d} {sum:d}");
+    writelnf!("{:d} {:d} {:d}", min, max, sum);
 }

@@ -24,7 +24,7 @@ fn solve() {
         let (name, time) = deque::pop_front(a);
         if time <= q {
             sum += time;
-            writelnf!("{:s} {sum:d}", &name);
+            writelnf!("{:s} {:d}", &name, sum);
         } else {
             sum += q;
             deque::push_back(a, (name, time - q));

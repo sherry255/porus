@@ -1,6 +1,6 @@
 use common::parse_args;
 use fmt_macros::{Argument, Count, Parser, Piece, Position};
-use proc_macro2::{Ident, Literal, Span, TokenStream};
+use proc_macro2::{Literal, TokenStream};
 use quote::ToTokens;
 use syn::{Expr, LitStr};
 
@@ -19,7 +19,7 @@ pub fn f(tokens: TokenStream) -> TokenStream {
                 format: fmt,
             }) => {
                 let arg: Box<ToTokens> = match pos {
-                    Position::ArgumentNamed(name) => Box::new(Ident::new(name, Span::call_site())),
+                    Position::ArgumentNamed(_name) => panic!("named argument not supported"),
                     Position::ArgumentImplicitlyIs(i) => {
                         let lit = Literal::usize_unsuffixed(i);
                         Box::new(quote! { porus_args.#lit })
@@ -48,9 +48,7 @@ pub fn f(tokens: TokenStream) -> TokenStream {
                     "f" => {
                         let prec: Box<ToTokens> = match fmt.precision {
                             Count::CountIs(n) => Box::new(Literal::i32_suffixed(n as _)),
-                            Count::CountIsName(name) => {
-                                Box::new(Ident::new(name, Span::call_site()))
-                            }
+                            Count::CountIsName(_name) => panic!("named argument not supported"),
                             Count::CountIsParam(i) => {
                                 let lit = Literal::usize_unsuffixed(i);
                                 Box::new(quote! { porus_args.#lit })
@@ -79,19 +77,5 @@ pub fn f(tokens: TokenStream) -> TokenStream {
                 #stream
             }
         }
-    }
-}
-
-pub fn writef(tokens: TokenStream) -> TokenStream {
-    let stream = f(tokens);
-    quote! {
-        ::io::write(&mut #stream);
-    }
-}
-
-pub fn writelnf(tokens: TokenStream) -> TokenStream {
-    let stream = f(tokens);
-    quote! {
-        ::io::writeln(&mut #stream);
     }
 }
