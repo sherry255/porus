@@ -45,15 +45,15 @@ macro_rules! prelude {
         use porus::prelude::*;
 
         mod main {
+            use porus::file::{Sink, Source};
             use porus::io::initialize;
-            use porus::os::file::{FileSink, FileSource};
 
             static mut STDIN: [u8; $size] = [0; $size];
             static mut STDOUT: [u8; $size] = [0; $size];
 
             pub fn main() {
-                let stdin = &mut FileSource::new(0, unsafe { &mut STDIN });
-                let stdout = &mut FileSink::new(1, unsafe { &mut STDOUT });
+                let stdin = &mut Source::new(0, unsafe { &mut STDIN });
+                let stdout = &mut Sink::new(1, unsafe { &mut STDOUT });
                 initialize(stdin, stdout);
                 ::solve();
             }

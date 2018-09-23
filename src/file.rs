@@ -1,10 +1,9 @@
-use super::libc;
-use super::OSError;
 use core::iter::Iterator;
 use core::ptr;
-use porus::io::Sink;
+use porus::io;
+use porus::libc;
 
-pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, OSError> {
+pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, libc::Error> {
     let mut length = 0;
     let mut ptr = buf;
 
@@ -28,7 +27,7 @@ pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, OSError> {
     Ok(length)
 }
 
-pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), OSError> {
+pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
     let mut written = 0;
     let mut ptr = buf;
     while written < count {
@@ -48,7 +47,7 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), OSError> {
     Ok(())
 }
 
-pub struct FileSource {
+pub struct Source {
     fd: i32,
     size: usize,
     offset: usize,
@@ -56,10 +55,10 @@ pub struct FileSource {
     buffer: *mut u8,
 }
 
-impl FileSource {
+impl Source {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
         let size = buffer.len();
-        FileSource {
+        Source {
             fd,
             size,
             offset: size,
@@ -69,7 +68,7 @@ impl FileSource {
     }
 }
 
-impl Iterator for FileSource {
+impl Iterator for Source {
     type Item = u8;
 
     fn next(&mut self) -> Option<u8> {
@@ -88,16 +87,16 @@ impl Iterator for FileSource {
     }
 }
 
-pub struct FileSink {
+pub struct Sink {
     fd: i32,
     offset: usize,
     capacity: usize,
     buffer: *mut u8,
 }
 
-impl FileSink {
+impl Sink {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
-        FileSink {
+        Sink {
             fd,
             offset: 0,
             capacity: buffer.len(),
@@ -106,7 +105,7 @@ impl FileSink {
     }
 }
 
-impl Sink for FileSink {
+impl io::Sink for Sink {
     fn write(&mut self, c: u8) {
         if self.offset == self.capacity {
             write(self.fd, self.buffer, self.capacity).unwrap();
@@ -118,7 +117,7 @@ impl Sink for FileSink {
     }
 }
 
-impl Drop for FileSink {
+impl Drop for Sink {
     fn drop(&mut self) {
         write(self.fd, self.buffer, self.offset).unwrap();
     }

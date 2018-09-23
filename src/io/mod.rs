@@ -65,8 +65,6 @@ impl Iterator for Input {
     }
 }
 
-impl Source for Input {}
-
 impl Sink for Output {
     fn write(&mut self, c: u8) {
         Sink::write(unsafe { self.0.get().unwrap().as_mut() }, c)

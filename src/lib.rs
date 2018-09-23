@@ -74,24 +74,24 @@ extern crate porus_macros;
 #[cfg(test)]
 pub mod tests;
 
+pub mod file;
+pub mod libc;
+pub mod os;
+
 pub mod allocator;
 pub mod capacity;
 pub mod pool;
 
 #[macro_use]
 pub mod io;
-
-pub mod block;
-pub mod os;
-
-pub mod chunk;
-
 pub mod collection;
 #[macro_use]
 pub mod list;
 pub mod deque;
 pub mod stack;
 
+pub mod block;
+pub mod chunk;
 pub mod string;
 #[macro_use]
 pub mod static_array;

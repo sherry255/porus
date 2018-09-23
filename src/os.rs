@@ -1,14 +1,13 @@
-use super::libc::{free, get_error, malloc, realloc};
-use super::OSError;
 use core::ptr::null_mut;
 use porus::allocator;
+use porus::libc::{free, get_error, malloc, realloc, Error};
 
 pub struct Allocator {}
 
 impl allocator::Allocator for Allocator {
-    type Error = OSError;
+    type Error = Error;
 
-    unsafe fn reallocate(&mut self, ptr: *mut u8, size: usize) -> Result<*mut u8, OSError> {
+    unsafe fn reallocate(&mut self, ptr: *mut u8, size: usize) -> Result<*mut u8, Error> {
         if size == 0 {
             if !ptr.is_null() {
                 free(ptr);

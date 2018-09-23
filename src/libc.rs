@@ -1,4 +1,14 @@
-use super::OSError;
+use core::fmt;
+
+#[derive(Debug)]
+pub struct Error(i32);
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let Error(n) = *self;
+        write!(f, "Error({})", n)
+    }
+}
 
 extern "C" {
     pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
@@ -18,6 +28,6 @@ fn get_errno() -> i32 {
     unsafe { *errno_location() }
 }
 
-pub fn get_error<T>() -> Result<T, OSError> {
-    Err(OSError(get_errno()))
+pub fn get_error<T>() -> Result<T, Error> {
+    Err(Error(get_errno()))
 }
