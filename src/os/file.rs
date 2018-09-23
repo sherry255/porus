@@ -57,13 +57,14 @@ pub struct FileSource {
 }
 
 impl FileSource {
-    pub const fn new(fd: i32, size: usize, buffer: *mut u8) -> Self {
+    pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
+        let size = buffer.len();
         FileSource {
             fd,
             size,
             offset: size,
             capacity: size,
-            buffer,
+            buffer: buffer.as_ptr() as *mut _,
         }
     }
 }
@@ -95,12 +96,12 @@ pub struct FileSink {
 }
 
 impl FileSink {
-    pub const fn new(fd: i32, size: usize, buffer: *mut u8) -> Self {
+    pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
         FileSink {
             fd,
             offset: 0,
-            capacity: size,
-            buffer,
+            capacity: buffer.len(),
+            buffer: buffer.as_ptr() as *mut _,
         }
     }
 }

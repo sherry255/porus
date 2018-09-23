@@ -1,10 +1,23 @@
-use super::Sink;
+use super::{Output, Sink, STDOUT};
 use core::convert::TryInto;
 use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
 
 pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, f: &mut F) {
     f(sink)
+}
+
+pub fn write<F: FnMut(&mut Output)>(f: &mut F) {
+    unsafe {
+        fwrite(&mut STDOUT, f);
+    }
+}
+
+pub fn writeln<F: FnMut(&mut Output)>(f: &mut F) {
+    write(f);
+    unsafe {
+        Sink::write(&mut STDOUT, b'\n');
+    }
 }
 
 pub fn join<S: Sink, Sep: FnMut(&mut S), F: FnMut(&mut S), I: Iterator<Item = F>>(
@@ -136,7 +149,7 @@ unsigned!(u64);
 unsigned!(u128);
 unsigned!(usize);
 
-// signed!(i8);x
+// signed!(i8);
 signed!(i16);
 signed!(i32);
 signed!(i64);

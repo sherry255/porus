@@ -1,4 +1,6 @@
+use core::cell::Cell;
 use core::iter::Iterator;
+use core::ptr::NonNull;
 
 pub trait Source: Iterator<Item = u8> {}
 
@@ -48,5 +50,75 @@ pub trait Sink {
 
 pub mod read;
 pub mod slice;
-pub mod stdio;
+pub use self::read::{fread, read, read_skip_ws};
 pub mod write;
+pub use self::write::{fwrite, write, writeln};
+
+pub struct Input(Cell<Option<NonNull<dyn Source<Item = u8>>>>);
+pub struct Output(Cell<Option<NonNull<dyn Sink>>>);
+
+impl Iterator for Input {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<u8> {
+        Iterator::next(unsafe { self.0.get().unwrap().as_mut() })
+    }
+}
+
+impl Source for Input {}
+
+impl Sink for Output {
+    fn write(&mut self, c: u8) {
+        Sink::write(unsafe { self.0.get().unwrap().as_mut() }, c)
+    }
+}
+
+static mut STDIN: PeekableSource<Input> = PeekableSource::new(Input(Cell::new(None)));
+static mut STDOUT: Output = Output(Cell::new(None));
+
+pub fn initialize(stdin: *mut dyn Source<Item = u8>, stdout: *mut dyn Sink) {
+    unsafe {
+        STDIN.source.0.set(NonNull::new(stdin));
+        STDOUT.0.set(NonNull::new(stdout));
+    }
+}
+
+#[macro_export]
+macro_rules! read_opt {
+    () => {{
+        let mut x = Default::default();
+        if porus::io::read_skip_ws(&mut x) {
+            Some(x)
+        } else {
+            None
+        }
+    }};
+}
+
+#[macro_export]
+macro_rules! read {
+    () => (
+        {
+            read_opt!().unwrap()
+        }
+    );
+    ( $($expr:expr),* ) => (
+        $(
+            porus::io::read_skip_ws($expr);
+        )*
+    )
+}
+
+#[macro_export]
+macro_rules! writef {
+    ($($arg:tt)*) => (
+        porus::io::write(&mut f!($($arg)*));
+    )
+}
+
+#[macro_export]
+macro_rules! writelnf {
+    ($($arg:tt)*) => (
+        porus::io::writeln(&mut f!($($arg)*));
+    )
+}

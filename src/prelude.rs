@@ -13,6 +13,7 @@ pub fn default<T: Default>() -> T {
     Default::default()
 }
 
+pub use porus::io;
 pub use porus::io::read::Char;
 pub use porus::io::write::join;
 pub use porus_macros::f;
@@ -33,46 +34,6 @@ pub use porus::dlist::DoublyLinkedList;
 pub use porus::flist::SinglyLinkedList;
 pub use porus::string::{String, StringBuffer};
 
-#[macro_export]
-macro_rules! read_opt {
-    () => {{
-        let mut x = Default::default();
-        if ::io::read_skip_ws(&mut x) {
-            Some(x)
-        } else {
-            None
-        }
-    }};
-}
-
-#[macro_export]
-macro_rules! read {
-    () => (
-        {
-            read_opt!().unwrap()
-        }
-    );
-    ( $($expr:expr),* ) => (
-        $(
-            ::io::read_skip_ws($expr);
-        )*
-    )
-}
-
-#[macro_export]
-macro_rules! writef {
-    ($($arg:tt)*) => (
-        ::io::write(&mut f!($($arg)*));
-    )
-}
-
-#[macro_export]
-macro_rules! writelnf {
-    ($($arg:tt)*) => (
-        ::io::writeln(&mut f!($($arg)*));
-    )
-}
-
 /// the porus prelude
 #[macro_export]
 macro_rules! prelude {
@@ -83,62 +44,30 @@ macro_rules! prelude {
         #[allow(unused_imports)]
         use porus::prelude::*;
 
-        mod io {
-            #[cfg(debug_assertions)]
-            use std::ptr::drop_in_place;
+        mod main {
+            use porus::io::initialize;
+            use porus::os::file::{FileSink, FileSource};
 
-            #[cfg(not(debug_assertions))]
-            use core::ptr::drop_in_place;
-
-            use porus::io::read::{fread, Consumer, Whitespace};
-            use porus::io::stdio;
-            use porus::io::write::fwrite;
-            use porus::io::Sink;
-
-            #[allow(dead_code)]
-            static mut STDIN: stdio::Input = stdio::stdin(&mut [0; $size]);
-            static mut STDOUT: stdio::Output = stdio::stdout(&mut [0; $size]);
-
-            #[allow(dead_code)]
-            pub fn read<C: Consumer>(c: C) -> bool {
-                unsafe { fread(&mut STDIN, c) }
-            }
-
-            pub fn read_skip_ws<C: Consumer>(c: C) -> bool {
-                read(Whitespace);
-                read(c)
-            }
-
-            #[allow(dead_code)]
-            pub fn write<F: FnMut(&mut stdio::Output)>(f: &mut F) {
-                unsafe {
-                    fwrite(&mut STDOUT, f);
-                }
-            }
-
-            #[allow(dead_code)]
-            pub fn writeln<F: FnMut(&mut stdio::Output)>(f: &mut F) {
-                write(f);
-                unsafe {
-                    Sink::write(&mut STDOUT, b'\n');
-                }
-            }
+            static mut STDIN: [u8; $size] = [0; $size];
+            static mut STDOUT: [u8; $size] = [0; $size];
 
             pub fn main() {
+                let stdin = &mut FileSource::new(0, unsafe { &mut STDIN });
+                let stdout = &mut FileSink::new(1, unsafe { &mut STDOUT });
+                initialize(stdin, stdout);
                 ::solve();
-                unsafe { drop_in_place(&mut STDOUT as *mut _) };
             }
         }
 
         #[cfg(debug_assertions)]
         fn main() {
-            io::main();
+            main::main();
         }
 
         #[cfg(not(debug_assertions))]
         #[no_mangle]
         pub extern "C" fn main() -> i32 {
-            io::main();
+            main::main();
             0
         }
     };

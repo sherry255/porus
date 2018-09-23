@@ -1,4 +1,4 @@
-use super::{PeekableSource, Source};
+use super::{PeekableSource, Source, STDIN};
 use core::convert::TryFrom;
 use core::ops::{Add, Mul, Neg};
 
@@ -8,6 +8,15 @@ pub trait Consumer {
 
 pub fn fread<I: Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) -> bool {
     Consumer::consume(c, s)
+}
+
+pub fn read<C: Consumer>(c: C) -> bool {
+    unsafe { fread(&mut STDIN, c) }
+}
+
+pub fn read_skip_ws<C: Consumer>(c: C) -> bool {
+    read(Whitespace);
+    read(c)
 }
 
 pub fn is_whitespace(c: u8) -> bool {

@@ -78,8 +78,10 @@ pub mod alloc;
 pub mod capacity;
 pub mod pool;
 
-pub mod excess;
+#[macro_use]
 pub mod io;
+
+pub mod excess;
 pub mod os;
 
 pub mod chunk;
