@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 use core::ptr::{copy, read, write};
-use porus::alloc::{allocate, deallocate, reallocate, Allocator};
+use porus::allocator::{allocate, deallocate, reallocate, Allocator};
 use porus::capacity::CapacityPolicy;
 
 pub struct Block<T, P: CapacityPolicy, A: Allocator> {

@@ -49,7 +49,7 @@
 
 //! ## Abstract Data Types
 //! * [`Pool`](pool)
-//! * [`Allocator`](alloc)
+//! * [`Allocator`](allocator)
 //! * [`Collection`](collection)
 //! * [`List`](list)
 //! * [`Stack`](stack)
@@ -74,7 +74,7 @@ extern crate porus_macros;
 #[cfg(test)]
 pub mod tests;
 
-pub mod alloc;
+pub mod allocator;
 pub mod capacity;
 pub mod pool;
 

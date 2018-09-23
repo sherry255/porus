@@ -1,5 +1,5 @@
 use core::marker::PhantomData;
-use porus::alloc;
+use porus::allocator;
 use porus::deque::Deque;
 use porus::pool::{self, Handle, Pool};
 
@@ -15,8 +15,8 @@ pub struct Node<H: Handle, T> {
 
 pub struct DoublyLinkedList<
     T,
-    H: Handle = alloc::Handle,
-    P: Pool<Elem = Node<H, T>, Handle = H> = alloc::Pool<Node<H, T>>,
+    H: Handle = allocator::Handle,
+    P: Pool<Elem = Node<H, T>, Handle = H> = allocator::Pool<Node<H, T>>,
 > {
     pool: P,
     sentinel: Link<H>,

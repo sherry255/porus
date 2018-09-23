@@ -1,5 +1,5 @@
 use core::iter::{ExactSizeIterator, Iterator};
-use porus::alloc::Allocator;
+use porus::allocator::Allocator;
 use porus::block::Block;
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;

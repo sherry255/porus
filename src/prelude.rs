@@ -18,10 +18,10 @@ pub use porus::io::read::Char;
 pub use porus::io::write::join;
 pub use porus_macros::f;
 
-pub use porus::alloc;
+pub use porus::allocator;
 pub use porus::pool;
 
-pub use porus::alloc::Pool;
+pub use porus::allocator::Pool;
 pub use porus::chunk::Chunk;
 
 pub use porus::collection;

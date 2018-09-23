@@ -17,7 +17,7 @@ trait HandleNonNullTests: HandleNonNull {
 
 mod test_alloc {
     use super::*;
-    use porus::alloc::Handle;
+    use porus::allocator::Handle;
 
     #[test_impl]
     impl HandleNonNull for Handle {}

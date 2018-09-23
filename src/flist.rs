@@ -1,5 +1,5 @@
 use core::marker::PhantomData;
-use porus::alloc;
+use porus::allocator;
 use porus::pool::{self, Handle, Pool};
 use porus::stack::Stack;
 
@@ -10,8 +10,8 @@ pub struct Node<H: Handle, T> {
 
 pub struct SinglyLinkedList<
     T,
-    H: Handle = alloc::Handle,
-    P: Pool<Elem = Node<H, T>, Handle = H> = alloc::Pool<Node<H, T>>,
+    H: Handle = allocator::Handle,
+    P: Pool<Elem = Node<H, T>, Handle = H> = allocator::Pool<Node<H, T>>,
 > {
     pool: P,
     sentinel: Option<H>,
