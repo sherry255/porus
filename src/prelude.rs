@@ -16,7 +16,7 @@ pub fn default<T: Default>() -> T {
 pub use crate::io;
 pub use crate::io::read::Char;
 pub use crate::io::write::join;
-pub use porus_macros::f;
+pub use crate::io::{f, writef, writelnf};
 
 pub use crate::allocator;
 pub use crate::pool;

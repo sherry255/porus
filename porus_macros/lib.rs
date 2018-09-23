@@ -13,6 +13,6 @@ mod common;
 mod format;
 
 #[proc_macro]
-pub fn f(stream: TokenStream) -> TokenStream {
-    format::f(stream.into()).into()
+pub fn format(stream: TokenStream) -> TokenStream {
+    format::format(stream.into()).into()
 }

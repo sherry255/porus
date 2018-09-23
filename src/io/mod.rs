@@ -1,6 +1,8 @@
 use core::cell::Cell;
 use core::iter::Iterator;
 use core::ptr::NonNull;
+#[allow(unused_imports)]
+use porus_macros::format;
 
 pub trait Source: Iterator<Item = u8> {}
 
@@ -107,16 +109,14 @@ macro_rules! read {
     )
 }
 
-#[macro_export]
-macro_rules! writef {
-    ($($arg:tt)*) => (
-        $crate::io::write(&mut f!($($arg)*));
-    )
+pub macro f($($arg:tt)*) {
+    format!($($arg)*)
 }
 
-#[macro_export]
-macro_rules! writelnf {
-    ($($arg:tt)*) => (
-        $crate::io::writeln(&mut f!($($arg)*));
-    )
+pub macro writef($($arg:tt)*) {
+    write(&mut format!($($arg)*))
+}
+
+pub macro writelnf($($arg:tt)*) {
+    writeln(&mut format!($($arg)*))
 }

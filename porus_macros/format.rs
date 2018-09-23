@@ -4,7 +4,7 @@ use proc_macro2::{Literal, TokenStream};
 use quote::ToTokens;
 use syn::{Expr, LitStr};
 
-pub fn f(tokens: TokenStream) -> TokenStream {
+pub fn format(tokens: TokenStream) -> TokenStream {
     let (s, args): (LitStr, Expr) = parse_args(tokens).unwrap();
 
     let mut stream = quote!{};
@@ -12,7 +12,7 @@ pub fn f(tokens: TokenStream) -> TokenStream {
         match p {
             Piece::String(s) => {
                 let lit = Literal::string(s);
-                stream = quote! { #stream porus::io::write::fwrite_str(porus_sink, #lit); };
+                stream = quote! { #stream write::fwrite_str(porus_sink, #lit); };
             }
             Piece::NextArgument(Argument {
                 position: pos,
@@ -32,18 +32,16 @@ pub fn f(tokens: TokenStream) -> TokenStream {
 
                 match fmt.ty {
                     "" => {
-                        stream =
-                            quote! { #stream porus::io::write::fwrite(porus_sink, &mut #arg); };
+                        stream = quote! { #stream write::fwrite(porus_sink, &mut #arg); };
                     }
                     "c" => {
-                        stream = quote! { #stream porus::io::Sink::write(porus_sink, #arg); };
+                        stream = quote! { #stream Sink::write(porus_sink, #arg); };
                     }
                     "s" => {
-                        stream =
-                            quote! { #stream porus::io::write::String::write(#arg, porus_sink); };
+                        stream = quote! { #stream write::String::write(#arg, porus_sink); };
                     }
                     "d" => {
-                        stream = quote! { #stream porus::io::write::Int::write(#arg, porus_sink, 10, 1); };
+                        stream = quote! { #stream write::Int::write(#arg, porus_sink, 10, 1); };
                     }
                     "f" => {
                         let prec: Box<ToTokens> = match fmt.precision {
@@ -58,7 +56,7 @@ pub fn f(tokens: TokenStream) -> TokenStream {
                             }
                         };
 
-                        stream = quote! { #stream porus::io::write::Float::write(#arg, porus_sink, #prec); };
+                        stream = quote! { #stream write::Float::write(#arg, porus_sink, #prec); };
                     }
                     x => {
                         panic!("unknown format: {}", x);
