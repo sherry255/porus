@@ -3,18 +3,18 @@ use core::ptr::{copy, read, write};
 use porus::alloc::{allocate, deallocate, reallocate, Allocator};
 use porus::capacity::CapacityPolicy;
 
-pub struct Excess<T, P: CapacityPolicy, A: Allocator> {
+pub struct Block<T, P: CapacityPolicy, A: Allocator> {
     capacity: usize,
     data: *mut T,
     allocator: A,
     _policy: PhantomData<P>,
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Excess<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> Block<T, P, A> {
     pub fn new(mut allocator: A, capacity: usize) -> Self {
         let capacity = P::initial(capacity);
         let data = unsafe { allocate(&mut allocator, capacity) };
-        Excess {
+        Block {
             capacity,
             data,
             allocator,
@@ -89,13 +89,13 @@ impl<T, P: CapacityPolicy, A: Allocator> Excess<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator + Default> Excess<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator + Default> Block<T, P, A> {
     pub fn new_with_capacity(capacity: usize) -> Self {
-        Excess::new(Default::default(), capacity)
+        Block::new(Default::default(), capacity)
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Drop for Excess<T, P, A> {
+impl<T, P: CapacityPolicy, A: Allocator> Drop for Block<T, P, A> {
     fn drop(&mut self) {
         unsafe { deallocate(&mut self.allocator, self.data) };
     }

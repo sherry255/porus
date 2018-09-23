@@ -1,21 +1,21 @@
 use core::iter::{ExactSizeIterator, Iterator};
 use porus::alloc::Allocator;
+use porus::block::Block;
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;
-use porus::excess::Excess;
 use porus::list::{List, ListMut};
 use porus::os;
 use porus::stack::Stack;
 
 pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     size: usize,
-    data: Excess<T, P, A>,
+    data: Block<T, P, A>,
 }
 
 impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
     pub fn new_from_iter<I: ExactSizeIterator<Item = T>>(mut it: I) -> Self {
         let size = ExactSizeIterator::len(&it);
-        let mut data = Excess::new(Default::default(), size);
+        let mut data = Block::new(Default::default(), size);
         assert!(data.capacity() >= size);
 
         for i in 0..size {

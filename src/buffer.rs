@@ -1,15 +1,15 @@
 use porus::alloc::Allocator;
+use porus::block::Block;
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
 use porus::collection::Collection;
 use porus::deque::Deque;
-use porus::excess::Excess;
 use porus::list::{List, ListMut};
 use porus::os;
 
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     front: usize,
     back: usize,
-    data: Excess<T, P, A>,
+    data: Block<T, P, A>,
 }
 
 impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
@@ -18,7 +18,7 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Buffer<T, P, A> {
     }
 
     pub fn new_with_capacity(capacity: usize) -> Self {
-        let data = Excess::new(Default::default(), capacity + 1);
+        let data = Block::new(Default::default(), capacity + 1);
 
         Buffer {
             front: 0,

@@ -81,7 +81,7 @@ pub mod pool;
 #[macro_use]
 pub mod io;
 
-pub mod excess;
+pub mod block;
 pub mod os;
 
 pub mod chunk;

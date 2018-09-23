@@ -1,7 +1,7 @@
 use core::num::NonZeroUsize;
 use porus::alloc::Allocator;
+use porus::block::Block;
 use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::excess::Excess;
 use porus::os;
 use porus::pool::{self, Pool};
 
@@ -19,7 +19,7 @@ union Node<T> {
 pub struct Chunk<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     size: usize,
     next: Option<NonZeroUsize>,
-    data: Excess<Node<T>, P, A>,
+    data: Block<Node<T>, P, A>,
 }
 
 impl<T, P: CapacityPolicy, A: Allocator> Chunk<T, P, A> {
@@ -27,7 +27,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Chunk<T, P, A> {
         Chunk {
             size: 0,
             next: None,
-            data: Excess::new(allocator, capacity),
+            data: Block::new(allocator, capacity),
         }
     }
 }
