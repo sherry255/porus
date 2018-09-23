@@ -161,14 +161,12 @@ impl<
     }
 }
 
-macro_rules! int {
-    ($t:ty) => {
-        impl<'a> Consumer for &'a mut $t {
-            fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
-                Consumer::consume(Int(self, 10), s)
-            }
+macro int($t:ty) {
+    impl<'a> Consumer for &'a mut $t {
+        fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
+            Consumer::consume(Int(self, 10), s)
         }
-    };
+    }
 }
 
 int!(u8);

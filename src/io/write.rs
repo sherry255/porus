@@ -110,36 +110,32 @@ fn write_signed<
     }
 }
 
-macro_rules! unsigned {
-    ($t:ty) => {
-        impl Int for $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                write_unsigned(s, self, <$t>::from(radix), width)
-            }
+macro unsigned($t:ty) {
+    impl Int for $t {
+        fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+            write_unsigned(s, self, <$t>::from(radix), width)
         }
+    }
 
-        impl<'a> Int for &'a $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                Int::write(*self, s, radix, width)
-            }
+    impl<'a> Int for &'a $t {
+        fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+            Int::write(*self, s, radix, width)
         }
-    };
+    }
 }
 
-macro_rules! signed {
-    ($t:ty) => {
-        impl Int for $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                write_signed(s, self, <$t>::from(radix), width)
-            }
+macro signed($t:ty) {
+    impl Int for $t {
+        fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+            write_signed(s, self, <$t>::from(radix), width)
         }
+    }
 
-        impl<'a> Int for &'a $t {
-            fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-                Int::write(*self, s, radix, width)
-            }
+    impl<'a> Int for &'a $t {
+        fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
+            Int::write(*self, s, radix, width)
         }
-    };
+    }
 }
 
 unsigned!(u8);

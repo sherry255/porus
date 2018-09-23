@@ -25,9 +25,6 @@ impl<'a, T: 'a> List for StaticArray<'a, T> {
     }
 }
 
-#[macro_export]
-macro_rules! static_array {
-    ($($arg:tt)*) => (
-        &$crate::static_array::StaticArray::new(&[$($arg)*])
-    );
+pub macro static_array($($arg:tt)*) {
+    &StaticArray::new(&[$($arg)*])
 }

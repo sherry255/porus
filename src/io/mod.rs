@@ -83,30 +83,26 @@ pub fn initialize(stdin: *mut dyn Source<Item = u8>, stdout: *mut dyn Sink) {
     }
 }
 
-#[macro_export]
-macro_rules! read_opt {
-    () => {{
-        let mut x = Default::default();
-        if $crate::io::read_skip_ws(&mut x) {
-            Some(x)
-        } else {
-            None
-        }
-    }};
-}
+pub macro read_opt() {{
+    let mut x = Default::default();
+    if read_skip_ws(&mut x) {
+        Some(x)
+    } else {
+        None
+    }
+}}
 
-#[macro_export]
-macro_rules! read {
-    () => (
+pub macro read {
+    () => {
         {
             read_opt!().unwrap()
         }
-    );
-    ( $($expr:expr),* ) => (
+    },
+    ( $($expr:expr),* ) => {
         $(
-            $crate::io::read_skip_ws($expr);
+            read_skip_ws($expr);
         )*
-    )
+    }
 }
 
 pub macro f($($arg:tt)*) {

@@ -192,9 +192,6 @@ impl<T, P: CapacityPolicy, A: Allocator> Drop for Buffer<T, P, A> {
     }
 }
 
-#[macro_export]
-macro_rules! buffer {
-    () => {
-        &mut $crate::buffer::Buffer::<_, $crate::capacity::DefaultCapacityPolicy>::new()
-    };
+pub macro buffer() {
+    &mut Buffer::<_>::new()
 }

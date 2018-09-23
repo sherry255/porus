@@ -16,7 +16,7 @@ pub fn default<T: Default>() -> T {
 pub use crate::io;
 pub use crate::io::read::Char;
 pub use crate::io::write::join;
-pub use crate::io::{f, writef, writelnf};
+pub use crate::io::{f, read, read_opt, writef, writelnf};
 
 pub use crate::allocator;
 pub use crate::pool;
@@ -29,9 +29,11 @@ pub use crate::deque;
 pub use crate::list;
 pub use crate::stack;
 
-pub use crate::array::Array;
+pub use crate::array::{array, Array};
+pub use crate::buffer::{buffer, Buffer};
 pub use crate::dlist::DoublyLinkedList;
 pub use crate::flist::SinglyLinkedList;
+pub use crate::static_array::static_array;
 pub use crate::string::{String, StringBuffer};
 
 /// the porus prelude
