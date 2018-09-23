@@ -85,7 +85,7 @@ pub fn initialize(stdin: *mut dyn Source<Item = u8>, stdout: *mut dyn Sink) {
 macro_rules! read_opt {
     () => {{
         let mut x = Default::default();
-        if porus::io::read_skip_ws(&mut x) {
+        if $crate::io::read_skip_ws(&mut x) {
             Some(x)
         } else {
             None
@@ -102,7 +102,7 @@ macro_rules! read {
     );
     ( $($expr:expr),* ) => (
         $(
-            porus::io::read_skip_ws($expr);
+            $crate::io::read_skip_ws($expr);
         )*
     )
 }
@@ -110,13 +110,13 @@ macro_rules! read {
 #[macro_export]
 macro_rules! writef {
     ($($arg:tt)*) => (
-        porus::io::write(&mut f!($($arg)*));
+        $crate::io::write(&mut f!($($arg)*));
     )
 }
 
 #[macro_export]
 macro_rules! writelnf {
     ($($arg:tt)*) => (
-        porus::io::writeln(&mut f!($($arg)*));
+        $crate::io::writeln(&mut f!($($arg)*));
     )
 }

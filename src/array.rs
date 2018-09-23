@@ -1,11 +1,11 @@
 use core::iter::{ExactSizeIterator, Iterator};
-use porus::allocator::Allocator;
-use porus::block::Block;
-use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::collection::Collection;
-use porus::list::{List, ListMut};
-use porus::os;
-use porus::stack::Stack;
+use crate::allocator::Allocator;
+use crate::block::Block;
+use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::collection::Collection;
+use crate::list::{List, ListMut};
+use crate::os;
+use crate::stack::Stack;
 
 pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     size: usize,
@@ -107,7 +107,7 @@ macro_rules! array {
 mod tests {
     use super::Array;
     use core::cell::Cell;
-    use porus::tests::Item;
+    use crate::tests::Item;
 
     #[test]
     fn test_drop() {

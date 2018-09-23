@@ -1,10 +1,10 @@
-use porus::allocator::Allocator;
-use porus::block::Block;
-use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::collection::Collection;
-use porus::deque::Deque;
-use porus::list::{List, ListMut};
-use porus::os;
+use crate::allocator::Allocator;
+use crate::block::Block;
+use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::collection::Collection;
+use crate::deque::Deque;
+use crate::list::{List, ListMut};
+use crate::os;
 
 pub struct Buffer<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
     front: usize,

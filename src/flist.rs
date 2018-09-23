@@ -1,7 +1,7 @@
 use core::marker::PhantomData;
-use porus::allocator;
-use porus::pool::{self, Handle, Pool};
-use porus::stack::Stack;
+use crate::allocator;
+use crate::pool::{self, Handle, Pool};
+use crate::stack::Stack;
 
 pub struct Node<H: Handle, T> {
     next: Option<H>,

@@ -1,7 +1,7 @@
 use super::slice::{slice_mut, ListMutView};
 use super::{get, get_mut, iter, List, ListMut};
 use core::mem;
-use porus::collection::Collection;
+use crate::collection::{self, Collection};
 
 fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
     if i == j {
@@ -26,7 +26,7 @@ pub fn is_stable_sort<
     lt: &F,
     index: &I,
 ) -> bool {
-    let size = Collection::size(list);
+    let size = collection::size(list);
 
     if size > 0 {
         for i in 0..(size - 1) {
@@ -45,7 +45,7 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     lt: &F,
 ) -> usize {
     let mut count = 0;
-    let size = Collection::size(list);
+    let size = collection::size(list);
     if size > 0 {
         for i in (1..size).rev() {
             if lt(get(list, i), get(list, i - 1)) {
@@ -63,7 +63,7 @@ pub fn bubble_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     lt: &F,
 ) -> usize {
     let mut count = 0;
-    let size = Collection::size(list);
+    let size = collection::size(list);
     for i in 0..size - 1 {
         count += bubble(&mut slice_mut(list, i..size), lt);
     }
@@ -75,7 +75,7 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
     lt: &F,
 ) -> usize {
     let mut count = 0;
-    let size = Collection::size(list);
+    let size = collection::size(list);
     let mut i = size - 1;
     while (i > 0) && lt(get(list, i), get(list, i - 1)) {
         swap(list, i, i - 1);
@@ -91,7 +91,7 @@ fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>
     g: usize,
 ) -> usize {
     let mut count = 0;
-    let size = Collection::size(list);
+    let size = collection::size(list);
 
     for i in g..size {
         let mut j = i;
@@ -110,7 +110,7 @@ pub fn insertion_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     lt: &F,
 ) -> usize {
     // let mut count = 0;
-    // let size = Collection::size(list);
+    // let size = collection::size(list);
     // for i in 2..size+1 {
     //     count += bubble_sorted(slice_mut!(list, [0, i]), lt);
     // }
@@ -143,7 +143,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     lt: &F,
 ) -> usize {
     let mut count = 0;
-    let size = Collection::size(list);
+    let size = collection::size(list);
     for i in 0..size {
         let mut min = i;
         for j in i + 1..size {
@@ -164,7 +164,7 @@ pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: &F,
 ) -> usize {
-    let size = Collection::size(list);
+    let size = collection::size(list);
     let mut i = 0;
     for j in 0..size - 1 {
         if lt(get(list, j), get(list, size - 1)) {
@@ -181,7 +181,7 @@ fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E
     list: &'b mut ListMutView<'a, L>,
     lt: &F,
 ) {
-    let size = Collection::size(list);
+    let size = collection::size(list);
     if size < 2 {
         return;
     }

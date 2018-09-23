@@ -1,6 +1,6 @@
 use core::ptr::null_mut;
-use porus::allocator;
-use porus::libc::{free, get_error, malloc, realloc, Error};
+use crate::allocator;
+use crate::libc::{free, get_error, malloc, realloc, Error};
 
 pub struct Allocator {}
 

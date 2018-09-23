@@ -1,4 +1,4 @@
-use porus::collection::Collection;
+use crate::collection::Collection;
 
 pub trait List: Collection {
     type Elem;

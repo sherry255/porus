@@ -2,8 +2,8 @@ use core::fmt::Debug;
 use core::marker::PhantomData;
 use core::mem::size_of;
 use core::ptr::{null_mut, read, write, NonNull};
-use porus::os;
-use porus::pool;
+use crate::os;
+use crate::pool;
 
 pub trait Allocator {
     type Error: Debug;

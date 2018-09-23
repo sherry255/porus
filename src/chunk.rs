@@ -1,9 +1,9 @@
 use core::num::NonZeroUsize;
-use porus::allocator::Allocator;
-use porus::block::Block;
-use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::os;
-use porus::pool::{self, Pool};
+use crate::allocator::Allocator;
+use crate::block::Block;
+use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::os;
+use crate::pool::{self, Pool};
 
 #[derive(Clone, Copy)]
 pub struct Handle(NonZeroUsize);

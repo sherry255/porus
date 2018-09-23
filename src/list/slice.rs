@@ -1,7 +1,7 @@
 use super::{List, ListMut};
 use core::ops::Bound::*;
 use core::ops::RangeBounds;
-use porus::collection::Collection;
+use crate::collection::{self, Collection};
 
 pub fn start_bound<T: RangeBounds<usize>>(bound: &T) -> usize {
     match RangeBounds::start_bound(bound) {
@@ -56,7 +56,7 @@ pub struct ListMutView<'a, L: 'a + ListMut> {
 impl<'a, L: 'a + List> Slice<L> for ListView<'a, L> {
     fn slice<'b, T: RangeBounds<usize>>(&'b self, bound: &T) -> ListView<'b, L> {
         let start = start_bound(bound);
-        let end = end_bound(bound, Collection::size(self));
+        let end = end_bound(bound, collection::size(self));
 
         ListView {
             list: self.list,
@@ -69,7 +69,7 @@ impl<'a, L: 'a + List> Slice<L> for ListView<'a, L> {
 impl<L: List> Slice<L> for L {
     fn slice<'a, T: RangeBounds<usize>>(&'a self, bound: &T) -> ListView<'a, L> {
         let start = start_bound(bound);
-        let end = end_bound(bound, Collection::size(self));
+        let end = end_bound(bound, collection::size(self));
 
         ListView {
             list: self,
@@ -82,7 +82,7 @@ impl<L: List> Slice<L> for L {
 impl<'a, L: 'a + ListMut> SliceMut<L> for ListMutView<'a, L> {
     fn slice_mut<'b, T: RangeBounds<usize>>(&'b mut self, bound: &T) -> ListMutView<'b, L> {
         let start = start_bound(bound);
-        let end = end_bound(bound, Collection::size(self));
+        let end = end_bound(bound, collection::size(self));
 
         ListMutView {
             list: self.list,
@@ -95,7 +95,7 @@ impl<'a, L: 'a + ListMut> SliceMut<L> for ListMutView<'a, L> {
 impl<L: ListMut> SliceMut<L> for L {
     fn slice_mut<'a, T: RangeBounds<usize>>(&'a mut self, bound: &T) -> ListMutView<'a, L> {
         let start = start_bound(bound);
-        let end = end_bound(bound, Collection::size(self));
+        let end = end_bound(bound, collection::size(self));
 
         ListMutView {
             list: self,

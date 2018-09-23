@@ -1,5 +1,5 @@
-use porus::collection::Collection;
-use porus::list::List;
+use crate::collection::Collection;
+use crate::list::List;
 
 pub struct StaticArray<'a, T: 'a> {
     slice: &'a [T],

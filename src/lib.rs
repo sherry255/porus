@@ -8,6 +8,7 @@
 #![feature(refcell_replace_swap)]
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
+#![feature(crate_in_paths)]
 #![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
 #![cfg_attr(not(any(test, debug_assertions)), feature(panic_handler))]
 #![no_std]
@@ -61,13 +62,6 @@
 //! * [`Buffer`](type@buffer) : [`List`](list) + [`Deque`](deque)
 //! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
-
-pub mod porus {
-    pub use super::*;
-}
-
-#[cfg(test)]
-extern crate trait_tests;
 
 extern crate porus_macros;
 

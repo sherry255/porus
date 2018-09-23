@@ -13,26 +13,26 @@ pub fn default<T: Default>() -> T {
     Default::default()
 }
 
-pub use porus::io;
-pub use porus::io::read::Char;
-pub use porus::io::write::join;
+pub use crate::io;
+pub use crate::io::read::Char;
+pub use crate::io::write::join;
 pub use porus_macros::f;
 
-pub use porus::allocator;
-pub use porus::pool;
+pub use crate::allocator;
+pub use crate::pool;
 
-pub use porus::allocator::Pool;
-pub use porus::chunk::Chunk;
+pub use crate::allocator::Pool;
+pub use crate::chunk::Chunk;
 
-pub use porus::collection;
-pub use porus::deque;
-pub use porus::list;
-pub use porus::stack;
+pub use crate::collection;
+pub use crate::deque;
+pub use crate::list;
+pub use crate::stack;
 
-pub use porus::array::Array;
-pub use porus::dlist::DoublyLinkedList;
-pub use porus::flist::SinglyLinkedList;
-pub use porus::string::{String, StringBuffer};
+pub use crate::array::Array;
+pub use crate::dlist::DoublyLinkedList;
+pub use crate::flist::SinglyLinkedList;
+pub use crate::string::{String, StringBuffer};
 
 /// the porus prelude
 #[macro_export]
@@ -42,11 +42,11 @@ macro_rules! prelude {
     };
     ($size:expr) => {
         #[allow(unused_imports)]
-        use porus::prelude::*;
+        use $crate::prelude::*;
 
         mod main {
-            use porus::file::{Sink, Source};
-            use porus::io::initialize;
+            use $crate::file::{Sink, Source};
+            use $crate::io::initialize;
 
             static mut STDIN: [u8; $size] = [0; $size];
             static mut STDOUT: [u8; $size] = [0; $size];

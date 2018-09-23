@@ -2,11 +2,11 @@ use core::marker::PhantomData;
 use core::mem::{forget, size_of, transmute_copy};
 use core::ptr::copy_nonoverlapping;
 use core::slice::from_raw_parts;
-use porus::allocator::{allocate, deallocate, reallocate, Allocator};
-use porus::capacity::{CapacityPolicy, DefaultCapacityPolicy};
-use porus::io::read::{is_whitespace, Consumer};
-use porus::io::{write, PeekableSource, Sink, Source};
-use porus::os;
+use crate::allocator::{allocate, deallocate, reallocate, Allocator};
+use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::io::read::{is_whitespace, Consumer};
+use crate::io::{write, PeekableSource, Sink, Source};
+use crate::os;
 
 #[cfg(all(target_endian = "little"))]
 #[derive(Clone, Copy)]
@@ -343,8 +343,8 @@ impl<'a> write::String for &'a String {
 #[cfg(test)]
 mod tests {
     use super::{String, StringBuffer};
-    use porus::io::read::fread;
-    use porus::io::slice::SliceSource;
+    use crate::io::read::fread;
+    use crate::io::slice::SliceSource;
 
     #[test]
     fn test_inline_string_buffer() {
