@@ -1,5 +1,3 @@
-#![feature(proc_macro_non_items)]
-#![cfg_attr(not(debug_assertions), no_std)]
 #![feature(exclusive_range_pattern)]
 
 #[macro_use]

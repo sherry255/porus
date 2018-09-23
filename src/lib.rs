@@ -35,19 +35,6 @@
 //! ```
 //!
 
-//! Currently Rust nightly is required, and following code have to be
-//! put at the very beginning of solution code.
-//!
-//! ```ignore
-//! #![feature(proc_macro_non_items)]
-//! #![cfg_attr(not(debug_assertions), no_std)]
-//!
-//! #[macro_use]
-//! extern crate porus;
-//! prelude!();
-//! ```
-//!
-
 //! ## Abstract Data Types
 //! * [`Pool`](pool)
 //! * [`Allocator`](allocator)

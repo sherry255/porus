@@ -20,7 +20,12 @@ DEBUG_EXTERNS = {
     "porus": os.path.join(BUILD_PATH, "debug/libporus.rlib"),
     "porus_macros": os.path.join(BUILD_PATH, "debug/libporus_macros.so"),
 }
+
 SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
+
+PRELUDE = b'''#![feature(proc_macro_non_items)]
+#![cfg_attr(not(debug_assertions), no_std)]
+'''
 
 
 def extern(externs):
@@ -53,12 +58,18 @@ def get_rustc_argv(mode='debug', target=None):
         ['cov'] if COVERAGE else []
     ) + ['build', VERBOSE_FLAG, '--lib'] + MODE + TARGET
 
-    if compile_file(ROOTDIR, ARGV, 'PORUS LIB', EXTERNS["porus"]) is None:
+    if compile_file(ROOTDIR, ARGV, EXTERNS["porus"]) is None:
         return
 
     FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
     DEBUG = ['-C', 'debuginfo=2'] if mode == 'debug' else []
     return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + TARGET + DEPS, EXTERNS
+
+
+def read_source(filename):
+    with open(filename, 'rb') as f:
+        source = f.read()
+    return PRELUDE + source
 
 
 def get_compile_argv(filename):
@@ -71,7 +82,7 @@ def get_compile_argv(filename):
     if argv is None:
         raise Exception("failed to build library")
 
-    return argv + extern(externs) + ['-o', target, filename], target
+    return argv + extern(externs) + ['-o', target, "-"], target, read_source(filename)
 
 
 def list_generated_files(filename):
@@ -102,10 +113,10 @@ def generate_submission(source, llvm_target):
         "-C", "lto=fat",
         "-C", "opt-level=s",
         "-C", "panic=abort",
-        "-o", target, source]
+        "-o", target, "-"]
 
     if has_to_recompile(source, target, externs):
-        if compile_file(ROOTDIR, argv, source, target) is None:
+        if compile_file(ROOTDIR, argv, target, read_source(source)) is None:
             return None
 
     return target
