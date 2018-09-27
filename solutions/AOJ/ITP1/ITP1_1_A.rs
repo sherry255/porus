@@ -2,6 +2,6 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     writelnf!("Hello World");
 }

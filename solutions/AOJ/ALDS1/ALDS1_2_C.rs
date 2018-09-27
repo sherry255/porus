@@ -19,7 +19,7 @@ fn stable(b: bool) -> &'static str {
     }
 }
 
-fn solve() {
+fn main() {
     let n: usize = read!();
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 

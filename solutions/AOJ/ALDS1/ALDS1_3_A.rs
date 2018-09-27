@@ -51,7 +51,7 @@ impl<'a> Consumer for &'a mut Symbol {
     }
 }
 
-fn solve() {
+fn main() {
     let a = &mut SinglyLinkedList::new_with_pool(Chunk::<_>::new_with_capacity(0));
 
     while let Some(s) = read_opt!() {

@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     let t: isize = read!();
     let s = t % 60;
     let mut m = t / 60;

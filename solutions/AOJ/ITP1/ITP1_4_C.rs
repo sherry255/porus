@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     loop {
         let (mut a, mut op, mut b): (isize, u8, isize) = default();
         read!(&mut a, Char(&mut op), &mut b);

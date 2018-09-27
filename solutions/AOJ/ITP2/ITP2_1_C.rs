@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     let n: usize = read!();
 
     let list = &mut DoublyLinkedList::new_with_pool(Chunk::<_>::new_with_capacity(500000));

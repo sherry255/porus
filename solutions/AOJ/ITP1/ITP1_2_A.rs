@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     let a: isize = read!();
     let b: isize = read!();
     writelnf!(

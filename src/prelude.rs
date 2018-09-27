@@ -48,31 +48,27 @@ macro_rules! prelude {
         #[allow(unused_imports)]
         use $crate::prelude::*;
 
-        mod porus_main {
+        pub mod __porus_main {
             use $crate::file::{Sink, Source};
             use $crate::stdio::initialize;
 
             static mut STDIN: [u8; $size] = [0; $size];
             static mut STDOUT: [u8; $size] = [0; $size];
 
-            pub fn main() {
+            #[cfg_attr(not(feature = "online-judge"), main)]
+            fn main() {
                 let stdin = &mut Source::new(0, unsafe { &mut STDIN });
                 let stdout = &mut Sink::new(1, unsafe { &mut STDOUT });
                 initialize(stdin, stdout);
-                ::solve();
+                ::main();
             }
-        }
 
-        #[cfg(not(feature = "online-judge"))]
-        fn main() {
-            porus_main::main();
-        }
-
-        #[cfg(feature = "online-judge")]
-        #[no_mangle]
-        pub extern "C" fn main() -> i32 {
-            porus_main::main();
-            0
+            #[cfg(feature = "online-judge")]
+            #[export_name = "main"]
+            pub extern "C" fn porus_start() -> i32 {
+                main();
+                0
+            }
         }
     };
 }

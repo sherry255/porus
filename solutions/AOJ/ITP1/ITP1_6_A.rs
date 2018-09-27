@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     let n: usize = read!();
     let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
     writelnf!(

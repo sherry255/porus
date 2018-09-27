@@ -4,7 +4,7 @@
 extern crate porus;
 prelude!();
 
-fn solve() {
+fn main() {
     loop {
         let m: isize = read!();
         let f: isize = read!();
