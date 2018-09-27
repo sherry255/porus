@@ -24,6 +24,8 @@
 | [ITP1_5_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_5_D) | [Structured Programming](solutions/AOJ/ITP1/ITP1_5_D.rs) |
 | [ITP1_6_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_6_A) | [Reversing Numbers](solutions/AOJ/ITP1/ITP1_6_A.rs) |
 | [ITP1_7_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_7_A) | [Grading](solutions/AOJ/ITP1/ITP1_7_A.rs) |
+| [ITP1_8_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_8_A) | [Toggling Cases](solutions/AOJ/ITP1/ITP1_8_A.rs) |
+| [ITP1_8_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_8_B) | [Sum of Numbers](solutions/AOJ/ITP1/ITP1_8_B.rs) |
 
 
 ## Introduction to Algorithms and Data Structures
@@ -38,7 +40,7 @@
 | [ALDS1_3_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_A) | [Stack](solutions/AOJ/ALDS1/ALDS1_3_A.rs) |
 | [ALDS1_3_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_3_B) | [Queue](solutions/AOJ/ALDS1/ALDS1_3_B.rs) |
 | [ALDS1_6_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_B) | [Partition](solutions/AOJ/ALDS1/ALDS1_6_B.rs) |
-| [ALDS1_6_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_C) | [Quick Sort](solutions/AOJ/ALDS1/ALDS1_2_6.rs) |
+| [ALDS1_6_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_6_C) | [Quick Sort](solutions/AOJ/ALDS1/ALDS1_6_C.rs) |
 
 
 ## Introduction to Programming II
@@ -48,3 +50,8 @@
 | [ITP2_1_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_1_A) | [Vector](solutions/AOJ/ITP2/ITP2_1_A.rs) |
 | [ITP2_1_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_1_B) | [Deque](solutions/AOJ/ITP2/ITP2_1_B.rs) |
 | [ITP2_1_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_1_C) | [List](solutions/AOJ/ITP2/ITP2_1_C.rs) |
+| [ITP2_3_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_3_A) | [Min-Max](solutions/AOJ/ITP2/ITP2_3_A.rs) |
+| [ITP2_3_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_3_B) | [Min-Max Element](solutions/AOJ/ITP2/ITP2_3_B.rs) |
+| [ITP2_3_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_3_C) | [Count](solutions/AOJ/ITP2/ITP2_3_C.rs) |
+| [ITP2_4_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_4_C) | [Swap](solutions/AOJ/ITP2/ITP2_4_C.rs) |
+| [ITP2_4_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_4_D) | [Unique](solutions/AOJ/ITP2/ITP2_4_D.rs) |

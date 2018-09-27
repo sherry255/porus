@@ -11,7 +11,7 @@ pub trait ListMut: List {
 }
 
 mod index;
-pub use self::index::{get, get_mut};
+pub use self::index::{get, get_mut, swap};
 
 mod slice;
 pub use self::slice::{slice, slice_mut};

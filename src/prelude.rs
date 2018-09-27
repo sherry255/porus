@@ -17,7 +17,7 @@ pub use crate::stdio;
 
 pub use crate::fmt::{f, join};
 pub use crate::io;
-pub use crate::scan::Char;
+pub use crate::scan::{Char, Whitespace};
 pub use crate::stdio::{read, read_opt, writef, writelnf};
 
 pub use crate::allocator;

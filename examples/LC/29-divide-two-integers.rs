@@ -1,6 +1,4 @@
-#[macro_use]
 extern crate porus;
-use porus::prelude::*;
 
 #[no_mangle]
 pub extern "C" fn divide(dividend: i32, divisor: i32) -> i32 {

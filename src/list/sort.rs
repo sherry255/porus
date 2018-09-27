@@ -1,19 +1,6 @@
 use super::slice::{slice_mut, ListMutView};
-use super::{get, get_mut, iter, List, ListMut};
-use core::mem;
+use super::{get, iter, swap, List, ListMut};
 use crate::collection::{self, Collection};
-
-fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
-    if i == j {
-        return;
-    }
-
-    let mut t = unsafe { mem::uninitialized() };
-    mem::swap(&mut t, get_mut(list, i));
-    mem::swap(&mut t, get_mut(list, j));
-    mem::swap(&mut t, get_mut(list, i));
-    mem::forget(t);
-}
 
 #[cfg_attr(feature = "cargo-clippy", allow(nonminimal_bool))]
 pub fn is_stable_sort<

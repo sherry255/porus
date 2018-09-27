@@ -1,4 +1,5 @@
 use super::{List, ListMut};
+use core::mem;
 
 pub trait ListIndex<'a, L: 'a + List> {
     fn get(self, list: &'a L) -> &'a <L as List>::Elem;
@@ -41,4 +42,16 @@ impl<'a, 'b, L: 'a + ListMut> ListMutIndex<'a, L> for &'b usize {
     fn get_mut(self, list: &'a mut L) -> &'a mut <L as List>::Elem {
         ListMut::get_mut(list, *self).unwrap()
     }
+}
+
+pub fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
+    if i == j {
+        return;
+    }
+
+    let mut t = unsafe { mem::uninitialized() };
+    mem::swap(&mut t, get_mut(list, i));
+    mem::swap(&mut t, get_mut(list, j));
+    mem::swap(&mut t, get_mut(list, i));
+    mem::forget(t);
 }
