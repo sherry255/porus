@@ -1,6 +1,6 @@
-use super::{PeekableSource, Source, STDIN};
 use core::convert::TryFrom;
 use core::ops::{Add, Mul, Neg};
+use crate::io::{PeekableSource, Source};
 
 pub trait Consumer {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool;
@@ -8,15 +8,6 @@ pub trait Consumer {
 
 pub fn fread<I: Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) -> bool {
     Consumer::consume(c, s)
-}
-
-pub fn read<C: Consumer>(c: C) -> bool {
-    unsafe { fread(&mut STDIN, c) }
-}
-
-pub fn read_skip_ws<C: Consumer>(c: C) -> bool {
-    read(Whitespace);
-    read(c)
 }
 
 pub fn is_whitespace(c: u8) -> bool {
@@ -161,6 +152,7 @@ impl<
     }
 }
 
+#[doc(hidden)]
 macro int($t:ty) {
     impl<'a> Consumer for &'a mut $t {
         fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
@@ -222,19 +214,18 @@ impl<'a> Consumer for &'a mut f64 {
 
 #[cfg(test)]
 mod tests {
-    use super::super::slice::SliceSource;
     use super::{fread, hex, Whitespace};
 
     #[test]
     fn test_whitespace() {
-        let source = &mut SliceSource::new(b"   ");
+        let source = &mut From::from(b"   " as &_);
         fread(source, Whitespace);
         assert!(source.eof());
     }
 
     #[test]
     fn test_unsigned_match() {
-        let source = &mut SliceSource::new(b"a");
+        let source = &mut From::from(b"a" as &_);
         let mut x = 0usize;
         fread(source, hex(&mut x));
         assert!(x == 0xa);
@@ -242,21 +233,21 @@ mod tests {
 
     #[test]
     fn test_unsigned_mismatch() {
-        let source = &mut SliceSource::new(b"g");
+        let source = &mut From::from(b"g" as &_);
         let mut x = 0usize;
         assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
     fn test_unsigned_mismatch_empty() {
-        let source = &mut SliceSource::new(b"");
+        let source = &mut From::from(b"" as &_);
         let mut x = 0usize;
         assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
     fn test_signed_match() {
-        let source = &mut SliceSource::new(b"-123");
+        let source = &mut From::from(b"-123" as &_);
         let mut x = 0isize;
         fread(source, &mut x);
         assert!(x == -123);
@@ -265,14 +256,14 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_signed_mismatch() {
-        let source = &mut SliceSource::new(b"-g");
+        let source = &mut From::from(b"-g" as &_);
         let mut x = 0isize;
         fread(source, &mut x);
     }
 
     #[test]
     fn test_signed_mismatch_empty() {
-        let source = &mut SliceSource::new(b"");
+        let source = &mut From::from(b"" as &_);
         let mut x = 0isize;
         assert!(!fread(source, &mut x));
     }
@@ -280,7 +271,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_signed_mismatch_sign() {
-        let source = &mut SliceSource::new(b"-");
+        let source = &mut From::from(b"-" as &_);
         let mut x = 0isize;
         fread(source, &mut x);
     }

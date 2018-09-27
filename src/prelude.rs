@@ -13,10 +13,12 @@ pub fn default<T: Default>() -> T {
     Default::default()
 }
 
+pub use crate::stdio;
+
+pub use crate::fmt::{f, join};
 pub use crate::io;
-pub use crate::io::read::Char;
-pub use crate::io::write::join;
-pub use crate::io::{f, read, read_opt, writef, writelnf};
+pub use crate::scan::Char;
+pub use crate::stdio::{read, read_opt, writef, writelnf};
 
 pub use crate::allocator;
 pub use crate::pool;
@@ -34,7 +36,7 @@ pub use crate::buffer::{buffer, Buffer};
 pub use crate::dlist::DoublyLinkedList;
 pub use crate::flist::SinglyLinkedList;
 pub use crate::static_array::static_array;
-pub use crate::string::{String, StringBuffer};
+pub use crate::string::{stringf, String, StringBuffer};
 
 /// the porus prelude
 #[macro_export]
@@ -46,9 +48,9 @@ macro_rules! prelude {
         #[allow(unused_imports)]
         use $crate::prelude::*;
 
-        mod main {
+        mod porus_main {
             use $crate::file::{Sink, Source};
-            use $crate::io::initialize;
+            use $crate::stdio::initialize;
 
             static mut STDIN: [u8; $size] = [0; $size];
             static mut STDOUT: [u8; $size] = [0; $size];
@@ -61,15 +63,15 @@ macro_rules! prelude {
             }
         }
 
-        #[cfg(debug_assertions)]
+        #[cfg(not(feature = "online-judge"))]
         fn main() {
-            main::main();
+            porus_main::main();
         }
 
-        #[cfg(not(debug_assertions))]
+        #[cfg(feature = "online-judge")]
         #[no_mangle]
         pub extern "C" fn main() -> i32 {
-            main::main();
+            porus_main::main();
             0
         }
     };

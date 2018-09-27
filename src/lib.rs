@@ -9,8 +9,9 @@
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
 #![feature(crate_in_paths)]
-#![cfg_attr(not(any(test, debug_assertions)), feature(lang_items))]
-#![cfg_attr(not(any(test, debug_assertions)), feature(panic_handler))]
+#![cfg_attr(feature = "online-judge", feature(lang_items))]
+#![cfg_attr(feature = "online-judge", feature(panic_handler))]
+#![doc(test(attr(feature(proc_macro_non_items))))]
 #![no_std]
 
 //! [`porus`](self) is a library for competitive programming. Since
@@ -58,17 +59,18 @@ pub mod tests;
 pub mod file;
 pub mod libc;
 pub mod os;
+pub mod stdio;
+
+pub mod fmt;
+pub mod io;
+pub mod scan;
 
 pub mod allocator;
 pub mod capacity;
-pub mod pool;
-
-#[macro_use]
-pub mod io;
 pub mod collection;
-#[macro_use]
-pub mod list;
 pub mod deque;
+pub mod list;
+pub mod pool;
 pub mod stack;
 
 pub mod block;
@@ -86,12 +88,12 @@ pub mod flist;
 #[macro_use]
 pub mod prelude;
 
-#[cfg(not(any(test, debug_assertions)))]
+#[cfg(feature = "online-judge")]
 #[lang = "eh_personality"]
 #[no_mangle]
 pub extern "C" fn eh_personality() {}
 
-#[cfg(not(any(test, debug_assertions)))]
+#[cfg(feature = "online-judge")]
 #[panic_handler]
 #[no_mangle]
 pub fn panic(_info: &::core::panic::PanicInfo) -> ! {

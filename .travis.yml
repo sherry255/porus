@@ -51,7 +51,8 @@ install:
 - pip3 install -r requirements.txt
 script:
 - cargo test --verbose
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then find solutions -name '*.rs' | RUSTFLAGS="--cfg local -Z borrowck=mir -Z polonius" xargs -I {} python3 -mix -v generate {}.c; fi
+- cargo test --release --verbose
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then find solutions -name '*.rs' | xargs -I {} python3 -mix -v generate {}.c; fi
 - python3 -mix -v test
 - python3 -mix -v clean
 - find solutions -name '*.rs' | xargs -I {} python3 -mix -v generate {}

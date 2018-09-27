@@ -1,23 +1,98 @@
-use super::{Output, Sink, STDOUT};
+//! Utilities for formatting and printing strings, i.e. alternative to
+//! `std::fmt`
+//!
+//! This module contains the runtime support for the
+//! [`f!`](../macro.f.html) macro. This macro uses a procedural macro
+//! to emit calls to this module in order to format arguments at
+//! runtime into strings.
+//!
+//! # Usage
+//!
+//! Since the procedural macro uses rustc's `libfmt_macros` to parse
+//! the format string, thus the usage of [`f!`](../macro.f.html) macro
+//! is very close to that of `std::format_args!`.
+//!
+//! ## Positional parameters
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"2 1 1 2", stringf!("{1:d} {:d} {0:d} {:d}", 1, 2).as_ref());
+//! ```
+//!
+//! ## Formatting Types
+//!
+//! ### Character
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"A", stringf!("{:c}", 0x41).as_ref());
+//! ```
+//!
+//! ### String
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"hello", stringf!("{:s}", "hello").as_ref());
+//! ```
+//!
+//! ### Integer
+//!
+//! #### Decimal
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"123", stringf!("{:d}", 123).as_ref());
+//! ```
+//!
+//! ### Floating-point number
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"0.125", stringf!("{:.3f}", 0.125).as_ref());
+//! ```
+//!
+//! precision specified by a parameter
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"0.125", stringf!("{:.*f}", 3, 0.125).as_ref());
+//! ```
+//!
+//! ### Format function
+//!
+//! ```
+//! # use porus::prelude::*;
+//! assert_eq!(b"hello", stringf!("{}", f!("hello")).as_ref());
+//! ```
+
 use core::convert::TryInto;
+use core::intrinsics::powif64;
 use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
+use crate::io::Sink;
+#[allow(unused_imports)]
+use porus_macros::format;
+
+/// The core macro for formatted string creation & output,
+/// i.e. alternative to `std::format_args!`
+///
+/// Values returned by this macro can be passed to
+/// [`stringf!`](macro.stringf.html),
+/// [`writef!`](macro.writef.html),
+/// [`writelnf!`](macro.writelnf.html).
+///
+/// ```
+/// # use porus::prelude::*;
+/// let s = stringf!("{}", f!("Hello, world!"));
+/// assert_eq!(b"Hello, world!", s.as_ref());
+/// ```
+///
+/// For more information, see the documentation in [`porus::fmt`](crate::fmt).
+pub macro f($($arg:tt)*) {
+    format!($($arg)*)
+}
 
 pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, f: &mut F) {
     f(sink)
-}
-
-pub fn write<F: FnMut(&mut Output)>(f: &mut F) {
-    unsafe {
-        fwrite(&mut STDOUT, f);
-    }
-}
-
-pub fn writeln<F: FnMut(&mut Output)>(f: &mut F) {
-    write(f);
-    unsafe {
-        Sink::write(&mut STDOUT, b'\n');
-    }
 }
 
 pub fn join<S: Sink, Sep: FnMut(&mut S), F: FnMut(&mut S), I: Iterator<Item = F>>(
@@ -110,6 +185,7 @@ fn write_signed<
     }
 }
 
+#[doc(hidden)]
 macro unsigned($t:ty) {
     impl Int for $t {
         fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
@@ -124,6 +200,7 @@ macro unsigned($t:ty) {
     }
 }
 
+#[doc(hidden)]
 macro signed($t:ty) {
     impl Int for $t {
         fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
@@ -156,12 +233,10 @@ pub trait Float {
     fn write<S: Sink>(self, s: &mut S, prec: i32);
 }
 
-use core::intrinsics::powif64;
-
 impl Float for f64 {
     fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
         if self.is_finite() {
-            #[cfg(any(all(debug_assertions, not(test)), local))]
+            #[cfg(feature = "local-judge")]
             {
                 fwrite_str(s, b"\x1bXf.");
                 write_unsigned(s, prec, 10, 1);

@@ -12,7 +12,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
         match p {
             Piece::String(s) => {
                 let lit = Literal::string(s);
-                stream = quote! { #stream write::fwrite_str(porus_sink, #lit); };
+                stream = quote! { #stream fwrite_str(porus_sink, #lit); };
             }
             Piece::NextArgument(Argument {
                 position: pos,
@@ -32,16 +32,16 @@ pub fn format(tokens: TokenStream) -> TokenStream {
 
                 match fmt.ty {
                     "" => {
-                        stream = quote! { #stream write::fwrite(porus_sink, &mut #arg); };
+                        stream = quote! { #stream fwrite(porus_sink, &mut #arg); };
                     }
                     "c" => {
                         stream = quote! { #stream Sink::write(porus_sink, #arg); };
                     }
                     "s" => {
-                        stream = quote! { #stream write::String::write(#arg, porus_sink); };
+                        stream = quote! { #stream String::write(#arg, porus_sink); };
                     }
                     "d" => {
-                        stream = quote! { #stream write::Int::write(#arg, porus_sink, 10, 1); };
+                        stream = quote! { #stream Int::write(#arg, porus_sink, 10, 1); };
                     }
                     "f" => {
                         let prec: Box<ToTokens> = match fmt.precision {
@@ -56,7 +56,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                             }
                         };
 
-                        stream = quote! { #stream write::Float::write(#arg, porus_sink, #prec); };
+                        stream = quote! { #stream Float::write(#arg, porus_sink, #prec); };
                     }
                     x => {
                         panic!("unknown format: {}", x);

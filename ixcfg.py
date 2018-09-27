@@ -49,21 +49,29 @@ def get_rustc_argv(mode='debug', target=None):
         "porus_macros": os.path.join(BUILD_PATH, "{}/libporus_macros.so".format(mode)),
     }
     DEPS = ['-L', 'dependency='+os.path.join(BUILD_PATH, "{}/deps".format(mode))]
+    if mode != 'release':
+        DEPS = ['-C' 'incremental='+os.path.join(BUILD_PATH, "{}/incremental".format(mode))] + DEPS
 
     VERBOSE_FLAG = '-v' if VERBOSE else '-q'
     MODE = [] if mode == 'debug' else ['--'+mode]
     TARGET = [] if target is None else ['--target', target]
+    FEATURES = []
+    if target is None:
+        FEATURES.append("local-judge")
+    if mode == 'release':
+        FEATURES.append("online-judge")
 
     ARGV = ['cargo'] + (
         ['cov'] if COVERAGE else []
-    ) + ['build', VERBOSE_FLAG, '--lib'] + MODE + TARGET
+    ) + ['build', VERBOSE_FLAG, '--lib'] + MODE + TARGET + ["--features", ",".join(FEATURES)]
 
     if compile_file(ROOTDIR, ARGV, EXTERNS["porus"]) is None:
         return
 
+    FEATURES = sum([["--cfg", 'feature="{}"'.format(f)] for f in FEATURES], [])
     FLAGS = os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").split(" ")
     DEBUG = ['-C', 'debuginfo=2'] if mode == 'debug' else []
-    return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + TARGET + DEPS, EXTERNS
+    return [RUSTC, '-Z', 'external-macro-backtrace'] + DEBUG + FLAGS + TARGET + FEATURES + DEPS, EXTERNS
 
 
 def read_source(filename):

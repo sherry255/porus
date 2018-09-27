@@ -2,8 +2,8 @@
 extern crate porus;
 prelude!();
 
-use porus::io::read::Consumer;
 use porus::io::{PeekableSource, Source};
+use porus::scan::Consumer;
 
 enum Symbol {
     Operator(u8),
