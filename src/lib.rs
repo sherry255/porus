@@ -8,7 +8,6 @@
 #![feature(refcell_replace_swap)]
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
-#![feature(crate_in_paths)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
 #![cfg_attr(feature = "online-judge", feature(panic_handler))]
 #![doc(test(attr(feature(proc_macro_non_items))))]

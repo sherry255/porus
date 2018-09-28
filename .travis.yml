@@ -17,9 +17,9 @@ matrix:
     - cargo fmt --all -- --check
     - find solutions -name '*.rs' | xargs -I {} rustfmt --check {}
     - find examples -name '*.rs' | xargs -I {} rustfmt --check {}
-    - cargo clippy -- -D clippy_style -D clippy_perf -D clippy_nursery
+    - cargo clippy -- -D clippy::style -D clippy::perf -D clippy::nursery
     - cd porus_macros
-    - cargo clippy -- -D clippy_style -D clippy_perf -D clippy_nursery
+    - cargo clippy -- -D clippy::style -D clippy::perf -D clippy::nursery
     - cd ..
     after_success:
     cache:

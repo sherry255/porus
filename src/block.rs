@@ -57,7 +57,8 @@ impl<T, P: CapacityPolicy, A: Allocator> Block<T, P, A> {
     }
 
     fn move_tail(&mut self, new_capacity: usize, n: usize) {
-        self.copy(self.capacity - n, new_capacity - n, n);
+        let src = self.capacity - n;
+        self.copy(src, new_capacity - n, n);
     }
 
     pub fn grow(&mut self, n: usize) -> usize {

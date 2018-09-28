@@ -61,7 +61,8 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
         if self.front <= self.back {
             assert!(self.data.grow(0) > 0);
         } else {
-            let grow = self.data.grow(self.data.capacity() - self.front);
+            let capacity = self.data.capacity();
+            let grow = self.data.grow(capacity - self.front);
             self.front += grow;
             assert!(grow > 0);
         }
@@ -76,9 +77,8 @@ impl<T, P: CapacityPolicy, A: Allocator> Buffer<T, P, A> {
                 self.back = size;
             }
         } else {
-            let shrink = self
-                .data
-                .shrink(size, None, self.data.capacity() - self.front);
+            let capacity = self.data.capacity();
+            let shrink = self.data.shrink(size, None, capacity - self.front);
             self.front -= shrink;
         }
     }
