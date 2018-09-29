@@ -1,4 +1,4 @@
-use super::index::ListMutView;
+use super::ViewMut;
 use super::{get, iter, slice_mut, swap, List, ListMut};
 use crate::collection::{self, Collection};
 
@@ -165,7 +165,7 @@ pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
 }
 
 fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
-    list: &'b mut ListMutView<'a, L>,
+    list: &'b mut ViewMut<'a, L>,
     lt: &F,
 ) {
     let size = collection::size(list);
