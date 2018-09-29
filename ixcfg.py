@@ -50,7 +50,7 @@ def get_rustc_argv(mode='debug', target=None):
         "porus_macros": os.path.join(BUILD_PATH, "{}/libporus_macros.so".format(mode)),
     }
     DEPS = ['-L', 'dependency='+os.path.join(BUILD_PATH, "{}/deps".format(mode))]
-    if mode != 'release':
+    if mode != 'release' and not COVERAGE:
         DEPS = ['-C' 'incremental='+os.path.join(BUILD_PATH, "{}/incremental".format(mode))] + DEPS
 
     VERBOSE_FLAG = '-v' if VERBOSE else '-q'
