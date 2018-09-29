@@ -189,7 +189,7 @@ fn write_signed<
 macro unsigned($t:ty) {
     impl Int for $t {
         fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-            write_unsigned(s, self, <$t>::from(radix), width)
+            write_unsigned(s, self, From::from(radix), width)
         }
     }
 
@@ -204,7 +204,7 @@ macro unsigned($t:ty) {
 macro signed($t:ty) {
     impl Int for $t {
         fn write<S: Sink>(self, s: &mut S, radix: u8, width: usize) {
-            write_signed(s, self, <$t>::from(radix), width)
+            write_signed(s, self, From::from(radix), width)
         }
     }
 
@@ -230,11 +230,11 @@ signed!(i128);
 signed!(isize);
 
 pub trait Float {
-    fn write<S: Sink>(self, s: &mut S, prec: i32);
+    fn write<S: Sink>(self, s: &mut S, prec: usize);
 }
 
 impl Float for f64 {
-    fn write<S: Sink>(mut self, s: &mut S, prec: i32) {
+    fn write<S: Sink>(mut self, s: &mut S, prec: usize) {
         if self.is_finite() {
             #[cfg(feature = "local-judge")]
             {
@@ -248,14 +248,15 @@ impl Float for f64 {
                 self = -self;
             }
 
-            self *= unsafe { powif64(10.0, prec) };
-            let i = self as u64;
-            let m = 10u64.pow(prec as _);
+            self *= unsafe { powif64(10.0, TryInto::try_into(prec).ok().unwrap()) };
+            let m = 10_u64.pow(TryInto::try_into(prec).ok().unwrap());
 
             if self <= 9_007_199_254_740_992.0 {
+                #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+                let i = self as u64;
                 write_unsigned(s, i / m, 10, 1);
                 Sink::write(s, b'.');
-                write_unsigned(s, i % m, 10, prec as _);
+                write_unsigned(s, i % m, 10, prec);
                 return;
             }
         }
@@ -265,7 +266,7 @@ impl Float for f64 {
 }
 
 impl<'a> Float for &'a f64 {
-    fn write<S: Sink>(self, s: &mut S, prec: i32) {
+    fn write<S: Sink>(self, s: &mut S, prec: usize) {
         Float::write(*self, s, prec)
     }
 }

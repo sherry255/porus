@@ -1,12 +1,12 @@
-pub trait CapacityPolicy {
+pub trait Policy {
     fn initial(capacity: usize) -> usize;
     fn grow(capacity: usize) -> usize;
     fn shrink(size: usize, capacity: usize) -> usize;
 }
 
-pub struct FixedCapacityPolicy {}
+pub struct FixedPolicy {}
 
-impl CapacityPolicy for FixedCapacityPolicy {
+impl Policy for FixedPolicy {
     fn initial(size: usize) -> usize {
         size
     }
@@ -20,9 +20,9 @@ impl CapacityPolicy for FixedCapacityPolicy {
     }
 }
 
-pub struct DefaultCapacityPolicy {}
+pub struct DefaultPolicy {}
 
-impl CapacityPolicy for DefaultCapacityPolicy {
+impl Policy for DefaultPolicy {
     fn initial(size: usize) -> usize {
         if size < 10 {
             10

@@ -4,7 +4,7 @@ use core::mem::{forget, size_of, transmute_copy};
 use core::ptr::copy_nonoverlapping;
 use core::slice::from_raw_parts;
 use crate::allocator::{allocate, deallocate, reallocate, Allocator};
-use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::capacity::{DefaultPolicy, Policy};
 use crate::io::{PeekableSource, Sink, Source};
 use crate::os;
 use crate::scan::{is_whitespace, Consumer};
@@ -40,37 +40,35 @@ enum Tag {
     Inline,
 }
 
-use self::Tag::*;
-
 impl Union {
     fn tag(&self) -> Tag {
         match unsafe { self.inline.offset & 0x3 } {
-            0 => Shared,
-            1 => Inline,
+            0 => Tag::Shared,
+            1 => Tag::Inline,
             _ => unreachable!(),
         }
     }
 
     fn is_inline(&self) -> bool {
         match self.tag() {
-            Shared => false,
-            Inline => true,
+            Tag::Shared => false,
+            Tag::Inline => true,
         }
     }
 
     fn len(&self) -> usize {
         unsafe {
             match self.tag() {
-                Shared => self.shared.offset,
-                Inline => (self.inline.offset >> 2) as usize,
+                Tag::Shared => self.shared.offset,
+                Tag::Inline => (self.inline.offset >> 2) as usize,
             }
         }
     }
 
     unsafe fn as_ptr(&self) -> *const u8 {
         match self.tag() {
-            Shared => self.shared.s,
-            Inline => self.inline.s.as_ptr(),
+            Tag::Shared => self.shared.s,
+            Tag::Inline => self.inline.s.as_ptr(),
         }
     }
 
@@ -79,15 +77,15 @@ impl Union {
     }
 }
 
-pub struct Buffer<P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
+pub struct Buffer<P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
     buffer: Union,
     allocator: A,
     _policy: PhantomData<P>,
 }
 
-impl<P: CapacityPolicy, A: Allocator + Default> Buffer<P, A> {
+impl<P: Policy, A: Allocator + Default> Buffer<P, A> {
     pub fn new() -> Self {
-        Buffer {
+        Self {
             buffer: Union {
                 inline: InlineBuffer {
                     offset: 1,
@@ -100,19 +98,19 @@ impl<P: CapacityPolicy, A: Allocator + Default> Buffer<P, A> {
     }
 }
 
-impl<P: CapacityPolicy, A: Allocator + Default> Default for Buffer<P, A> {
+impl<P: Policy, A: Allocator + Default> Default for Buffer<P, A> {
     fn default() -> Self {
-        Buffer::new()
+        Self::new()
     }
 }
 
-impl<P: CapacityPolicy, A: Allocator> AsRef<[u8]> for Buffer<P, A> {
+impl<P: Policy, A: Allocator> AsRef<[u8]> for Buffer<P, A> {
     fn as_ref(&self) -> &[u8] {
         self.buffer.as_bytes()
     }
 }
 
-impl<P: CapacityPolicy, A: Allocator> Sink for Buffer<P, A> {
+impl<P: Policy, A: Allocator> Sink for Buffer<P, A> {
     fn write(&mut self, c: u8) {
         let counter_size = size_of::<usize>();
 
@@ -122,16 +120,15 @@ impl<P: CapacityPolicy, A: Allocator> Sink for Buffer<P, A> {
                 let size = self.buffer.inline.s.len();
                 if offset < size {
                     self.buffer.inline.s[offset] = c;
-                    self.buffer.inline.offset = ((offset as u8 + 1) << 2) | 1;
+                    #[allow(clippy::cast_possible_truncation)]
+                    {
+                        self.buffer.inline.offset = ((offset as u8 + 1) << 2) | 1;
+                    }
                     return;
                 } else {
                     let capacity = P::initial(size);
                     let s: *mut u8 = allocate(&mut self.allocator, counter_size + capacity);
-                    copy_nonoverlapping(
-                        self.buffer.inline.s.as_ptr(),
-                        s.offset(counter_size as isize),
-                        size,
-                    );
+                    copy_nonoverlapping(self.buffer.inline.s.as_ptr(), s.add(counter_size), size);
                     self.buffer.shared = SharedBuffer {
                         s,
                         capacity,
@@ -152,32 +149,28 @@ impl<P: CapacityPolicy, A: Allocator> Sink for Buffer<P, A> {
                     counter_size + capacity,
                 );
             }
-            *self
-                .buffer
-                .shared
-                .s
-                .offset((counter_size + offset) as isize) = c;
+            *self.buffer.shared.s.add(counter_size + offset) = c;
             self.buffer.shared.offset += 1;
         }
     }
 }
 
-impl<'a, P: CapacityPolicy, A: Allocator> Consumer for &'a mut Buffer<P, A> {
+impl<'a, P: Policy, A: Allocator> Consumer for &'a mut Buffer<P, A> {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
         while let Some(&c) = s.peek() {
-            if !is_whitespace(c) {
-                Sink::write(self, c);
-                s.consume();
-            } else {
+            if is_whitespace(c) {
                 break;
             }
+
+            Sink::write(self, c);
+            s.consume();
         }
 
         true
     }
 }
 
-impl<P: CapacityPolicy, A: Allocator> Drop for Buffer<P, A> {
+impl<P: Policy, A: Allocator> Drop for Buffer<P, A> {
     fn drop(&mut self) {
         if !self.buffer.is_inline() {
             unsafe {
@@ -187,13 +180,13 @@ impl<P: CapacityPolicy, A: Allocator> Drop for Buffer<P, A> {
     }
 }
 
-struct BufferTransmute<P: CapacityPolicy, A: Allocator> {
+struct BufferTransmute<P: Policy, A: Allocator> {
     buffer: Union,
     allocator: A,
     _policy: PhantomData<P>,
 }
 
-impl<P: CapacityPolicy, A: Allocator> From<Buffer<P, A>> for String<A> {
+impl<P: Policy, A: Allocator> From<Buffer<P, A>> for String<A> {
     fn from(x: Buffer<P, A>) -> Self {
         let mut buf: BufferTransmute<P, A> = unsafe { transmute_copy(&x) };
         forget(x);
@@ -202,7 +195,7 @@ impl<P: CapacityPolicy, A: Allocator> From<Buffer<P, A>> for String<A> {
 
         if buf.buffer.is_inline() {
             unsafe {
-                String {
+                Self {
                     s: StringUnion {
                         inline: InlineString {
                             length: buf.buffer.inline.offset,
@@ -220,16 +213,16 @@ impl<P: CapacityPolicy, A: Allocator> From<Buffer<P, A>> for String<A> {
                     buf.buffer.shared.s,
                     counter_size + length,
                 );
-                #[cfg_attr(feature = "cargo-clippy", allow(cast_ptr_alignment))]
+                #[allow(clippy::cast_ptr_alignment)]
                 let counter = s as *mut usize;
                 *counter = 1;
 
-                String {
+                Self {
                     s: StringUnion {
                         shared: SharedString {
                             counter,
                             length,
-                            s: s.offset(counter_size as isize),
+                            s: s.add(counter_size),
                         },
                     },
                     allocator: buf.allocator,

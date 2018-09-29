@@ -71,8 +71,8 @@ fn read_digit<I: Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
 
     let d = match c {
         b'0'...b'9' => c - b'0',
-        b'A'...b'Z' => c - b'A' + 10u8,
-        b'a'...b'z' => c - b'a' + 10u8,
+        b'A'...b'Z' => c - b'A' + 10_u8,
+        b'a'...b'z' => c - b'a' + 10_u8,
         _ => {
             return None;
         }
@@ -207,7 +207,11 @@ impl<'a> Consumer for &'a mut f64 {
             exp += e;
         }
 
-        *self = sign * unsafe { powif64(10.0, exp) } * (int as f64);
+        #[allow(clippy::cast_precision_loss)]
+        {
+            *self = sign * unsafe { powif64(10.0, exp) } * (int as f64);
+        }
+
         true
     }
 }
@@ -226,7 +230,7 @@ mod tests {
     #[test]
     fn test_unsigned_match() {
         let source = &mut From::from(b"a" as &_);
-        let mut x = 0usize;
+        let mut x = 0_usize;
         fread(source, hex(&mut x));
         assert!(x == 0xa);
     }
@@ -234,21 +238,21 @@ mod tests {
     #[test]
     fn test_unsigned_mismatch() {
         let source = &mut From::from(b"g" as &_);
-        let mut x = 0usize;
+        let mut x = 0_usize;
         assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
     fn test_unsigned_mismatch_empty() {
         let source = &mut From::from(b"" as &_);
-        let mut x = 0usize;
+        let mut x = 0_usize;
         assert!(!fread(source, hex(&mut x)));
     }
 
     #[test]
     fn test_signed_match() {
         let source = &mut From::from(b"-123" as &_);
-        let mut x = 0isize;
+        let mut x = 0_isize;
         fread(source, &mut x);
         assert!(x == -123);
     }
@@ -257,14 +261,14 @@ mod tests {
     #[should_panic]
     fn test_signed_mismatch() {
         let source = &mut From::from(b"-g" as &_);
-        let mut x = 0isize;
+        let mut x = 0_isize;
         fread(source, &mut x);
     }
 
     #[test]
     fn test_signed_mismatch_empty() {
         let source = &mut From::from(b"" as &_);
-        let mut x = 0isize;
+        let mut x = 0_isize;
         assert!(!fread(source, &mut x));
     }
 
@@ -272,7 +276,7 @@ mod tests {
     #[should_panic]
     fn test_signed_mismatch_sign() {
         let source = &mut From::from(b"-" as &_);
-        let mut x = 0isize;
+        let mut x = 0_isize;
         fread(source, &mut x);
     }
 }

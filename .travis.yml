@@ -9,7 +9,7 @@ matrix:
   include:
   - name: Lint
     language: rust
-    rust: nightly-2018-08-28
+    rust: nightly
     install:
     - rustup component add rustfmt-preview
     - rustup component add clippy-preview
@@ -17,9 +17,9 @@ matrix:
     - cargo fmt --all -- --check
     - find solutions -name '*.rs' | xargs -I {} rustfmt --check {}
     - find examples -name '*.rs' | xargs -I {} rustfmt --check {}
-    - cargo clippy -- -D clippy::style -D clippy::perf -D clippy::nursery
+    - cargo clippy --all-features
     - cd porus_macros
-    - cargo clippy -- -D clippy::style -D clippy::perf -D clippy::nursery
+    - cargo clippy
     - cd ..
     after_success:
     cache:
@@ -35,12 +35,10 @@ matrix:
     - /Applications/Python\ 3.6/Install\ Certificates.command
   allow_failures:
   - python: "3.7-dev"
-  - env: TRAVIS_RUST_VERSION=nightly
 env:
   global:
   - PATH=${PATH}:${HOME}/.cargo/bin
   matrix:
-  - TRAVIS_RUST_VERSION=nightly-2018-08-28
   - TRAVIS_RUST_VERSION=nightly
 install:
 - cd /tmp

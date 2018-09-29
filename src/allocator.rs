@@ -40,7 +40,7 @@ pub struct Pool<T, A: Allocator = os::Allocator> {
 
 impl<T, A: Allocator> Pool<T, A> {
     pub fn new_with_allocator(allocator: A) -> Self {
-        Pool {
+        Self {
             allocator,
             _type: PhantomData,
         }
@@ -49,13 +49,13 @@ impl<T, A: Allocator> Pool<T, A> {
 
 impl<T, A: Allocator + Default> Pool<T, A> {
     pub fn new() -> Self {
-        Pool::new_with_allocator(Default::default())
+        Self::new_with_allocator(Default::default())
     }
 }
 
 impl<T, A: Allocator + Default> Default for Pool<T, A> {
     fn default() -> Self {
-        Pool::new()
+        Self::new()
     }
 }
 

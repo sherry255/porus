@@ -1,8 +1,8 @@
-use super::slice::{slice_mut, ListMutView};
-use super::{get, iter, swap, List, ListMut};
+use super::index::ListMutView;
+use super::{get, iter, slice_mut, swap, List, ListMut};
 use crate::collection::{self, Collection};
 
-#[cfg_attr(feature = "cargo-clippy", allow(nonminimal_bool))]
+#[allow(clippy::nonminimal_bool)]
 pub fn is_stable_sort<
     E,
     L: List<Elem = E> + Collection,

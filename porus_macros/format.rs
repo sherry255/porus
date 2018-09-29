@@ -20,11 +20,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
             }) => {
                 let arg: Box<ToTokens> = match pos {
                     Position::ArgumentNamed(_name) => panic!("named argument not supported"),
-                    Position::ArgumentImplicitlyIs(i) => {
-                        let lit = Literal::usize_unsuffixed(i);
-                        Box::new(quote! { porus_args.#lit })
-                    }
-                    Position::ArgumentIs(i) => {
+                    Position::ArgumentImplicitlyIs(i) | Position::ArgumentIs(i) => {
                         let lit = Literal::usize_unsuffixed(i);
                         Box::new(quote! { porus_args.#lit })
                     }
@@ -45,7 +41,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                     }
                     "f" => {
                         let prec: Box<ToTokens> = match fmt.precision {
-                            Count::CountIs(n) => Box::new(Literal::i32_suffixed(n as _)),
+                            Count::CountIs(n) => Box::new(Literal::usize_suffixed(n)),
                             Count::CountIsName(_name) => panic!("named argument not supported"),
                             Count::CountIsParam(i) => {
                                 let lit = Literal::usize_unsuffixed(i);

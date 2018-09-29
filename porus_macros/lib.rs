@@ -1,4 +1,12 @@
 #![feature(rustc_private)]
+#![feature(tool_lints)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::nursery)]
+#![deny(clippy::style)]
+#![deny(clippy::complexity)]
+#![deny(clippy::perf)]
+#![deny(clippy::correctness)]
 
 extern crate proc_macro;
 extern crate proc_macro2;

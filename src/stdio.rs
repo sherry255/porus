@@ -27,7 +27,7 @@ impl Sink for Output {
 static mut STDIN: PeekableSource<Input> = PeekableSource::new(Input(Cell::new(None)));
 static mut STDOUT: Output = Output(Cell::new(None));
 
-#[cfg_attr(feature = "cargo-clippy", allow(option_option))]
+#[allow(clippy::option_option)]
 struct PeekableSourceInput {
     source: Input,
     _peeked: Option<Option<u8>>,

@@ -2,7 +2,7 @@ use super::List;
 use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
 use crate::collection;
 
-pub struct ListIter<'a, T: 'a + List>
+pub struct Iter<'a, T: 'a + List>
 where
     T::Elem: Copy,
 {
@@ -11,7 +11,7 @@ where
     end: usize,
 }
 
-impl<'a, T: 'a + List> ExactSizeIterator for ListIter<'a, T>
+impl<'a, T: 'a + List> ExactSizeIterator for Iter<'a, T>
 where
     T::Elem: Copy,
 {
@@ -20,7 +20,7 @@ where
     }
 }
 
-impl<'a, T: 'a + List> Iterator for ListIter<'a, T>
+impl<'a, T: 'a + List> Iterator for Iter<'a, T>
 where
     T::Elem: Copy,
 {
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<'a, T: 'a + List> DoubleEndedIterator for ListIter<'a, T>
+impl<'a, T: 'a + List> DoubleEndedIterator for Iter<'a, T>
 where
     T::Elem: Copy,
 {
@@ -52,11 +52,11 @@ where
     }
 }
 
-pub fn iter<T: List>(list: &T) -> ListIter<T>
+pub fn iter<T: List>(list: &T) -> Iter<T>
 where
     T::Elem: Copy,
 {
-    ListIter {
+    Iter {
         list,
         start: 0,
         end: collection::size(list),

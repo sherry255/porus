@@ -31,12 +31,12 @@ impl allocator::Allocator for Allocator {
 
 impl Allocator {
     pub fn new() -> Self {
-        Allocator {}
+        Self {}
     }
 }
 
 impl Default for Allocator {
     fn default() -> Self {
-        Allocator::new()
+        Self::new()
     }
 }

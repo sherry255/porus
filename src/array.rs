@@ -1,18 +1,18 @@
 use core::iter::{ExactSizeIterator, Iterator};
 use crate::allocator::Allocator;
 use crate::block::Block;
-use crate::capacity::{CapacityPolicy, DefaultCapacityPolicy};
+use crate::capacity::{DefaultPolicy, Policy};
 use crate::collection::Collection;
 use crate::list::{List, ListMut};
 use crate::os;
 use crate::stack::Stack;
 
-pub struct Array<T, P: CapacityPolicy = DefaultCapacityPolicy, A: Allocator = os::Allocator> {
+pub struct Array<T, P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
     size: usize,
     data: Block<T, P, A>,
 }
 
-impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
+impl<T, P: Policy, A: Allocator + Default> Array<T, P, A> {
     pub fn new_from_iter<I: ExactSizeIterator<Item = T>>(mut it: I) -> Self {
         let size = ExactSizeIterator::len(&it);
         let mut data = Block::new(Default::default(), size);
@@ -22,23 +22,23 @@ impl<T, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
             data.write(i, Iterator::next(&mut it).unwrap());
         }
 
-        Array { size, data }
+        Self { size, data }
     }
 }
 
-impl<T: Clone, P: CapacityPolicy, A: Allocator + Default> Array<T, P, A> {
+impl<T: Clone, P: Policy, A: Allocator + Default> Array<T, P, A> {
     pub fn new_from_elem(x: T, size: isize) -> Self {
-        Array::new_from_iter((0..size).map(|_| Clone::clone(&x)))
+        Self::new_from_iter((0..size).map(|_| Clone::clone(&x)))
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Collection for Array<T, P, A> {
+impl<T, P: Policy, A: Allocator> Collection for Array<T, P, A> {
     fn size(&self) -> usize {
         self.size
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> List for Array<T, P, A> {
+impl<T, P: Policy, A: Allocator> List for Array<T, P, A> {
     type Elem = T;
 
     fn get(&self, index: usize) -> Option<&T> {
@@ -50,7 +50,7 @@ impl<T, P: CapacityPolicy, A: Allocator> List for Array<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> ListMut for Array<T, P, A> {
+impl<T, P: Policy, A: Allocator> ListMut for Array<T, P, A> {
     fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if index < self.size {
             Some(self.data.get_mut(index))
@@ -60,7 +60,7 @@ impl<T, P: CapacityPolicy, A: Allocator> ListMut for Array<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
+impl<T, P: Policy, A: Allocator> Stack for Array<T, P, A> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -88,7 +88,7 @@ impl<T, P: CapacityPolicy, A: Allocator> Stack for Array<T, P, A> {
     }
 }
 
-impl<T, P: CapacityPolicy, A: Allocator> Drop for Array<T, P, A> {
+impl<T, P: Policy, A: Allocator> Drop for Array<T, P, A> {
     fn drop(&mut self) {
         for i in 0..self.size {
             self.data.read(i);

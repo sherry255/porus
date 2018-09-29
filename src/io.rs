@@ -4,7 +4,7 @@ pub trait Source: Iterator<Item = u8> {}
 
 impl<T: Iterator<Item = u8>> Source for T {}
 
-#[cfg_attr(feature = "cargo-clippy", allow(option_option))]
+#[allow(clippy::option_option)]
 pub struct PeekableSource<S: Source> {
     source: S,
     peeked: Option<Option<S::Item>>,
@@ -12,7 +12,7 @@ pub struct PeekableSource<S: Source> {
 
 impl<S: Source> PeekableSource<S> {
     pub const fn new(s: S) -> Self {
-        PeekableSource {
+        Self {
             source: s,
             peeked: None,
         }
@@ -44,7 +44,7 @@ impl<S: Source> PeekableSource<S> {
 
 impl<S: Source> From<S> for PeekableSource<S> {
     fn from(source: S) -> Self {
-        PeekableSource::new(source)
+        Self::new(source)
     }
 }
 
@@ -54,7 +54,7 @@ pub struct Bytes<'a> {
 
 impl<'a> Bytes<'a> {
     pub fn new(s: &'a [u8]) -> Self {
-        Bytes { s }
+        Self { s }
     }
 }
 
@@ -74,7 +74,7 @@ impl<'a> Iterator for Bytes<'a> {
 
 impl<'a> From<&'a [u8]> for PeekableSource<Bytes<'a>> {
     fn from(s: &'a [u8]) -> Self {
-        PeekableSource::new(Bytes::new(s))
+        Self::new(Bytes::new(s))
     }
 }
 

@@ -17,7 +17,10 @@ pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, libc::Error> {
             break;
         }
 
-        length += size as usize;
+        #[allow(clippy::cast_sign_loss)]
+        {
+            length += size as usize;
+        }
 
         unsafe {
             ptr = ptr.offset(size);
@@ -37,7 +40,10 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
             return libc::get_error();
         }
 
-        written += size as usize;
+        #[allow(clippy::cast_sign_loss)]
+        {
+            written += size as usize;
+        }
 
         unsafe {
             ptr = ptr.offset(size);
@@ -58,7 +64,7 @@ pub struct Source {
 impl Source {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
         let size = buffer.len();
-        Source {
+        Self {
             fd,
             size,
             offset: size,
@@ -78,7 +84,7 @@ impl Iterator for Source {
         }
 
         if self.offset < self.size {
-            let c = unsafe { ptr::read(self.buffer.offset(self.offset as isize)) };
+            let c = unsafe { ptr::read(self.buffer.add(self.offset)) };
             self.offset += 1;
             Some(c)
         } else {
@@ -96,7 +102,7 @@ pub struct Sink {
 
 impl Sink {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
-        Sink {
+        Self {
             fd,
             offset: 0,
             capacity: buffer.len(),
@@ -112,7 +118,7 @@ impl io::Sink for Sink {
             self.offset = 0;
         }
 
-        unsafe { ptr::write(self.buffer.offset(self.offset as isize), c) };
+        unsafe { ptr::write(self.buffer.add(self.offset), c) };
         self.offset += 1;
     }
 }

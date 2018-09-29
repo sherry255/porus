@@ -25,7 +25,7 @@ pub struct DoublyLinkedList<
 
 impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> DoublyLinkedList<T, H, P> {
     pub fn new_with_pool(pool: P) -> Self {
-        DoublyLinkedList {
+        Self {
             pool,
             sentinel: Link {
                 prev: None,
@@ -38,7 +38,7 @@ impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> DoublyLinkedList<T, H
 
 impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H> + Default> DoublyLinkedList<T, H, P> {
     pub fn new() -> Self {
-        DoublyLinkedList::new_with_pool(Default::default())
+        Self::new_with_pool(Default::default())
     }
 }
 

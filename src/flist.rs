@@ -20,7 +20,7 @@ pub struct SinglyLinkedList<
 
 impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> SinglyLinkedList<T, H, P> {
     pub fn new_with_pool(pool: P) -> Self {
-        SinglyLinkedList {
+        Self {
             pool,
             sentinel: None,
             _data: PhantomData,
@@ -30,7 +30,7 @@ impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> SinglyLinkedList<T, H
 
 impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H> + Default> SinglyLinkedList<T, H, P> {
     pub fn new() -> Self {
-        SinglyLinkedList::new_with_pool(Default::default())
+        Self::new_with_pool(Default::default())
     }
 }
 

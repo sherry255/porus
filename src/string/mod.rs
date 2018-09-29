@@ -72,14 +72,12 @@ enum Tag {
     Static,
 }
 
-use self::Tag::*;
-
 impl Union {
     fn tag(&self) -> Tag {
         match unsafe { self.inline.length & 0x3 } {
-            0 => Shared,
-            1 => Inline,
-            2 => Static,
+            0 => Tag::Shared,
+            1 => Tag::Inline,
+            2 => Tag::Static,
             _ => unreachable!(),
         }
     }
@@ -87,18 +85,18 @@ impl Union {
     fn len(&self) -> usize {
         unsafe {
             match self.tag() {
-                Shared => self.shared.length,
-                Inline => (self.inline.length >> 2) as usize,
-                Static => self.static_.length,
+                Tag::Shared => self.shared.length,
+                Tag::Inline => (self.inline.length >> 2) as usize,
+                Tag::Static => self.static_.length,
             }
         }
     }
 
     unsafe fn as_ptr(&self) -> *const u8 {
         match self.tag() {
-            Shared => self.shared.s,
-            Inline => self.inline.s.as_ptr(),
-            Static => self.static_.s,
+            Tag::Shared => self.shared.s,
+            Tag::Inline => self.inline.s.as_ptr(),
+            Tag::Static => self.static_.s,
         }
     }
 
@@ -114,7 +112,7 @@ pub struct String<A: Allocator = os::Allocator> {
 
 impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
     fn from(s: &'static [u8]) -> Self {
-        String {
+        Self {
             s: Union {
                 static_: StaticString {
                     s: s.as_ptr(),
@@ -141,7 +139,7 @@ impl<A: Allocator> PartialEq for String<A> {
 
 impl<A: Allocator> Drop for String<A> {
     fn drop(&mut self) {
-        if let Shared = self.s.tag() {
+        if let Tag::Shared = self.s.tag() {
             unsafe {
                 *self.s.shared.counter -= 1;
                 if *self.s.shared.counter == 0 {
@@ -186,6 +184,7 @@ mod tests {
     #[test]
     fn test_inline_string_buffer() {
         let source = &mut From::from(b"abc " as &_);
+        #[allow(clippy::default_trait_access)]
         let mut buffer: StringBuffer = Default::default();
         fread(source, &mut buffer);
         let s1: String = From::from(buffer);
@@ -196,6 +195,7 @@ mod tests {
     #[test]
     fn test_shared_string_buffer() {
         let source = &mut From::from(b"abcdefghijklmnopqrstuvwxyz" as &_);
+        #[allow(clippy::default_trait_access)]
         let mut buffer: StringBuffer = Default::default();
         fread(source, &mut buffer);
         let s1: String = From::from(buffer);
