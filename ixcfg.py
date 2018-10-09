@@ -23,7 +23,7 @@ DEBUG_EXTERNS = {
 
 SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>\w+)(?:/.*)?/(?P<problem>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
 
-PRELUDE = b'''#![feature(proc_macro_non_items)]
+PRELUDE = b'''#![feature(proc_macro_hygiene)]
 #![feature(main)]
 #![cfg_attr(not(debug_assertions), no_std)]
 '''

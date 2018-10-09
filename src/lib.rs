@@ -10,7 +10,7 @@
 #![feature(custom_attribute)]
 #![feature(tool_lints)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
-#![doc(test(attr(feature(proc_macro_non_items))))]
+#![doc(test(attr(feature(proc_macro_hygiene))))]
 #![no_std]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
