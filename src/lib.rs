@@ -8,7 +8,6 @@
 #![feature(refcell_replace_swap)]
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
-#![feature(tool_lints)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
 #![doc(test(attr(feature(proc_macro_hygiene))))]
 #![no_std]
