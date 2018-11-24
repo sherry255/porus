@@ -1,4 +1,3 @@
-use core::iter::{ExactSizeIterator, Iterator};
 use crate::allocator::Allocator;
 use crate::block::Block;
 use crate::capacity::{DefaultPolicy, Policy};
@@ -6,6 +5,7 @@ use crate::collection::Collection;
 use crate::list::{List, ListMut};
 use crate::os;
 use crate::stack::Stack;
+use core::iter::{ExactSizeIterator, Iterator};
 
 pub struct Array<T, P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
     size: usize,
@@ -103,8 +103,8 @@ pub macro array($elem:expr; $n:expr) {
 #[cfg(test)]
 mod tests {
     use super::Array;
-    use core::cell::Cell;
     use crate::tests::Item;
+    use core::cell::Cell;
 
     #[test]
     fn test_drop() {

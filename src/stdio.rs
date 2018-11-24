@@ -1,11 +1,11 @@
-use core::cell::Cell;
-use core::iter::Iterator;
-use core::ptr::NonNull;
 #[allow(unused_imports)]
 use crate::fmt::f;
 use crate::fmt::fwrite;
 use crate::io::{PeekableSource, Sink, Source};
 use crate::scan::{fread, Consumer, Whitespace};
+use core::cell::Cell;
+use core::iter::Iterator;
+use core::ptr::NonNull;
 
 pub struct Input(Cell<Option<NonNull<dyn Source<Item = u8>>>>);
 pub struct Output(Cell<Option<NonNull<dyn Sink>>>);

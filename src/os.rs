@@ -1,6 +1,6 @@
-use core::ptr::null_mut;
 use crate::allocator;
 use crate::libc::{free, get_error, malloc, realloc, Error};
+use core::ptr::null_mut;
 
 pub struct Allocator {}
 

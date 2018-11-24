@@ -1,6 +1,6 @@
 use super::List;
-use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
 use crate::collection;
+use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
 
 pub struct Iter<'a, T: 'a + List>
 where

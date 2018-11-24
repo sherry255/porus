@@ -1,5 +1,5 @@
-use core::ops::{Bound, RangeBounds};
 use crate::collection::{self, Collection};
+use core::ops::{Bound, RangeBounds};
 
 pub trait List: Collection {
     type Elem;

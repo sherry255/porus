@@ -1,7 +1,7 @@
-use core::iter::Iterator;
-use core::ptr;
 use crate::io;
 use crate::libc;
+use core::iter::Iterator;
+use core::ptr;
 
 pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<usize, libc::Error> {
     let mut length = 0;

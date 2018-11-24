@@ -1,9 +1,9 @@
-use core::num::NonZeroUsize;
 use crate::allocator::Allocator;
 use crate::block::Block;
 use crate::capacity::{DefaultPolicy, Policy};
 use crate::os;
 use crate::pool::{self, Pool};
+use core::num::NonZeroUsize;
 
 #[derive(Clone, Copy)]
 pub struct Handle(NonZeroUsize);

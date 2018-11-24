@@ -1,7 +1,7 @@
-use core::marker::PhantomData;
-use core::ptr::{copy, read, write};
 use crate::allocator::{allocate, deallocate, reallocate, Allocator};
 use crate::capacity::Policy;
+use core::marker::PhantomData;
+use core::ptr::{copy, read, write};
 
 pub struct Block<T, P: Policy, A: Allocator> {
     capacity: usize,

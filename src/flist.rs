@@ -1,7 +1,7 @@
-use core::marker::PhantomData;
 use crate::allocator;
 use crate::pool::{self, Handle, Pool};
 use crate::stack::Stack;
+use core::marker::PhantomData;
 
 pub struct Node<H: Handle, T> {
     next: Option<H>,

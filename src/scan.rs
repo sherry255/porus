@@ -1,6 +1,6 @@
+use crate::io::{PeekableSource, Source};
 use core::convert::TryFrom;
 use core::ops::{Add, Mul, Neg};
-use crate::io::{PeekableSource, Source};
 
 pub trait Consumer {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool;

@@ -2,7 +2,6 @@
 #![feature(decl_macro)]
 #![feature(const_fn)]
 #![feature(const_slice_len)]
-#![feature(const_slice_as_ptr)]
 #![feature(try_from)]
 #![feature(specialization)]
 #![feature(refcell_replace_swap)]

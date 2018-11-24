@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(tool_lints)]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
 #![deny(clippy::nursery)]

@@ -7,7 +7,7 @@ use syn::{Expr, LitStr};
 pub fn format(tokens: TokenStream) -> TokenStream {
     let (s, args): (LitStr, Expr) = parse_args(tokens).unwrap();
 
-    let mut stream = quote!{};
+    let mut stream = quote! {};
     for p in Parser::new(s.value().as_str(), None) {
         match p {
             Piece::String(s) => {
@@ -62,7 +62,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
         }
     }
 
-    quote!{
+    quote! {
         {
             #[allow(unused_variables, unused_mut)]
             let mut porus_args = #args;

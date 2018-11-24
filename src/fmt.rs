@@ -64,11 +64,11 @@
 //! assert_eq!(b"hello", stringf!("{}", f!("hello")).as_ref());
 //! ```
 
+use crate::io::Sink;
 use core::convert::TryInto;
 use core::intrinsics::powif64;
 use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
-use crate::io::Sink;
 #[allow(unused_imports)]
 use porus_macros::format;
 

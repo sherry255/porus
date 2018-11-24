@@ -1,13 +1,13 @@
 use super::{InlineString, SharedString, String, Union as StringUnion};
-use core::marker::PhantomData;
-use core::mem::{forget, size_of, transmute_copy};
-use core::ptr::copy_nonoverlapping;
-use core::slice::from_raw_parts;
 use crate::allocator::{allocate, deallocate, reallocate, Allocator};
 use crate::capacity::{DefaultPolicy, Policy};
 use crate::io::{PeekableSource, Sink, Source};
 use crate::os;
 use crate::scan::{is_whitespace, Consumer};
+use core::marker::PhantomData;
+use core::mem::{forget, size_of, transmute_copy};
+use core::ptr::copy_nonoverlapping;
+use core::slice::from_raw_parts;
 
 #[cfg(all(target_endian = "little"))]
 #[derive(Clone, Copy)]

@@ -1,4 +1,3 @@
-use core::slice::from_raw_parts;
 use crate::allocator::{deallocate, Allocator};
 #[allow(unused_imports)]
 use crate::fmt::{self, fwrite_str};
@@ -6,6 +5,7 @@ use crate::fmt::{self, fwrite_str};
 use crate::fmt::{f, fwrite};
 use crate::io::Sink;
 use crate::os;
+use core::slice::from_raw_parts;
 
 mod buffer;
 pub use self::buffer::Buffer as StringBuffer;

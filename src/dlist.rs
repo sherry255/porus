@@ -1,7 +1,7 @@
-use core::marker::PhantomData;
 use crate::allocator;
 use crate::deque::Deque;
 use crate::pool::{self, Handle, Pool};
+use core::marker::PhantomData;
 
 struct Link<H: Handle> {
     prev: Option<H>,
