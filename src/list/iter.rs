@@ -1,64 +1,67 @@
 use super::List;
 use crate::collection;
-use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
+use crate::stream::{Cloned, DoubleEndedStream, ExactSizeStream, Stream};
 
-pub struct Iter<'a, T: 'a + List>
+pub struct ListStream<'a, T: 'a + List>
 where
-    T::Elem: Copy,
+    T::Elem: Clone,
 {
     list: &'a T,
     start: usize,
     end: usize,
 }
 
-impl<'a, T: 'a + List> ExactSizeIterator for Iter<'a, T>
+
+impl<'a, T: 'a + List> Stream for ListStream<'a, T>
 where
-    T::Elem: Copy,
+    T::Elem: Clone,
+{
+    type Item = T::Elem;
+
+    fn next(&mut self) -> Option<&Self::Item> {
+        if self.start < self.end {
+            let index = self.start;
+            self.start += 1;
+            List::get(self.list, index)
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T: 'a + List> ExactSizeStream for ListStream<'a, T>
+where
+    T::Elem: Clone,
 {
     fn len(&self) -> usize {
         self.end - self.start
     }
 }
 
-impl<'a, T: 'a + List> Iterator for Iter<'a, T>
-where
-    T::Elem: Copy,
-{
-    type Item = T::Elem;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.start < self.end {
-            let index = self.start;
-            self.start += 1;
-            Some(*List::get(self.list, index).unwrap())
-        } else {
-            None
-        }
-    }
-}
-
-impl<'a, T: 'a + List> DoubleEndedIterator for Iter<'a, T>
+impl<'a, T: 'a + List> DoubleEndedStream for ListStream<'a, T>
 where
-    T::Elem: Copy,
+    T::Elem: Clone,
 {
-    fn next_back(&mut self) -> Option<Self::Item> {
+    fn next_back(&mut self) -> Option<&Self::Item> {
         if self.start < self.end {
             self.end -= 1;
             let index = self.end;
-            Some(*List::get(self.list, index).unwrap())
+            List::get(self.list, index)
         } else {
             None
         }
     }
 }
 
-pub fn iter<T: List>(list: &T) -> Iter<T>
+pub fn iter<T: List>(list: &T) -> Cloned<T::Elem, ListStream<T>>
 where
-    T::Elem: Copy,
+    T::Elem: Clone,
 {
-    Iter {
-        list,
-        start: 0,
-        end: collection::size(list),
-    }
+    Stream::cloned(
+        ListStream {
+            list,
+            start: 0,
+            end: collection::size(list),
+        })
 }

@@ -80,6 +80,7 @@ pub mod fmt;
 pub mod io;
 pub mod scan;
 
+pub mod stream;
 pub mod allocator;
 pub mod capacity;
 pub mod collection;
