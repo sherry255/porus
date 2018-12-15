@@ -20,6 +20,10 @@ pub fn get_mut<L: ListMut>(list: &mut L, index: usize) -> &mut <L as List>::Elem
     ListMut::get_mut(list, index).unwrap()
 }
 
+pub fn set<L: ListMut>(list: &mut L, index: usize, elem: <L as List>::Elem) {
+    *get_mut(list, index) = elem
+}
+
 pub fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
     if i == j {
         return;

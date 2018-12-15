@@ -13,6 +13,11 @@ pub struct Array<T, P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
 }
 
 impl<T, P: Policy, A: Allocator + Default> Array<T, P, A> {
+    pub fn new() -> Self {
+        let data = Block::new(Default::default(), 0);
+        Self { size: 0, data }
+    }
+
     pub fn new_from_iter<I: ExactSizeIterator<Item = T>>(mut it: I) -> Self {
         let size = ExactSizeIterator::len(&it);
         let mut data = Block::new(Default::default(), size);
@@ -85,6 +90,12 @@ impl<T, P: Policy, A: Allocator> Stack for Array<T, P, A> {
             self.data.shrink(self.size, None, 0);
             Some(item)
         }
+    }
+}
+
+impl<T, P: Policy, A: Allocator + Default> Default for Array<T, P, A> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
