@@ -30,7 +30,7 @@ pub use crate::collection;
 pub use crate::deque;
 pub use crate::list;
 pub use crate::list::sorting;
-pub use crate::stack;
+pub use crate::stack::{self, Stack};
 
 pub use crate::array::{array, Array};
 pub use crate::buffer::{buffer, Buffer};

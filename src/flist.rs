@@ -68,4 +68,11 @@ impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> Stack for SinglyLinke
             }
         }
     }
+
+    fn top(&self) -> Option<&T> {
+        match self.sentinel {
+            None => None,
+            Some(handle) => Some(&pool::get(&self.pool, handle).data),
+        }
+    }
 }

@@ -91,6 +91,14 @@ impl<T, P: Policy, A: Allocator> Stack for Array<T, P, A> {
             Some(item)
         }
     }
+
+    fn top(&self) -> Option<&T> {
+        if self.is_empty() {
+            None
+        } else {
+            Some(self.data.get(self.size - 1))
+        }
+    }
 }
 
 impl<T, P: Policy, A: Allocator + Default> Default for Array<T, P, A> {
