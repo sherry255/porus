@@ -11,7 +11,6 @@ where
     end: usize,
 }
 
-
 impl<'a, T: 'a + List> Stream for ListStream<'a, T>
 where
     T::Elem: Clone,
@@ -38,7 +37,6 @@ where
     }
 }
 
-
 impl<'a, T: 'a + List> DoubleEndedStream for ListStream<'a, T>
 where
     T::Elem: Clone,
@@ -58,10 +56,9 @@ pub fn iter<T: List>(list: &T) -> Cloned<T::Elem, ListStream<T>>
 where
     T::Elem: Clone,
 {
-    Stream::cloned(
-        ListStream {
-            list,
-            start: 0,
-            end: collection::size(list),
-        })
+    Stream::cloned(ListStream {
+        list,
+        start: 0,
+        end: collection::size(list),
+    })
 }
