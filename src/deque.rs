@@ -6,6 +6,8 @@ pub trait Deque {
     fn pop_front(&mut self) -> Option<Self::Elem>;
     fn push_back(&mut self, elem: Self::Elem);
     fn pop_back(&mut self) -> Option<Self::Elem>;
+    fn front(&self) -> Option<&Self::Elem>;
+    fn back(&self) -> Option<&Self::Elem>;
 }
 
 pub fn is_empty<T: Deque>(q: &T) -> bool {
@@ -26,4 +28,12 @@ pub fn push_back<T: Deque>(q: &mut T, elem: T::Elem) {
 
 pub fn pop_back<T: Deque>(q: &mut T) -> T::Elem {
     Deque::pop_back(q).unwrap()
+}
+
+pub fn front<T: Deque>(q: &T) -> &T::Elem {
+    Deque::front(q).unwrap()
+}
+
+pub fn back<T: Deque>(q: &T) -> &T::Elem {
+    Deque::back(q).unwrap()
 }

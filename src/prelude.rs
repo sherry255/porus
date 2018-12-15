@@ -26,8 +26,8 @@ pub use crate::pool;
 pub use crate::allocator::Pool;
 pub use crate::chunk::Chunk;
 
-pub use crate::collection;
-pub use crate::deque;
+pub use crate::collection::{self, Collection};
+pub use crate::deque::{self, Deque};
 pub use crate::list;
 pub use crate::list::sorting;
 pub use crate::stack::{self, Stack};

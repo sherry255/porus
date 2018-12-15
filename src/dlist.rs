@@ -159,4 +159,18 @@ impl<T, H: Handle, P: Pool<Elem = Node<H, T>, Handle = H>> Deque for DoublyLinke
             Some(handle) => Some(self.remove(handle)),
         }
     }
+
+    fn front(&self) -> Option<&T> {
+        match self.front() {
+            None => None,
+            Some(handle) => Some(&pool::get(&self.pool, handle).data),
+        }
+    }
+
+    fn back(&self) -> Option<&T> {
+        match self.back() {
+            None => None,
+            Some(handle) => Some(&pool::get(&self.pool, handle).data),
+        }
+    }
 }

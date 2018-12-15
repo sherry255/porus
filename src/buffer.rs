@@ -172,6 +172,22 @@ impl<T, P: Policy, A: Allocator> Deque for Buffer<T, P, A> {
             Some(elem)
         }
     }
+
+    fn front(&self) -> Option<&T> {
+        if self.is_empty() {
+            None
+        } else {
+            Some(self.data.get(self.front))
+        }
+    }
+
+    fn back(&self) -> Option<&T> {
+        if self.is_empty() {
+            None
+        } else {
+            Some(self.data.get(self.decrease_index(self.back)))
+        }
+    }
 }
 
 impl<T, P: Policy, A: Allocator> Drop for Buffer<T, P, A> {
