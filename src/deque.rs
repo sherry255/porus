@@ -37,3 +37,25 @@ pub fn front<T: Deque>(q: &T) -> &T::Elem {
 pub fn back<T: Deque>(q: &T) -> &T::Elem {
     Deque::back(q).unwrap()
 }
+
+pub struct Drain<'a, Q: Deque> {
+    q: &'a mut Q,
+}
+
+impl<'a, Q: Deque> Iterator for Drain<'a, Q> {
+    type Item = Q::Elem;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.q.pop_front()
+    }
+}
+
+impl<'a, Q: Deque> DoubleEndedIterator for Drain<'a, Q> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.q.pop_back()
+    }
+}
+
+pub fn drain<T: Deque>(q: &mut T) -> Drain<T> {
+    Drain { q }
+}

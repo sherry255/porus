@@ -120,7 +120,7 @@ def generate_submission(source, llvm_target):
         "--emit", "asm",
         "-C", "llvm-args=-disable-debug-info-print",
         "-C", "lto=fat",
-        "-C", "opt-level=s",
+        "-C", "opt-level=2",
         "-C", "panic=abort",
         "-o", target, "-"]
 

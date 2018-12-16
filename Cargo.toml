@@ -17,5 +17,5 @@ online-judge = []
 
 [profile.release]
 panic = "abort"
-opt-level = "s"
+opt-level = 2
 incremental = false
