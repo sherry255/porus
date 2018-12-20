@@ -40,3 +40,9 @@ impl Default for Allocator {
         Self::new()
     }
 }
+
+impl Clone for Allocator {
+    fn clone(&self) -> Self {
+        Self::new()
+    }
+}

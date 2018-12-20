@@ -5,7 +5,10 @@ use crate::fmt::{self, fwrite_str};
 use crate::fmt::{f, fwrite};
 use crate::io::Sink;
 use crate::os;
+use core::cmp::Ordering;
+use core::ops::Deref;
 use core::slice::from_raw_parts;
+use core::str;
 
 mod buffer;
 pub use self::buffer::Buffer as StringBuffer;
@@ -105,6 +108,27 @@ impl Union {
     }
 }
 
+impl Clone for Union {
+    fn clone(&self) -> Self {
+        unsafe {
+            match self.tag() {
+                Tag::Shared => {
+                    *self.shared.counter += 1;
+                    Self {
+                        shared: Clone::clone(&self.shared),
+                    }
+                }
+                Tag::Inline => Self {
+                    inline: Clone::clone(&self.inline),
+                },
+                Tag::Static => Self {
+                    static_: Clone::clone(&self.static_),
+                },
+            }
+        }
+    }
+}
+
 pub struct String<A: Allocator = os::Allocator> {
     s: Union,
     allocator: A,
@@ -125,6 +149,15 @@ impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
     }
 }
 
+impl<A: Allocator> Deref for String<A> {
+    type Target = str;
+
+    #[inline]
+    fn deref(&self) -> &str {
+        unsafe { str::from_utf8_unchecked(self.as_ref()) }
+    }
+}
+
 impl<A: Allocator> AsRef<[u8]> for String<A> {
     fn as_ref(&self) -> &[u8] {
         self.s.as_bytes()
@@ -134,6 +167,21 @@ impl<A: Allocator> AsRef<[u8]> for String<A> {
 impl<A: Allocator> PartialEq for String<A> {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.as_ref(), other.as_ref())
+    }
+}
+
+impl<A: Allocator> PartialOrd for String<A> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        PartialOrd::partial_cmp(self.as_ref(), other.as_ref())
+    }
+}
+
+impl<A: Allocator + Clone> Clone for String<A> {
+    fn clone(&self) -> Self {
+        Self {
+            s: Clone::clone(&self.s),
+            allocator: Clone::clone(&self.allocator),
+        }
     }
 }
 
@@ -166,7 +214,6 @@ impl<'a> fmt::String for &'a String {
 /// assert_eq!(b"hello world", stringf!("hello {:s}", "world").as_ref());
 /// assert_eq!(b"x = 10, y = 30", stringf!("x = {:d}, y = {:d}", 10, 30).as_ref());
 /// ```
-
 pub macro stringf($($arg:tt)*) {
     {
         let mut buffer: StringBuffer = Default::default();
