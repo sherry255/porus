@@ -1,6 +1,6 @@
 use core::iter::{DoubleEndedIterator, ExactSizeIterator, Iterator};
 
-#[allow(clippy::stutter)]
+#[allow(clippy::module_name_repetitions)]
 pub trait Stream {
     type Item: ?Sized;
 
@@ -15,12 +15,12 @@ pub trait Stream {
     }
 }
 
-#[allow(clippy::stutter)]
+#[allow(clippy::module_name_repetitions)]
 pub trait StreamMut: Stream {
     fn next(&mut self) -> Option<&mut Self::Item>;
 }
 
-#[allow(clippy::stutter)]
+#[allow(clippy::module_name_repetitions)]
 pub trait DoubleEndedStream: Stream {
     fn next_back(&mut self) -> Option<&Self::Item>;
 }
@@ -29,7 +29,7 @@ pub trait DoubleEndedStreamMut: StreamMut {
     fn next_back(&mut self) -> Option<&mut Self::Item>;
 }
 
-#[allow(clippy::stutter)]
+#[allow(clippy::module_name_repetitions)]
 pub trait ExactSizeStream: Stream {
     fn len(&self) -> usize;
 

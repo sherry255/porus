@@ -7,7 +7,7 @@ pub trait List: Collection {
     fn get(&self, index: usize) -> Option<&Self::Elem>;
 }
 
-#[allow(clippy::stutter)]
+#[allow(clippy::module_name_repetitions)]
 pub trait ListMut: List {
     fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem>;
 }
@@ -227,3 +227,6 @@ pub mod sorting;
 pub use self::sorting::{
     bubble_sort, insertion_sort, is_stable_sort, quick_sort, selection_sort, shell_sort,
 };
+
+mod search;
+pub use self::search::find;
