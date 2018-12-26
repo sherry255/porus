@@ -229,4 +229,4 @@ pub use self::sorting::{
 };
 
 mod search;
-pub use self::search::find;
+pub use self::search::{bsearch, find};
