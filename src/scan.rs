@@ -216,6 +216,22 @@ impl<'a> Consumer for &'a mut f64 {
     }
 }
 
+impl<'a> Consumer for &'a mut [u8] {
+    fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
+        for elem in self.iter_mut() {
+            match s.peek() {
+                None => return false,
+                Some(&c) => {
+                    *elem = c;
+                    s.consume();
+                }
+            }
+        }
+
+        true
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{fread, hex, Whitespace};

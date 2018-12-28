@@ -7,7 +7,7 @@ use crate::scan::{is_whitespace, Consumer};
 use core::marker::PhantomData;
 use core::mem::{forget, size_of, transmute_copy};
 use core::ptr::copy_nonoverlapping;
-use core::slice::from_raw_parts;
+use core::slice::{from_raw_parts, from_raw_parts_mut};
 
 #[cfg(all(target_endian = "little"))]
 #[derive(Clone, Copy)]
@@ -66,14 +66,27 @@ impl Union {
     }
 
     unsafe fn as_ptr(&self) -> *const u8 {
+        let counter_size = size_of::<usize>();
         match self.tag() {
-            Tag::Shared => self.shared.s,
+            Tag::Shared => self.shared.s.add(counter_size),
             Tag::Inline => self.inline.s.as_ptr(),
+        }
+    }
+
+    unsafe fn as_mut_ptr(&mut self) -> *mut u8 {
+        let counter_size = size_of::<usize>();
+        match self.tag() {
+            Tag::Shared => self.shared.s.add(counter_size),
+            Tag::Inline => self.inline.s.as_mut_ptr(),
         }
     }
 
     fn as_bytes(&self) -> &[u8] {
         unsafe { from_raw_parts(self.as_ptr(), self.len() as usize) }
+    }
+
+    fn as_bytes_mut(&mut self) -> &mut [u8] {
+        unsafe { from_raw_parts_mut(self.as_mut_ptr(), self.len() as usize) }
     }
 }
 
@@ -107,6 +120,12 @@ impl<P: Policy, A: Allocator + Default> Default for Buffer<P, A> {
 impl<P: Policy, A: Allocator> AsRef<[u8]> for Buffer<P, A> {
     fn as_ref(&self) -> &[u8] {
         self.buffer.as_bytes()
+    }
+}
+
+impl<P: Policy, A: Allocator> AsMut<[u8]> for Buffer<P, A> {
+    fn as_mut(&mut self) -> &mut [u8] {
+        self.buffer.as_bytes_mut()
     }
 }
 
