@@ -8,7 +8,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
     let (s, args): (LitStr, Expr) = parse_args(tokens).unwrap();
 
     let mut stream = quote! {};
-    for p in Parser::new(s.value().as_str(), None) {
+    for p in Parser::new(s.value().as_str(), None, vec![], false) {
         match p {
             Piece::String(s) => {
                 let lit = Literal::string(s);
