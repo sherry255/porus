@@ -5,8 +5,7 @@ pub struct Error(i32);
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let Error(n) = *self;
-        write!(f, "Error({})", n)
+        write!(f, "Error({})", self.0)
     }
 }
 
