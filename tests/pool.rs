@@ -1,32 +1,34 @@
-extern crate trait_tests;
-use trait_tests::*;
-
 extern crate porus;
 use porus::prelude::*;
 
 use std::mem::size_of;
 
-trait HandleNonNull: pool::Handle {}
+trait PoolTest {
+    type Handle: pool::Handle;
 
-#[trait_tests]
-trait HandleNonNullTests: HandleNonNull {
-    fn test() {
-        assert!(size_of::<Self>() == size_of::<Option<Self>>());
+    fn test_handle_non_null() {
+        assert!(size_of::<Self::Handle>() == size_of::<Option<Self::Handle>>());
     }
 }
 
-mod test_alloc {
-    use super::*;
-    use porus::allocator::Handle;
+struct TestAlloc {}
 
-    #[test_impl]
-    impl HandleNonNull for Handle {}
+impl PoolTest for TestAlloc {
+    type Handle = porus::allocator::Handle;
 }
 
-mod test_chunk {
-    use super::*;
-    use porus::chunk::Handle;
+struct TestChunk {}
 
-    #[test_impl]
-    impl HandleNonNull for Handle {}
+impl PoolTest for TestChunk {
+    type Handle = porus::chunk::Handle;
+}
+
+#[test]
+fn test_alloc_handle_non_nul() {
+    TestAlloc::test_handle_non_null();
+}
+
+#[test]
+fn test_chunk_handle_non_nul() {
+    TestChunk::test_handle_non_null();
 }

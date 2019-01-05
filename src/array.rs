@@ -118,19 +118,3 @@ impl<T, P: Policy, A: Allocator> Drop for Array<T, P, A> {
 pub macro array($elem:expr; $n:expr) {
     &mut Array::<_>::new_from_elem($elem, $n)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::Array;
-    use crate::tests::Item;
-    use core::cell::Cell;
-
-    #[test]
-    fn test_drop() {
-        let counter = Cell::new(0);
-        {
-            Array::<_>::new_from_iter((0..10).map(|_| Item::new(&counter)));
-        }
-        assert!(counter.into_inner() == 10);
-    }
-}

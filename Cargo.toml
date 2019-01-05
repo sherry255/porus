@@ -8,9 +8,6 @@ license = "MIT"
 [dependencies]
 porus_macros = { path = "porus_macros" }
 
-[dev-dependencies]
-trait_tests = "0.3.3"
-
 [features]
 local-judge = []
 online-judge = []

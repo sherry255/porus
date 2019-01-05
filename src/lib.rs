@@ -68,9 +68,6 @@
 
 extern crate porus_macros;
 
-#[cfg(test)]
-pub mod tests;
-
 pub mod file;
 pub mod libc;
 pub mod os;
