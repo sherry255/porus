@@ -15,7 +15,7 @@ fn main() {
     }
     let g = &list::slice(gaps, skip..);
 
-    let count = list::shell_sort(a, &PartialOrd::lt, g);
+    let count = list::shell_sort(a, PartialOrd::lt, g);
 
     writelnf!("{:d}", collection::size(g));
     writelnf!("{}", join(f!(" "), list::iter(g).map(|e| f!("{:d}", e))));

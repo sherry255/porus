@@ -10,7 +10,7 @@ pub fn is_stable_sort<
     I: List<Elem = usize>,
 >(
     list: &L,
-    lt: &F,
+    lt: F,
     index: &I,
 ) -> bool {
     let size = collection::size(list);
@@ -29,7 +29,7 @@ pub fn is_stable_sort<
 
 pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
@@ -47,19 +47,19 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
 
 pub fn bubble_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
     for i in 0..size - 1 {
-        count += bubble(&mut slice_mut(list, i..size), lt);
+        count += bubble(&mut slice_mut(list, i..size), &lt);
     }
     count
 }
 
 pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
@@ -74,7 +74,7 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
 
 fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
     g: usize,
 ) -> usize {
     let mut count = 0;
@@ -94,7 +94,7 @@ fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>
 
 pub fn insertion_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     // let mut count = 0;
     // let size = collection::size(list);
@@ -112,7 +112,7 @@ pub fn shell_sort<
     G: List<Elem = usize> + Collection,
 >(
     list: &mut L,
-    lt: &F,
+    lt: F,
     gaps: &G,
 ) -> usize {
     let mut count = 0;
@@ -120,14 +120,14 @@ pub fn shell_sort<
         // for i in 0..g {
         //     count += insertion_sort(slice_mut!(list, [i,,g]), lt);
         // }
-        count += insertion_sort_g(list, lt, g);
+        count += insertion_sort_g(list, &lt, g);
     }
     count
 }
 
 pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
@@ -149,7 +149,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
 
 pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) -> usize {
     let size = collection::size(list);
     let mut i = 0;
@@ -180,7 +180,7 @@ fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E
 
 pub fn quick_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
-    lt: &F,
+    lt: F,
 ) {
-    quick_sort_aux::<E, L, F>(&mut slice_mut(list, 0..), lt);
+    quick_sort_aux::<E, L, F>(&mut slice_mut(list, 0..), &lt);
 }

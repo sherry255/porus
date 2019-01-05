@@ -6,7 +6,7 @@ fn main() {
     let n: usize = read!();
     let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
 
-    let pivot = sorting::partition(a, &PartialOrd::le);
+    let pivot = sorting::partition(a, PartialOrd::le);
 
     let l = &list::slice(a, ..pivot);
     let r = &list::slice(a, (pivot + 1)..);

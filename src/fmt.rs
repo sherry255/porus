@@ -91,7 +91,7 @@ pub macro f($($arg:tt)*) {
     format!($($arg)*)
 }
 
-pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, f: &mut F) {
+pub fn fwrite<S: Sink, F: FnMut(&mut S)>(sink: &mut S, mut f: F) {
     f(sink)
 }
 

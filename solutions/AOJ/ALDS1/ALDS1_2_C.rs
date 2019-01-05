@@ -24,7 +24,7 @@ fn main() {
     let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
 
     let bi = &mut Array::<usize>::new_from_iter(0..n);
-    list::bubble_sort(bi, &|&i, &j| list::get(a, i).1 < list::get(a, j).1);
+    list::bubble_sort(bi, |&i, &j| list::get(a, i).1 < list::get(a, j).1);
     writelnf!(
         "{}",
         join(
@@ -34,11 +34,11 @@ fn main() {
     );
     writelnf!(
         "{:s}",
-        stable(list::is_stable_sort(a, &|x, y| x.1 < y.1, bi))
+        stable(list::is_stable_sort(a, |x, y| x.1 < y.1, bi))
     );
 
     let si = &mut Array::<usize>::new_from_iter(0..n);
-    list::selection_sort(si, &|&i, &j| list::get(a, i).1 < list::get(a, j).1);
+    list::selection_sort(si, |&i, &j| list::get(a, i).1 < list::get(a, j).1);
     writelnf!(
         "{}",
         join(
@@ -48,6 +48,6 @@ fn main() {
     );
     writelnf!(
         "{:s}",
-        stable(list::is_stable_sort(a, &|x, y| x.1 < y.1, si))
+        stable(list::is_stable_sort(a, |x, y| x.1 < y.1, si))
     );
 }

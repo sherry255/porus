@@ -74,13 +74,13 @@ pub macro read {
     }
 }
 
-pub fn write<F: FnMut(&mut Output)>(f: &mut F) {
+pub fn write<F: FnMut(&mut Output)>(f: F) {
     unsafe {
         fwrite(&mut STDOUT, f);
     }
 }
 
-pub fn writeln<F: FnMut(&mut Output)>(f: &mut F) {
+pub fn writeln<F: FnMut(&mut Output)>(f: F) {
     write(f);
     unsafe {
         Sink::write(&mut STDOUT, b'\n');
@@ -112,7 +112,7 @@ pub fn writeln<F: FnMut(&mut Output)>(f: &mut F) {
 /// # }
 /// ```
 pub macro writef($($arg:tt)*) {
-    write(&mut f!($($arg)*))
+    write(f!($($arg)*))
 }
 
 /// Macro for writing to the standard output, with a newline,
@@ -136,5 +136,5 @@ pub macro writef($($arg:tt)*) {
 /// assert_eq!(b"123\n", stdout.as_ref());
 /// ```
 pub macro writelnf($($arg:tt)*) {
-    writeln(&mut f!($($arg)*))
+    writeln(f!($($arg)*))
 }
