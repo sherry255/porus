@@ -28,12 +28,14 @@ pub use crate::chunk::Chunk;
 
 pub use crate::collection::{self, Collection};
 pub use crate::deque::{self, Deque};
-pub use crate::list;
+pub use crate::heap::{self, Heap};
 pub use crate::list::sorting;
+pub use crate::list::{self, List};
 pub use crate::stack::{self, Stack};
 
 pub use crate::array::{array, Array};
 pub use crate::buffer::{buffer, Buffer};
+pub use crate::dheap::{self, DHeap};
 pub use crate::dlist::DoublyLinkedList;
 pub use crate::flist::SinglyLinkedList;
 pub use crate::static_array::static_array;

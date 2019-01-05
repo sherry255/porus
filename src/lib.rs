@@ -81,6 +81,7 @@ pub mod allocator;
 pub mod capacity;
 pub mod collection;
 pub mod deque;
+pub mod heap;
 pub mod list;
 pub mod pool;
 pub mod stack;
@@ -95,6 +96,7 @@ pub mod static_array;
 pub mod array;
 #[macro_use]
 pub mod buffer;
+pub mod dheap;
 pub mod dlist;
 pub mod flist;
 
