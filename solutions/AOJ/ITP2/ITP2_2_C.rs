@@ -6,7 +6,9 @@ fn main() {
     let n: usize = read!();
     let q: usize = read!();
 
-    let a = &mut Array::<_>::new_from_iter((0..n).map(|_| DHeap::new(2, Array::<_>::new(), PartialOrd::gt)));
+    let a = &mut Array::<_>::new_from_iter(
+        (0..n).map(|_| DHeap::new(2, Array::<_>::new(), PartialOrd::gt)),
+    );
 
     for _ in 0..q {
         let op: usize = read!();

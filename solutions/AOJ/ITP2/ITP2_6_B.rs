@@ -2,7 +2,7 @@
 extern crate porus;
 prelude!();
 
-fn includes(mut a: impl Iterator<Item=isize>, b: impl Iterator<Item=isize>) -> bool {
+fn includes(mut a: impl Iterator<Item = isize>, b: impl Iterator<Item = isize>) -> bool {
     let mut x = 0;
     for y in b {
         loop {
@@ -31,7 +31,7 @@ fn main() {
     let m: usize = read!();
     let b = &mut Array::<isize>::new_from_iter((0..m).map(|_| read!()));
 
-    if includes(list::iter(a),list::iter(b)) {
+    if includes(list::iter(a), list::iter(b)) {
         writelnf!("1");
     } else {
         writelnf!("0");
