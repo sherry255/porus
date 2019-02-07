@@ -1,12 +1,13 @@
-use crate::allocator::{deallocate, Allocator};
 #[allow(unused_imports)]
 use crate::fmt::{self, fwrite_str};
 #[allow(unused_imports)]
 use crate::fmt::{f, fwrite};
 use crate::io::Sink;
-use crate::os;
+use alloc::alloc::{Alloc, Global};
 use core::cmp::Ordering;
+use core::mem::size_of;
 use core::ops::Deref;
+use core::ptr::NonNull;
 use core::slice::from_raw_parts;
 use core::str;
 
@@ -15,9 +16,9 @@ pub use self::buffer::Buffer as StringBuffer;
 
 #[derive(Clone, Copy)]
 struct SharedString {
-    counter: *mut usize,
+    counter: NonNull<usize>,
     length: usize,
-    s: *const u8,
+    s: NonNull<u8>,
 }
 
 #[cfg(all(target_endian = "big", target_pointer_width = "64"))]
@@ -97,7 +98,7 @@ impl Union {
 
     unsafe fn as_ptr(&self) -> *const u8 {
         match self.tag() {
-            Tag::Shared => self.shared.s,
+            Tag::Shared => self.shared.s.as_ptr(),
             Tag::Inline => self.inline.s.as_ptr(),
             Tag::Static => self.static_.s,
         }
@@ -113,7 +114,7 @@ impl Clone for Union {
         unsafe {
             match self.tag() {
                 Tag::Shared => {
-                    *self.shared.counter += 1;
+                    *self.shared.counter.as_ptr() += 1;
                     Self {
                         shared: Clone::clone(&self.shared),
                     }
@@ -129,12 +130,12 @@ impl Clone for Union {
     }
 }
 
-pub struct String<A: Allocator = os::Allocator> {
+pub struct String<A: Alloc = Global> {
     s: Union,
     allocator: A,
 }
 
-impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
+impl<A: Alloc + Default> From<&'static [u8]> for String<A> {
     fn from(s: &'static [u8]) -> Self {
         Self {
             s: Union {
@@ -149,7 +150,7 @@ impl<A: Allocator + Default> From<&'static [u8]> for String<A> {
     }
 }
 
-impl<A: Allocator> Deref for String<A> {
+impl<A: Alloc> Deref for String<A> {
     type Target = str;
 
     #[inline]
@@ -158,25 +159,25 @@ impl<A: Allocator> Deref for String<A> {
     }
 }
 
-impl<A: Allocator> AsRef<[u8]> for String<A> {
+impl<A: Alloc> AsRef<[u8]> for String<A> {
     fn as_ref(&self) -> &[u8] {
         self.s.as_bytes()
     }
 }
 
-impl<A: Allocator> PartialEq for String<A> {
+impl<A: Alloc> PartialEq for String<A> {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.as_ref(), other.as_ref())
     }
 }
 
-impl<A: Allocator> PartialOrd for String<A> {
+impl<A: Alloc> PartialOrd for String<A> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         PartialOrd::partial_cmp(self.as_ref(), other.as_ref())
     }
 }
 
-impl<A: Allocator + Clone> Clone for String<A> {
+impl<A: Alloc + Clone> Clone for String<A> {
     fn clone(&self) -> Self {
         Self {
             s: Clone::clone(&self.s),
@@ -185,13 +186,19 @@ impl<A: Allocator + Clone> Clone for String<A> {
     }
 }
 
-impl<A: Allocator> Drop for String<A> {
+impl<A: Alloc> Drop for String<A> {
     fn drop(&mut self) {
         if let Tag::Shared = self.s.tag() {
+            let counter_size = size_of::<usize>();
             unsafe {
-                *self.s.shared.counter -= 1;
-                if *self.s.shared.counter == 0 {
-                    deallocate(&mut self.allocator, self.s.shared.counter);
+                *self.s.shared.counter.as_mut() -= 1;
+                if *self.s.shared.counter.as_ref() == 0 {
+                    Alloc::dealloc_array::<u8>(
+                        &mut self.allocator,
+                        NonNull::cast(self.s.shared.counter),
+                        counter_size + self.s.shared.length,
+                    )
+                    .unwrap();
                 }
             }
         }

@@ -1,8 +1,7 @@
-use crate::allocator::Allocator;
 use crate::block::Block;
 use crate::capacity::{DefaultPolicy, Policy};
-use crate::os;
 use crate::pool::{self, Pool};
+use alloc::alloc::{Alloc, Global};
 use core::num::NonZeroUsize;
 
 #[derive(Clone, Copy)]
@@ -16,13 +15,13 @@ union Node<T> {
     next: Option<NonZeroUsize>,
 }
 
-pub struct Chunk<T, P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
+pub struct Chunk<T, P: Policy = DefaultPolicy, A: Alloc = Global> {
     size: usize,
     next: Option<NonZeroUsize>,
     data: Block<Node<T>, P, A>,
 }
 
-impl<T, P: Policy, A: Allocator> Chunk<T, P, A> {
+impl<T, P: Policy, A: Alloc> Chunk<T, P, A> {
     pub fn new(allocator: A, capacity: usize) -> Self {
         Self {
             size: 0,
@@ -32,13 +31,13 @@ impl<T, P: Policy, A: Allocator> Chunk<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator + Default> Chunk<T, P, A> {
+impl<T, P: Policy, A: Alloc + Default> Chunk<T, P, A> {
     pub fn new_with_capacity(capacity: usize) -> Self {
         Self::new(Default::default(), capacity)
     }
 }
 
-impl<T, P: Policy, A: Allocator> Pool for Chunk<T, P, A> {
+impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
     type Handle = Handle;
     type Elem = T;
 

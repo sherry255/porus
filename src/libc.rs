@@ -13,6 +13,7 @@ extern "C" {
     pub fn read(fd: i32, buf: *mut u8, count: usize) -> isize;
     pub fn write(fd: i32, buf: *const u8, count: usize) -> isize;
 
+    pub fn posix_memalign(memptr: *mut *mut u8, alignment: usize, size: usize) -> i32;
     pub fn malloc(size: usize) -> *mut u8;
     pub fn free(ptr: *mut u8);
     pub fn realloc(ptr: *mut u8, size: usize) -> *mut u8;

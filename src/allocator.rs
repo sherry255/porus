@@ -1,31 +1,83 @@
-use crate::os;
+use crate::libc;
 use crate::pool;
-use core::fmt::Debug;
+use alloc::alloc::{Alloc, Global, GlobalAlloc, Layout};
+use core::cmp::min;
 use core::marker::PhantomData;
-use core::mem::size_of;
-use core::ptr::{null_mut, read, write, NonNull};
+use core::ptr::{copy_nonoverlapping, null_mut, read, write, NonNull};
 
-pub trait Allocator {
-    type Error: Debug;
+#[derive(Copy, Clone)]
+pub struct System;
 
-    unsafe fn reallocate(&mut self, ptr: *mut u8, capacity: usize) -> Result<*mut u8, Self::Error>;
+// libstd/sys_common/alloc.rs
+#[cfg(all(any(
+    target_arch = "x86",
+    target_arch = "arm",
+    target_arch = "mips",
+    target_arch = "powerpc",
+    target_arch = "powerpc64",
+    target_arch = "asmjs",
+    target_arch = "wasm32"
+)))]
+pub const MIN_ALIGN: usize = 8;
+#[cfg(all(any(
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "mips64",
+    target_arch = "s390x",
+    target_arch = "sparc64"
+)))]
+pub const MIN_ALIGN: usize = 16;
+
+#[allow(clippy::trivially_copy_pass_by_ref)]
+pub unsafe fn realloc_fallback(
+    alloc: &System,
+    ptr: *mut u8,
+    old_layout: Layout,
+    new_size: usize,
+) -> *mut u8 {
+    // Docs for GlobalAlloc::realloc require this to be valid:
+    let new_layout = Layout::from_size_align_unchecked(new_size, old_layout.align());
+
+    let new_ptr = GlobalAlloc::alloc(alloc, new_layout);
+    if !new_ptr.is_null() {
+        let size = min(old_layout.size(), new_size);
+        copy_nonoverlapping(ptr, new_ptr, size);
+        GlobalAlloc::dealloc(alloc, ptr, old_layout);
+    }
+    new_ptr
 }
 
-pub unsafe fn reallocate<T, A: Allocator>(
-    allocator: &mut A,
-    ptr: *mut T,
-    capacity: usize,
-) -> *mut T {
-    let size = size_of::<T>();
-    Allocator::reallocate(allocator, ptr as *mut _, size * capacity).unwrap() as *mut _
+// libstd/sys/unix/alloc.rs
+unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
+    let mut out = null_mut();
+    let ret = libc::posix_memalign(&mut out, layout.align(), layout.size());
+    if ret == 0 {
+        out
+    } else {
+        null_mut()
+    }
 }
 
-pub unsafe fn allocate<T, A: Allocator>(allocator: &mut A, capacity: usize) -> *mut T {
-    reallocate(allocator, null_mut(), capacity)
-}
+unsafe impl GlobalAlloc for System {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        if layout.align() <= MIN_ALIGN && layout.align() <= layout.size() {
+            libc::malloc(layout.size())
+        } else {
+            aligned_malloc(&layout)
+        }
+    }
 
-pub unsafe fn deallocate<T, A: Allocator>(allocator: &mut A, ptr: *mut T) {
-    reallocate(allocator, ptr, 0);
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+        libc::free(ptr)
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        if layout.align() <= MIN_ALIGN && layout.align() <= new_size {
+            libc::realloc(ptr, new_size)
+        } else {
+            realloc_fallback(self, ptr, layout, new_size)
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -33,12 +85,12 @@ pub struct Handle(NonNull<u8>);
 
 impl pool::Handle for Handle {}
 
-pub struct Pool<T, A: Allocator = os::Allocator> {
+pub struct Pool<T, A: Alloc = Global> {
     allocator: A,
     _type: PhantomData<T>,
 }
 
-impl<T, A: Allocator> Pool<T, A> {
+impl<T, A: Alloc> Pool<T, A> {
     pub fn new_with_allocator(allocator: A) -> Self {
         Self {
             allocator,
@@ -47,19 +99,19 @@ impl<T, A: Allocator> Pool<T, A> {
     }
 }
 
-impl<T, A: Allocator + Default> Pool<T, A> {
+impl<T, A: Alloc + Default> Pool<T, A> {
     pub fn new() -> Self {
         Self::new_with_allocator(Default::default())
     }
 }
 
-impl<T, A: Allocator + Default> Default for Pool<T, A> {
+impl<T, A: Alloc + Default> Default for Pool<T, A> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, A: Allocator> pool::Pool for Pool<T, A> {
+impl<T, A: Alloc> pool::Pool for Pool<T, A> {
     type Handle = Handle;
     type Elem = T;
 
@@ -73,16 +125,16 @@ impl<T, A: Allocator> pool::Pool for Pool<T, A> {
 
     fn add(&mut self, item: T) -> Handle {
         unsafe {
-            let ptr = allocate(&mut self.allocator, 1);
-            write(ptr, item);
-            Handle(NonNull::new(ptr as *mut _).unwrap())
+            let ptr = Alloc::alloc_one::<T>(&mut self.allocator).unwrap();
+            write(ptr.as_ptr(), item);
+            Handle(NonNull::cast(ptr))
         }
     }
 
     fn remove(&mut self, handle: Handle) -> T {
         unsafe {
             let item = read(handle.0.cast().as_ptr());
-            deallocate(&mut self.allocator, handle.0.as_ptr());
+            Alloc::dealloc_one(&mut self.allocator, handle.0);
             item
         }
     }

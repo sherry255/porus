@@ -1,18 +1,17 @@
-use crate::allocator::Allocator;
 use crate::block::Block;
 use crate::capacity::{DefaultPolicy, Policy};
 use crate::collection::Collection;
 use crate::deque::Deque;
 use crate::list::{List, ListMut};
-use crate::os;
+use alloc::alloc::{Alloc, Global};
 
-pub struct Buffer<T, P: Policy = DefaultPolicy, A: Allocator = os::Allocator> {
+pub struct Buffer<T, P: Policy = DefaultPolicy, A: Alloc = Global> {
     front: usize,
     back: usize,
     data: Block<T, P, A>,
 }
 
-impl<T, P: Policy, A: Allocator + Default> Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc + Default> Buffer<T, P, A> {
     pub fn new() -> Self {
         Self::new_with_capacity(0)
     }
@@ -28,13 +27,13 @@ impl<T, P: Policy, A: Allocator + Default> Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator + Default> Default for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc + Default> Default for Buffer<T, P, A> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, P: Policy, A: Allocator> Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> Buffer<T, P, A> {
     fn increase_index(&self, index: usize) -> usize {
         assert!(index < self.data.capacity());
         if index + 1 == self.data.capacity() {
@@ -96,7 +95,7 @@ impl<T, P: Policy, A: Allocator> Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator> Collection for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> Collection for Buffer<T, P, A> {
     fn size(&self) -> usize {
         if self.front <= self.back {
             self.back - self.front
@@ -106,7 +105,7 @@ impl<T, P: Policy, A: Allocator> Collection for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator> List for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> List for Buffer<T, P, A> {
     type Elem = T;
 
     fn get(&self, index: usize) -> Option<&T> {
@@ -117,7 +116,7 @@ impl<T, P: Policy, A: Allocator> List for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator> ListMut for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> ListMut for Buffer<T, P, A> {
     fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         match self.index(index) {
             None => None,
@@ -126,7 +125,7 @@ impl<T, P: Policy, A: Allocator> ListMut for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator> Deque for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> Deque for Buffer<T, P, A> {
     type Elem = T;
 
     fn is_empty(&self) -> bool {
@@ -190,7 +189,7 @@ impl<T, P: Policy, A: Allocator> Deque for Buffer<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator> Drop for Buffer<T, P, A> {
+impl<T, P: Policy, A: Alloc> Drop for Buffer<T, P, A> {
     fn drop(&mut self) {
         if self.back < self.front {
             for i in 0..self.back {

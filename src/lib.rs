@@ -7,6 +7,9 @@
 #![feature(refcell_replace_swap)]
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
+#![feature(alloc)]
+#![feature(allocator_api)]
+#![feature(alloc_error_handler)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
 #![doc(test(attr(feature(proc_macro_hygiene))))]
 #![no_std]
@@ -54,7 +57,6 @@
 
 //! ## Abstract Data Types
 //! * [`Pool`](pool)
-//! * [`Allocator`](allocator)
 //! * [`Collection`](collection)
 //! * [`List`](list)
 //! * [`Stack`](stack)
@@ -67,11 +69,11 @@
 //! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
 
+extern crate alloc;
 extern crate porus_macros;
 
 pub mod file;
 pub mod libc;
-pub mod os;
 pub mod stdio;
 
 pub mod fmt;
@@ -113,5 +115,14 @@ pub extern "C" fn eh_personality() {}
 #[panic_handler]
 #[no_mangle]
 pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
+    unsafe { ::core::intrinsics::abort() }
+}
+
+#[global_allocator]
+static _A: allocator::System = allocator::System;
+
+#[cfg(feature = "online-judge")]
+#[alloc_error_handler]
+fn oom(_info: ::core::alloc::Layout) -> ! {
     unsafe { ::core::intrinsics::abort() }
 }

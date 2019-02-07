@@ -1,19 +1,19 @@
-use crate::allocator::{allocate, deallocate, reallocate, Allocator};
 use crate::capacity::Policy;
+use core::alloc::Alloc;
 use core::marker::PhantomData;
-use core::ptr::{copy, read, write};
+use core::ptr::{copy, read, write, NonNull};
 
-pub struct Block<T, P: Policy, A: Allocator> {
+pub struct Block<T, P: Policy, A: Alloc> {
     capacity: usize,
-    data: *mut T,
+    data: NonNull<T>,
     allocator: A,
     _policy: PhantomData<P>,
 }
 
-impl<T, P: Policy, A: Allocator> Block<T, P, A> {
+impl<T, P: Policy, A: Alloc> Block<T, P, A> {
     pub fn new(mut allocator: A, size: usize) -> Self {
         let capacity = P::initial(size);
-        let data = unsafe { allocate(&mut allocator, capacity) };
+        let data = Alloc::alloc_array(&mut allocator, capacity).unwrap();
         Self {
             capacity,
             data,
@@ -28,26 +28,32 @@ impl<T, P: Policy, A: Allocator> Block<T, P, A> {
 
     pub fn read(&mut self, index: usize) -> T {
         assert!(index < self.capacity);
-        unsafe { read(self.data.add(index)) }
+        unsafe { read(self.data.as_ptr().add(index)) }
     }
 
     pub fn write(&mut self, index: usize, item: T) {
         assert!(index < self.capacity);
-        unsafe { write(self.data.add(index), item) }
+        unsafe { write(self.data.as_ptr().add(index), item) }
     }
 
     pub fn get(&self, index: usize) -> &T {
         assert!(index < self.capacity);
-        unsafe { &*self.data.add(index) }
+        unsafe { &*self.data.as_ptr().add(index) }
     }
 
     pub fn get_mut(&mut self, index: usize) -> &mut T {
         assert!(index < self.capacity);
-        unsafe { &mut *self.data.add(index) }
+        unsafe { &mut *self.data.as_ptr().add(index) }
     }
 
     pub fn copy(&mut self, src: usize, dst: usize, count: usize) {
-        unsafe { copy(self.data.add(src), self.data.add(dst), count) }
+        unsafe {
+            copy(
+                self.data.as_ptr().add(src),
+                self.data.as_ptr().add(dst),
+                count,
+            )
+        }
     }
 
     fn move_tail(&mut self, new_capacity: usize, n: usize) {
@@ -59,7 +65,10 @@ impl<T, P: Policy, A: Allocator> Block<T, P, A> {
         assert!(n <= self.capacity);
         let new_capacity = P::grow(self.capacity);
         assert!(self.capacity <= new_capacity);
-        self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
+        self.data = unsafe {
+            Alloc::realloc_array(&mut self.allocator, self.data, self.capacity, new_capacity)
+        }
+        .unwrap();
         self.move_tail(new_capacity, n);
         let grow = new_capacity - self.capacity;
         self.capacity = new_capacity;
@@ -76,7 +85,10 @@ impl<T, P: Policy, A: Allocator> Block<T, P, A> {
                 None => self.move_tail(new_capacity, n),
                 Some(i) => self.copy(i, 0, n),
             }
-            self.data = unsafe { reallocate(&mut self.allocator, self.data, new_capacity) };
+            self.data = unsafe {
+                Alloc::realloc_array(&mut self.allocator, self.data, self.capacity, new_capacity)
+            }
+            .unwrap();
         }
         let shrink = self.capacity - new_capacity;
         self.capacity = new_capacity;
@@ -84,14 +96,14 @@ impl<T, P: Policy, A: Allocator> Block<T, P, A> {
     }
 }
 
-impl<T, P: Policy, A: Allocator + Default> Block<T, P, A> {
+impl<T, P: Policy, A: Alloc + Default> Block<T, P, A> {
     pub fn new_with_capacity(capacity: usize) -> Self {
         Self::new(Default::default(), capacity)
     }
 }
 
-impl<T, P: Policy, A: Allocator> Drop for Block<T, P, A> {
+impl<T, P: Policy, A: Alloc> Drop for Block<T, P, A> {
     fn drop(&mut self) {
-        unsafe { deallocate(&mut self.allocator, self.data) };
+        unsafe { Alloc::dealloc_array(&mut self.allocator, self.data, self.capacity) }.unwrap();
     }
 }
