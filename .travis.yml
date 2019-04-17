@@ -52,21 +52,20 @@ install:
 script:
 - cargo test --verbose
 - cargo test --release --verbose
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then find solutions -name '*.rs' | xargs -I {} python3 -mix -v generate {}.c; fi
-- python3 -mix -v test
-- python3 -mix -v clean
-- find solutions -name '*.rs' | xargs -I {} python3 -mix -v generate {}
-- find examples -name '*.rs' | xargs -I {} python3 -mix -v generate {}
-- python3 -mix -v clean
-- python3 -mix -v clean examples
+- VERBOSE=1 python3 c.py test
+- VERBOSE=1 python3 c.py test --mode release
+- VERBOSE=1 python3 c.py clean
+- find examples -name '*.rs' | xargs -I {} python3 c.py preview {}
+- VERBOSE=1 python3 c.py clean
+- VERBOSE=1 python3 c.py clean examples
 after_success:
 - cargo cov clean
-- COVERAGE=1 python3 -mix -v test
+- VERBOSE=1 python3 c.py test --mode coverage
 - cargo cov test -v
 - cargo cov report --coveralls
 cache:
   pip: true
   directories:
   - $HOME/.cargo
+  - $HOME/.cache/wronganswer/data
   - $TRAVIS_BUILD_DIR/target
-  - $TRAVIS_BUILD_DIR/testcases

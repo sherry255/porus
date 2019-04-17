@@ -21,7 +21,7 @@ impl Solution {
             }
             map.insert(x, i);
         }
-        return vec![-1, -1];
+        unreachable!();
     }
 }
 
