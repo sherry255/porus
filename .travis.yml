@@ -1,7 +1,6 @@
 os: linux
 language: python
 python:
-- 3.5
 - 3.6
 - 3.7-dev
 
@@ -52,15 +51,15 @@ install:
 script:
 - cargo test --verbose
 - cargo test --release --verbose
-- VERBOSE=1 python3 c.py test
-- VERBOSE=1 python3 c.py test --mode release
+- VERBOSE=1 python3 c.py test solutions
+- VERBOSE=1 python3 c.py test --mode release solutions
 - VERBOSE=1 python3 c.py clean
 - find examples -name '*.rs' | xargs -I {} python3 c.py preview {}
 - VERBOSE=1 python3 c.py clean
 - VERBOSE=1 python3 c.py clean examples
 after_success:
 - cargo cov clean
-- VERBOSE=1 python3 c.py test --mode coverage
+- VERBOSE=1 python3 c.py test --mode coverage solutions
 - cargo cov test -v
 - cargo cov report --coveralls
 cache:

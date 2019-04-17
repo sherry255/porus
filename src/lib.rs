@@ -5,7 +5,6 @@
 #![feature(specialization)]
 #![feature(untagged_unions)]
 #![feature(custom_attribute)]
-#![feature(alloc)]
 #![feature(allocator_api)]
 #![feature(alloc_error_handler)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
