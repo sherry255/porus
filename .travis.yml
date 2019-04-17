@@ -54,6 +54,7 @@ script:
 - VERBOSE=1 python3 c.py test solutions
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then VERBOSE=1 python3 c.py test --mode release solutions; fi
 - VERBOSE=1 python3 c.py clean
+- find solutions -name '*.rs' | xargs -I {} python3 c.py preview {}
 - find examples -name '*.rs' | xargs -I {} python3 c.py preview {}
 - VERBOSE=1 python3 c.py clean
 - VERBOSE=1 python3 c.py clean examples
