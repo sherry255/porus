@@ -1,4 +1,3 @@
-#![feature(alloc)]
 extern crate alloc;
 extern crate porus;
 
@@ -6,8 +5,8 @@ use alloc::collections::BTreeMap;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::mem::size_of;
-use core::slice;
 use core::ptr::copy_nonoverlapping;
+use core::slice;
 
 struct Solution;
 

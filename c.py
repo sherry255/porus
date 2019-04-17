@@ -153,7 +153,7 @@ def get_run_argv(filename):
 async def ReadSource(filename):
     source = await ReadFile(filename)
     if filename.endswith(".s"):
-        return escape_source(source)
+        return source
     return PRELUDE + source
 
 @task()
