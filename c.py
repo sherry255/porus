@@ -158,7 +158,7 @@ async def ReadSource(filename):
 
 @task()
 async def ReadSubmission(name, recompile):
-    _, (oj, pid) = get_solution_info(name)
+    oj, pid = get_solution_info(name)
     target = profile.asm_llvm_target(oj)
     asm = await Compile(name, recompile, mode='release', target=target)
     source = await ReadFile(asm)
