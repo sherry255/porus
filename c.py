@@ -23,8 +23,6 @@ from functools import wraps
 
 SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>[\w\-.]+)(?:/.*)?/(?P<pid>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
 
-VERBOSE = True
-
 def features(mode, target):
     if target is None:
         yield "local-judge"
@@ -107,7 +105,7 @@ def lru1(func):
 
 
 @lru1
-@task("")
+@task("Compile library mode={mode} target={target}")
 async def CompileLibs(mode, target):
     output = await CheckOutput(list(cargo_argv(mode, target)), cwd=ROOTDIR)
     packages = [json.loads(line) for line in output.splitlines()]
@@ -149,14 +147,14 @@ def get_compile_argv(mode, target, filename, *libs):
 def get_run_argv(filename):
     return (os.path.join(ROOTDIR, filename),)
 
-@task("")
+@task("Read source of {filename}")
 async def ReadSource(filename):
     source = await ReadFile(filename)
     if filename.endswith(".s"):
         return source
     return PRELUDE + source
 
-@task()
+@task("Read submission of {name}")
 async def ReadSubmission(name, recompile):
     oj, pid = get_solution_info(name)
     target = profile.asm_llvm_target(oj)
