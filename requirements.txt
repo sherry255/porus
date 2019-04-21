@@ -1,1 +1,1 @@
-git+git://github.com/bhuztez/wronganswer@d3e86348bf00aebcd49d09601c733a6e53945bf7#egg=wronganswer
+wronganswer
