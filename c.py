@@ -106,8 +106,9 @@ def lru1(func):
 
 @lru1
 @task("Compile library mode={mode} target={target}")
-async def CompileLibs(mode, target):
-    output = await CheckOutput(list(cargo_argv(mode, target)), cwd=ROOTDIR)
+def CompileLibs(mode, target):
+    from subprocess import DEVNULL
+    output = Call(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True).stdout
     packages = [json.loads(line) for line in output.splitlines()]
 
     return [ filename
@@ -148,19 +149,19 @@ def get_run_argv(filename):
     return (os.path.join(ROOTDIR, filename),)
 
 @task("Read source of {filename}")
-async def ReadSource(filename):
-    source = await ReadFile(filename)
+def ReadSource(filename):
+    source = ReadFile(filename)
     if filename.endswith(".s"):
         return source
     return PRELUDE + source
 
 @task("Read submission of {name}")
-async def ReadSubmission(name, recompile):
+def ReadSubmission(name, recompile):
     oj, pid = get_solution_info(name)
     target = profile.asm_llvm_target(oj)
-    asm = await Compile(name, recompile, mode='release', target=target)
-    source = await ReadFile(asm)
-    env, source = await profile.asm2c(oj, pid, source)
+    asm = Compile(name, recompile, mode='release', target=target)
+    source = ReadFile(asm)
+    env, source = profile.asm2c(oj, pid, source)
     return env, source
 
 command(Compile)

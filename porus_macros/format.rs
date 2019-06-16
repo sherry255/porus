@@ -18,7 +18,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                 position: pos,
                 format: fmt,
             }) => {
-                let arg: Box<ToTokens> = match pos {
+                let arg: Box<dyn ToTokens> = match pos {
                     Position::ArgumentNamed(_name) => panic!("named argument not supported"),
                     Position::ArgumentImplicitlyIs(i) | Position::ArgumentIs(i) => {
                         let lit = Literal::usize_unsuffixed(i);
@@ -40,7 +40,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                         stream = quote! { #stream Int::write(#arg, porus_sink, 10, 1); };
                     }
                     "f" => {
-                        let prec: Box<ToTokens> = match fmt.precision {
+                        let prec: Box<dyn ToTokens> = match fmt.precision {
                             Count::CountIs(n) => Box::new(Literal::usize_suffixed(n)),
                             Count::CountIsName(_name) => panic!("named argument not supported"),
                             Count::CountIsParam(i) => {

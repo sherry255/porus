@@ -30,6 +30,7 @@
 #![deny(clippy::use_debug)]
 #![deny(clippy::wrong_pub_self_convention)]
 #![allow(clippy::missing_const_for_fn)]
+#![allow(clippy::integer_division)]
 
 //! [`porus`](self) is a library for competitive programming. Since
 //! most popular online judges accept only a single file within tens

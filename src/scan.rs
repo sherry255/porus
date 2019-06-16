@@ -12,7 +12,7 @@ pub fn fread<I: Source, C: Consumer>(s: &mut PeekableSource<I>, c: C) -> bool {
 
 pub fn is_whitespace(c: u8) -> bool {
     match c {
-        b' ' | b'\t'...b'\r' => true,
+        b' ' | b'\t'..=b'\r' => true,
         _ => false,
     }
 }
@@ -70,9 +70,9 @@ fn read_digit<I: Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
     };
 
     let d = match c {
-        b'0'...b'9' => c - b'0',
-        b'A'...b'Z' => c - b'A' + 10_u8,
-        b'a'...b'z' => c - b'a' + 10_u8,
+        b'0'..=b'9' => c - b'0',
+        b'A'..=b'Z' => c - b'A' + 10_u8,
+        b'a'..=b'z' => c - b'a' + 10_u8,
         _ => {
             return None;
         }

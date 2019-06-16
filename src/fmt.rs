@@ -140,8 +140,8 @@ pub trait Int {
 
 fn to_char(d: u8) -> u8 {
     match d {
-        0...9 => b'0' + d,
-        10...35 => b'A' + d - 10,
+        0..=9 => b'0' + d,
+        10..=35 => b'A' + d - 10,
         _ => panic!(),
     }
 }

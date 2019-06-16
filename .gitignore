@@ -11,9 +11,7 @@ __pycache__/
 *.d
 *.ll
 *.bc
-*.sqlite
 *.gcda
 *.gcno
 *.gcov
 *.rs.c
-testcases/
