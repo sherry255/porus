@@ -15,7 +15,7 @@ don't have to copy and paste library code into your solution.
   * i686-unknown-linux-gnu
   * x86_64-pc-windows-gnu
   * x86_64-unknown-linux-gnu
-* Python 3.6+
+* Python 3.7+
 
 
 ## Quick start
