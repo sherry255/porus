@@ -6,7 +6,7 @@ fn main() {
     let n: usize = read!();
     let q: usize = read!();
 
-    let a = &mut Array::<_>::new_from_iter((0..n).map(|_| Array::<isize>::new()));
+    let a: &mut Vec<_> = &mut (0..n).map(|_| Vec::new()).collect();
 
     for _ in 0..q {
         let op: usize = read!();
@@ -20,7 +20,7 @@ fn main() {
                 join(f!(" "), list::iter(list::get(a, t)).map(|e| f!("{:d}", e)))
             )
         } else if op == 2 {
-            list::set(a, t, Array::<isize>::new());
+            list::set(a, t, Vec::new());
         }
     }
 }

@@ -21,9 +21,9 @@ fn stable(b: bool) -> &'static str {
 
 fn main() {
     let n: usize = read!();
-    let a = &mut Array::<Card>::new_from_iter((0..n).map(|_| read_card()));
+    let a: &mut Vec<Card> = &mut (0..n).map(|_| read_card()).collect();
 
-    let bi = &mut Array::<usize>::new_from_iter(0..n);
+    let bi: &mut Vec<usize> = &mut (0..n).collect();
     list::quick_sort(bi, |&i, &j| list::get(a, i).1 <= list::get(a, j).1);
     writelnf!(
         "{:s}",

@@ -22,3 +22,30 @@ pub fn pop<T: Stack>(s: &mut T) -> T::Elem {
 pub fn top<T: Stack>(s: &T) -> &T::Elem {
     Stack::top(s).unwrap()
 }
+
+
+use alloc::vec::Vec;
+
+impl<T> Stack for Vec<T> {
+    type Elem = T;
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn push(&mut self, elem: Self::Elem) {
+        self.push(elem)
+    }
+
+    fn pop(&mut self) -> Option<Self::Elem> {
+        self.pop()
+    }
+
+    fn top(&self) -> Option<&Self::Elem> {
+        if self.is_empty() {
+            None
+        } else {
+            Some(&self[self.len() - 1])
+        }
+    }
+}

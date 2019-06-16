@@ -4,7 +4,7 @@ prelude!();
 
 fn main() {
     let n: usize = read!();
-    let s = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
+    let s: &mut Vec<usize> = &mut (0..n).map(|_| read!()).collect();
     let q: usize = read!();
 
     let mut count = 0;

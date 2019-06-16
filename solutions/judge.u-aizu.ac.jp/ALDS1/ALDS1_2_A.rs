@@ -4,7 +4,7 @@ prelude!();
 
 fn main() {
     let n: usize = read!();
-    let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
+    let a: &mut Vec<isize> = &mut (0..n).map(|_| read!()).collect();
 
     let count = list::bubble_sort(a, PartialOrd::lt);
 

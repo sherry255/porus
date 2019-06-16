@@ -220,6 +220,23 @@ impl<'a, L: 'a + ListMut> ListMut for ViewMut<'a, L> {
     }
 }
 
+use alloc::vec::Vec;
+
+impl<T> List for Vec<T> {
+    type Elem = T;
+
+    fn get(&self, index: usize) -> Option<&T> {
+        self.as_slice().get(index)
+    }
+}
+
+impl<T> ListMut for Vec<T> {
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        self.as_mut_slice().get_mut(index)
+    }
+}
+
+
 mod iter;
 pub use self::iter::iter;
 

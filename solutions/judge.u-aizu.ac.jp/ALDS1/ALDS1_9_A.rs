@@ -4,7 +4,7 @@ prelude!();
 
 fn main() {
     let h: usize = read!();
-    let v = &mut Array::<isize>::new_from_iter((0..h).map(|_| read!()));
+    let v: &Vec<isize> = &mut (0..h).map(|_| read!()).collect();
 
     let write_key = |name: &str, i: usize| {
         writef!("{:s} key = {:d}, ", name, list::get(v, i));

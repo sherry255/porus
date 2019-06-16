@@ -27,9 +27,9 @@ fn includes(mut a: impl Iterator<Item = isize>, b: impl Iterator<Item = isize>) 
 
 fn main() {
     let n: usize = read!();
-    let a = &mut Array::<isize>::new_from_iter((0..n).map(|_| read!()));
+    let a: &mut Vec<isize> = &mut (0..n).map(|_| read!()).collect();
     let m: usize = read!();
-    let b = &mut Array::<isize>::new_from_iter((0..m).map(|_| read!()));
+    let b: &mut Vec<isize> = &mut (0..m).map(|_| read!()).collect();
 
     if includes(list::iter(a), list::iter(b)) {
         writelnf!("1");

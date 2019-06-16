@@ -8,8 +8,8 @@ fn main() {
         writef!(
             "{:c}",
             match c {
-                b'a'...b'z' => c - b'a' + b'A',
-                b'A'...b'Z' => c - b'A' + b'a',
+                b'a'..=b'z' => c - b'a' + b'A',
+                b'A'..=b'Z' => c - b'A' + b'a',
                 _ => c,
             }
         )

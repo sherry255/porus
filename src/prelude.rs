@@ -1,6 +1,8 @@
 pub use core::cmp::Ordering::Equal;
 pub use core::cmp::Ordering::Greater;
 pub use core::cmp::Ordering::Less;
+pub use alloc::vec::Vec;
+pub use alloc::vec;
 
 pub use core::f64::consts::PI;
 use core::intrinsics::sqrtf64;

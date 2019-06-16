@@ -4,7 +4,7 @@ prelude!();
 
 fn main() {
     let n: usize = read!();
-    let vec = array![0isize; 0];
+    let vec = &mut vec![0isize; 0];
 
     for _ in 0..n {
         let op: usize = read!();

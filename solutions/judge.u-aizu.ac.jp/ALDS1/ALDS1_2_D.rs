@@ -4,10 +4,11 @@ prelude!();
 
 fn main() {
     let n: usize = read!();
-    let a = &mut Array::<usize>::new_from_iter((0..n).map(|_| read!()));
+    let a: &mut Vec<usize> = &mut (0..n).map(|_| read!()).collect();
 
-    let gaps =
-        static_array![797161, 265720, 88573, 29524, 9841, 3280, 1093, 364, 121, 40, 13, 4, 1];
+    let gaps = &vec![
+        797161, 265720, 88573, 29524, 9841, 3280, 1093, 364, 121, 40, 13, 4, 1,
+    ];
 
     let mut skip = 0;
     while (list::get(gaps, skip) > &n) && (list::get(gaps, skip) != &1) {

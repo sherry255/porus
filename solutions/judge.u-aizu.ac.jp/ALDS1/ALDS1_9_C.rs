@@ -3,7 +3,7 @@ extern crate porus;
 prelude!();
 
 fn main() {
-    let h = &mut DHeap::new(2, Array::<_>::new(), PartialOrd::gt);
+    let h = &mut DHeap::new(2, Vec::new(), PartialOrd::gt);
 
     loop {
         let b: StringBuffer = read!();
