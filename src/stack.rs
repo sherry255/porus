@@ -23,7 +23,6 @@ pub fn top<T: Stack>(s: &T) -> &T::Elem {
     Stack::top(s).unwrap()
 }
 
-
 use alloc::vec::Vec;
 
 impl<T> Stack for Vec<T> {

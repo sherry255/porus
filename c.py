@@ -5,10 +5,9 @@ if __name__ == '__main__':
     import os
 
     try:
-        import miasma
+        import wronganswer
     except ImportError:
         ROOT=os.path.dirname(os.path.abspath(__file__))
-        sys.path.append(os.path.dirname(ROOT)+"/miasma")
         sys.path.append(os.path.dirname(ROOT)+"/wronganswer")
 
     from wronganswer.project import main
@@ -21,7 +20,7 @@ from wronganswer.asm import escape_source
 import json
 from functools import wraps
 
-SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>[\w\-.]+)(?:/.*)?/(?P<pid>[A-Za-z0-9_\-]+)\.rs(?:\.c)?$'
+SOLUTION_PATTERN = r'^(?:[^/]+)/(?P<oj>[\w\-.]+)(?:/.*)?/(?P<pid>[A-Za-z0-9_\-]+)\.rs$'
 
 def features(mode, target):
     if target is None:
@@ -106,7 +105,7 @@ def lru1(func):
 
 @lru1
 @task("Compile library mode={mode} target={target}")
-def CompileLibs(mode, target):
+def compile_libs(mode='debug', target=None):
     from subprocess import DEVNULL
     output = Call(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True).stdout
     packages = [json.loads(line) for line in output.splitlines()]
@@ -117,21 +116,12 @@ def CompileLibs(mode, target):
              if "porus" in package["target"]["name"]
              for filename in package["filenames"]]
 
-PRELUDE = b'''#![feature(proc_macro_hygiene)]
-#![feature(main)]
-#![cfg_attr(not(debug_assertions), no_std)]
-'''
-
 # mode=coverage, target=None, run coverage locally
 # mode=debug, target=None, to run locally
 # mode=release, target=None, to run locally, generate assembly
 # mode=release, target=??? to_submit, generate assembly
 
-def get_compile_argv(mode, target, filename, *libs):
-    if filename.endswith(".s"):
-        dest = filename[:-2] + ".elf"
-        return filename[:-2] + ".elf", ('gcc', '-o', dest, '-x', 'c', '-'), None
-
+def get_compile_argv(filename, *libs, mode='debug', target=None):
     env = os.environ.copy()
     dest = dest_filename(mode, target, filename)
 
@@ -145,28 +135,12 @@ def get_compile_argv(mode, target, filename, *libs):
     return dest, list(rustc_argv(mode, target, filename, *libs)), env
 
 
-def get_run_argv(filename):
-    return (os.path.join(ROOTDIR, filename),)
+PRELUDE = b'''#![feature(proc_macro_hygiene)]
+#![feature(main)]
+#![cfg_attr(not(debug_assertions), no_std)]
+'''
 
 @task("Read source of {filename}")
-def ReadSource(filename):
-    source = ReadFile(filename)
-    if filename.endswith(".s"):
-        return source
+def read_source(filename):
+    source = read_file(filename)
     return PRELUDE + source
-
-@task("Read submission of {name}")
-def ReadSubmission(name, recompile):
-    oj, pid = get_solution_info(name)
-    target = profile.asm_llvm_target(oj)
-    asm = Compile(name, recompile, mode='release', target=target)
-    source = ReadFile(asm)
-    env, source = profile.asm2c(oj, pid, source)
-    return env, source
-
-command(Compile)
-command(Run)
-command(Test)
-command(Preview)
-command(Submit)
-command(Clean)
