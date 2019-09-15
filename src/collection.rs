@@ -13,3 +13,11 @@ impl<T> Collection for Vec<T> {
         self.len()
     }
 }
+
+use alloc::collections::VecDeque;
+
+impl<T> Collection for VecDeque<T> {
+    fn size(&self) -> usize {
+        self.len()
+    }
+}

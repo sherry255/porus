@@ -85,7 +85,7 @@ def rustc_argv(mode, target, filename, *libs):
     for lib in libs:
         yield from ('--extern', '{}={}'.format(libname(lib), lib))
 
-    yield from ("-o", dest_filename(mode, target, filename))
+    yield from ("-o", dest_filename(filename, mode, target))
     yield "-"
 
 
@@ -104,10 +104,10 @@ def lru1(func):
 
 
 @lru1
-@task("Compile library mode={mode} target={target}")
 def compile_libs(mode='debug', target=None):
     from subprocess import DEVNULL
-    output = Call(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True).stdout
+    from wronganswer.subprocess import run
+    output = run(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True).stdout
     packages = [json.loads(line) for line in output.splitlines()]
 
     return [ filename
@@ -123,7 +123,7 @@ def compile_libs(mode='debug', target=None):
 
 def get_compile_argv(filename, *libs, mode='debug', target=None):
     env = os.environ.copy()
-    dest = dest_filename(mode, target, filename)
+    dest = dest_filename(filename, mode, target)
 
     if mode == 'coverage':
         env["CARGO_INCREMENTAL"] = "0"
@@ -140,7 +140,10 @@ PRELUDE = b'''#![feature(proc_macro_hygiene)]
 #![cfg_attr(not(debug_assertions), no_std)]
 '''
 
-@task("Read source of {filename}")
 def read_source(filename):
-    source = read_file(filename)
+    with open(filename, 'rb') as f:
+        source = f.read()
     return PRELUDE + source
+
+def get_submit_env(name, envs):
+    return None

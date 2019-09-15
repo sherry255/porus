@@ -59,3 +59,38 @@ impl<'a, Q: Deque> DoubleEndedIterator for Drain<'a, Q> {
 pub fn drain<T: Deque>(q: &mut T) -> Drain<T> {
     Drain { q }
 }
+
+
+use alloc::collections::VecDeque;
+
+impl<T> Deque for VecDeque<T> {
+    type Elem = T;
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn push_front(&mut self, elem: Self::Elem) {
+        self.push_front(elem)
+    }
+
+    fn pop_front(&mut self) -> Option<Self::Elem> {
+        self.pop_front()
+    }
+
+    fn push_back(&mut self, elem: Self::Elem) {
+        self.push_back(elem)
+    }
+
+    fn pop_back(&mut self) -> Option<Self::Elem> {
+        self.pop_back()
+    }
+
+    fn front(&self) -> Option<&Self::Elem> {
+        self.front()
+    }
+
+    fn back(&self) -> Option<&Self::Elem> {
+        self.back()
+    }
+}

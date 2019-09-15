@@ -5,7 +5,7 @@ prelude!();
 fn main() {
     let n: usize = read!();
 
-    let buf = buffer![];
+    let buf = &mut VecDeque::new();
 
     for _ in 0..n {
         let op: isize = read!();

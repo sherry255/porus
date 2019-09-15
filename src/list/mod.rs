@@ -236,6 +236,22 @@ impl<T> ListMut for Vec<T> {
     }
 }
 
+use alloc::collections::VecDeque;
+
+impl<T> List for VecDeque<T> {
+    type Elem = T;
+
+    fn get(&self, index: usize) -> Option<&T> {
+        self.get(index)
+    }
+}
+
+impl<T> ListMut for VecDeque<T> {
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        self.get_mut(index)
+    }
+}
+
 mod iter;
 pub use self::iter::iter;
 
