@@ -54,12 +54,12 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
 }
 
 #[cfg(debug_assertions)]
-fn unwrap<T, E: core::fmt::Debug>(result: Result<T,E>) -> T {
+fn unwrap<T, E: core::fmt::Debug>(result: Result<T, E>) -> T {
     result.unwrap()
 }
 
 #[cfg(not(debug_assertions))]
-fn unwrap<T, E: core::fmt::Debug>(result: Result<T,E>) -> T {
+fn unwrap<T, E: core::fmt::Debug>(result: Result<T, E>) -> T {
     match result {
         Ok(v) => v,
         Err(_) => panic!(),
