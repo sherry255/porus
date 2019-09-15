@@ -88,13 +88,13 @@ impl<E, L: ListMut<Elem = E> + Stack<Elem = E>, F: Fn(&E, &E) -> bool> Collectio
 impl<E, L: ListMut<Elem = E> + Stack<Elem = E>, F: Fn(&E, &E) -> bool> Heap for DHeap<E, L, F> {
     type Elem = E;
 
-    fn insert(&mut self, item: E) {
+    fn push(&mut self, item: E) {
         let size = collection::size(self);
         stack::push(&mut self.list, item);
         siftup(self.d, &mut self.list, size, &self.gt)
     }
 
-    fn extract(&mut self) -> Option<E> {
+    fn pop(&mut self) -> Option<E> {
         let size = collection::size(self);
         if size == 0 {
             None
@@ -106,7 +106,7 @@ impl<E, L: ListMut<Elem = E> + Stack<Elem = E>, F: Fn(&E, &E) -> bool> Heap for 
         }
     }
 
-    fn top(&self) -> Option<&E> {
+    fn peek(&self) -> Option<&E> {
         if collection::size(self) == 0 {
             None
         } else {

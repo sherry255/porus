@@ -3,7 +3,7 @@ extern crate porus;
 prelude!();
 
 fn main() {
-    let h = &mut DHeap::new(2, Vec::new(), PartialOrd::gt);
+    let h = &mut BinaryHeap::new();
 
     loop {
         let b: StringBuffer = read!();
@@ -13,9 +13,9 @@ fn main() {
             break;
         } else if command == b"insert" {
             let k: usize = read!();
-            heap::insert(h, k);
+            heap::push(h, k);
         } else if command == b"extract" {
-            writelnf!("{:d}", heap::extract(h));
+            writelnf!("{:d}", heap::pop(h));
         }
     }
 }

@@ -21,3 +21,11 @@ impl<T> Collection for VecDeque<T> {
         self.len()
     }
 }
+
+use alloc::collections::BinaryHeap;
+
+impl<T: Ord> Collection for BinaryHeap<T> {
+    fn size(&self) -> usize {
+        self.len()
+    }
+}

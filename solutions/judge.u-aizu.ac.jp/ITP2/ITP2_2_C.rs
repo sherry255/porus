@@ -6,9 +6,7 @@ fn main() {
     let n: usize = read!();
     let q: usize = read!();
 
-    let a: &mut Vec<_> = &mut (0..n)
-        .map(|_| DHeap::new(2, Vec::new(), PartialOrd::gt))
-        .collect();
+    let a: &mut Vec<_> = &mut (0..n).map(|_| BinaryHeap::new()).collect();
 
     for _ in 0..q {
         let op: usize = read!();
@@ -16,13 +14,13 @@ fn main() {
         let h = list::get_mut(a, t);
         if op == 0 {
             let x: isize = read!();
-            heap::insert(h, x);
+            heap::push(h, x);
         } else if op == 1 {
-            if let Some(&x) = Heap::top(h) {
+            if let Some(&x) = Heap::peek(h) {
                 writelnf!("{:d}", x)
             }
         } else if op == 2 {
-            Heap::extract(h);
+            Heap::pop(h);
         }
     }
 }

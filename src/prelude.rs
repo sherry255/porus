@@ -1,6 +1,7 @@
+pub use alloc::collections::BinaryHeap;
+pub use alloc::collections::VecDeque;
 pub use alloc::vec;
 pub use alloc::vec::Vec;
-pub use alloc::collections::VecDeque;
 pub use core::cmp::Ordering::Equal;
 pub use core::cmp::Ordering::Greater;
 pub use core::cmp::Ordering::Less;

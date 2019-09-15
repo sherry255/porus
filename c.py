@@ -107,7 +107,7 @@ def lru1(func):
 def compile_libs(mode='debug', target=None):
     from subprocess import DEVNULL
     from wronganswer.subprocess import run
-    output = run(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True).stdout
+    output = run(list(cargo_argv(mode, target)), stdin=DEVNULL, cwd=ROOTDIR, capture_output=True, check=True).stdout
     packages = [json.loads(line) for line in output.splitlines()]
 
     return [ filename

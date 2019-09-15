@@ -60,7 +60,6 @@ pub fn drain<T: Deque>(q: &mut T) -> Drain<T> {
     Drain { q }
 }
 
-
 use alloc::collections::VecDeque;
 
 impl<T> Deque for VecDeque<T> {
