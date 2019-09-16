@@ -11,8 +11,7 @@ matrix:
     language: rust
     rust: nightly
     install:
-    - rustup component add rustfmt
-    - rustup component add clippy
+    - ./install-lint.sh
     script:
     - cargo fmt --all -- --check
     - find solutions -name '*.rs' | xargs -I {} rustfmt --check {}

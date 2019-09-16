@@ -29,11 +29,12 @@ pub fn swap<L: ListMut>(list: &mut L, i: usize, j: usize) {
         return;
     }
 
-    let mut t = unsafe { core::mem::uninitialized() };
-    core::mem::swap(&mut t, get_mut(list, i));
-    core::mem::swap(&mut t, get_mut(list, j));
-    core::mem::swap(&mut t, get_mut(list, i));
-    core::mem::forget(t);
+    let t = &mut core::mem::MaybeUninit::uninit();
+    unsafe {
+        core::mem::swap(t.get_mut(), get_mut(list, i));
+        core::mem::swap(t.get_mut(), get_mut(list, j));
+        core::mem::swap(t.get_mut(), get_mut(list, i));
+    }
 }
 
 pub fn reverse<L: ListMut>(list: &mut L) {
