@@ -4,6 +4,7 @@
 #![feature(specialization)]
 #![feature(untagged_unions)]
 #![feature(allocator_api)]
+#![feature(alloc_error_handler)]
 #![feature(maybe_uninit_ref)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
 #![doc(test(attr(feature(proc_macro_hygiene))))]
