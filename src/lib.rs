@@ -17,19 +17,8 @@
 #![deny(clippy::complexity)]
 #![deny(clippy::perf)]
 #![deny(clippy::correctness)]
-#![deny(clippy::decimal_literal_representation)]
-#![deny(clippy::else_if_without_else)]
-#![deny(clippy::float_cmp_const)]
-#![deny(clippy::multiple_inherent_impl)]
-#![deny(clippy::print_stdout)]
-#![deny(clippy::shadow_reuse)]
-#![deny(clippy::shadow_same)]
-#![deny(clippy::string_add)]
-#![deny(clippy::unimplemented)]
-#![deny(clippy::use_debug)]
-#![deny(clippy::wrong_pub_self_convention)]
-#![allow(clippy::missing_const_for_fn)]
-#![allow(clippy::integer_division)]
+#![deny(clippy::restriction)]
+#![allow(clippy::use_self)]
 
 //! [`porus`](self) is a library for competitive programming. Since
 //! most popular online judges accept only a single file within tens

@@ -6,6 +6,8 @@
 #![deny(clippy::complexity)]
 #![deny(clippy::perf)]
 #![deny(clippy::correctness)]
+#![deny(clippy::restriction)]
+#![deny(stable_features)]
 
 extern crate proc_macro;
 extern crate proc_macro2;

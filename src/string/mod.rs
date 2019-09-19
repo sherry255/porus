@@ -238,8 +238,7 @@ mod tests {
     #[test]
     fn test_inline_string_buffer() {
         let source = &mut From::from(b"abc " as &_);
-        #[allow(clippy::default_trait_access)]
-        let mut buffer: StringBuffer = Default::default();
+        let mut buffer = <StringBuffer as Default>::default();
         fread(source, &mut buffer);
         let s1: String = From::from(buffer);
         let s2: String = From::from(b"abc" as &'static [u8]);
@@ -249,8 +248,7 @@ mod tests {
     #[test]
     fn test_shared_string_buffer() {
         let source = &mut From::from(b"abcdefghijklmnopqrstuvwxyz" as &_);
-        #[allow(clippy::default_trait_access)]
-        let mut buffer: StringBuffer = Default::default();
+        let mut buffer = <StringBuffer as Default>::default();
         fread(source, &mut buffer);
         let s1: String = From::from(buffer);
         let s2: String = From::from(b"abcdefghijklmnopqrstuvwxyz" as &'static [u8]);
