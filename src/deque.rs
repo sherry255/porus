@@ -19,7 +19,7 @@ pub fn push_front<T: Deque>(q: &mut T, elem: T::Elem) {
 }
 
 pub fn pop_front<T: Deque>(q: &mut T) -> T::Elem {
-    Deque::pop_front(q).unwrap()
+    Deque::pop_front(q).expect("Deque is empty")
 }
 
 pub fn push_back<T: Deque>(q: &mut T, elem: T::Elem) {
@@ -27,15 +27,15 @@ pub fn push_back<T: Deque>(q: &mut T, elem: T::Elem) {
 }
 
 pub fn pop_back<T: Deque>(q: &mut T) -> T::Elem {
-    Deque::pop_back(q).unwrap()
+    Deque::pop_back(q).expect("Deque is empty")
 }
 
 pub fn front<T: Deque>(q: &T) -> &T::Elem {
-    Deque::front(q).unwrap()
+    Deque::front(q).expect("Deque is empty")
 }
 
 pub fn back<T: Deque>(q: &T) -> &T::Elem {
-    Deque::back(q).unwrap()
+    Deque::back(q).expect("Deque is empty")
 }
 
 pub struct Drain<'a, Q: Deque> {

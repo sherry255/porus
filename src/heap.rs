@@ -11,11 +11,11 @@ pub fn push<H: Heap>(heap: &mut H, item: H::Elem) {
 }
 
 pub fn pop<H: Heap>(heap: &mut H) -> H::Elem {
-    Heap::pop(heap).unwrap()
+    Heap::pop(heap).expect("Heap is empty")
 }
 
 pub fn peek<H: Heap>(heap: &mut H) -> &H::Elem {
-    Heap::peek(heap).unwrap()
+    Heap::peek(heap).expect("Heap is empty")
 }
 
 use alloc::collections::BinaryHeap;

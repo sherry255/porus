@@ -53,19 +53,6 @@ pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
     Ok(())
 }
 
-#[cfg(debug_assertions)]
-fn unwrap<T, E: core::fmt::Debug>(result: Result<T, E>) -> T {
-    result.unwrap()
-}
-
-#[cfg(not(debug_assertions))]
-fn unwrap<T, E: core::fmt::Debug>(result: Result<T, E>) -> T {
-    match result {
-        Ok(v) => v,
-        Err(_) => panic!(),
-    }
-}
-
 pub struct Source {
     fd: i32,
     size: usize,
@@ -93,7 +80,7 @@ impl Iterator for Source {
     fn next(&mut self) -> Option<u8> {
         if (self.offset == self.size) && (self.size == self.capacity) {
             self.offset = 0;
-            self.size = unwrap(read(self.fd, self.buffer, self.capacity));
+            self.size = read(self.fd, self.buffer, self.capacity).expect("read failed");
         }
 
         if self.offset < self.size {
@@ -127,7 +114,7 @@ impl Sink {
 impl io::Sink for Sink {
     fn write(&mut self, c: u8) {
         if self.offset == self.capacity {
-            unwrap(write(self.fd, self.buffer, self.capacity));
+            write(self.fd, self.buffer, self.capacity).expect("write failed");
             self.offset = 0;
         }
 
@@ -138,6 +125,6 @@ impl io::Sink for Sink {
 
 impl Drop for Sink {
     fn drop(&mut self) {
-        unwrap(write(self.fd, self.buffer, self.offset));
+        write(self.fd, self.buffer, self.offset).expect("write failed");
     }
 }

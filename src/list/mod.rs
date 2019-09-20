@@ -13,11 +13,11 @@ pub trait ListMut: List {
 }
 
 pub fn get<L: List>(list: &L, index: usize) -> &<L as List>::Elem {
-    List::get(list, index).unwrap()
+    List::get(list, index).expect("List is empty")
 }
 
 pub fn get_mut<L: ListMut>(list: &mut L, index: usize) -> &mut <L as List>::Elem {
-    ListMut::get_mut(list, index).unwrap()
+    ListMut::get_mut(list, index).expect("List is empty")
 }
 
 pub fn set<L: ListMut>(list: &mut L, index: usize, elem: <L as List>::Elem) {
@@ -192,7 +192,7 @@ impl<'a, L: 'a + List> List for View<'a, L> {
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            Some(List::get(self.list, self.start + index).unwrap())
+            Some(get(self.list, self.start + index))
         } else {
             None
         }
@@ -204,7 +204,7 @@ impl<'a, L: 'a + ListMut> List for ViewMut<'a, L> {
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            Some(List::get(self.list, self.start + index).unwrap())
+            Some(get(self.list, self.start + index))
         } else {
             None
         }
@@ -214,7 +214,7 @@ impl<'a, L: 'a + ListMut> List for ViewMut<'a, L> {
 impl<'a, L: 'a + ListMut> ListMut for ViewMut<'a, L> {
     fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem> {
         if index < self.size {
-            Some(ListMut::get_mut(self.list, self.start + index).unwrap())
+            Some(get_mut(self.list, self.start + index))
         } else {
             None
         }
