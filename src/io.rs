@@ -35,10 +35,7 @@ impl<S: Source> PeekableSource<S> {
     }
 
     pub fn eof(&mut self) -> bool {
-        match self.peek() {
-            None => true,
-            Some(_) => false,
-        }
+        self.peek().is_none()
     }
 }
 

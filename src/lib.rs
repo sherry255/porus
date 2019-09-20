@@ -101,6 +101,7 @@ pub mod prelude;
 #[no_mangle]
 pub extern "C" fn eh_personality() {}
 
+#[allow(clippy::missing_const_for_fn)]
 #[cfg(feature = "online-judge")]
 #[panic_handler]
 #[no_mangle]

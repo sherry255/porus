@@ -3,11 +3,11 @@ use crate::heap::Heap;
 use crate::list::{self, ListMut};
 use crate::stack::{self, Stack};
 
-pub fn parent_index(d: usize, index: usize) -> usize {
+pub const fn parent_index(d: usize, index: usize) -> usize {
     (index - 1) / d
 }
 
-pub fn child_index(d: usize, index: usize, n: usize) -> usize {
+pub const fn child_index(d: usize, index: usize, n: usize) -> usize {
     d * index + 1 + n
 }
 

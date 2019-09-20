@@ -12,19 +12,19 @@ pub fn find<E: PartialEq, L: List<Elem = E>>(list: &L, elem: &E) -> Option<usize
     None
 }
 
-fn is_empty(r: &(usize, usize)) -> bool {
+const fn is_empty(r: &(usize, usize)) -> bool {
     r.0 >= r.1
 }
 
-fn midpoint(r: &(usize, usize)) -> usize {
+const fn midpoint(r: &(usize, usize)) -> usize {
     (r.0 + r.1 - 1) / 2
 }
 
-fn range_left(r: &(usize, usize), m: usize) -> (usize, usize) {
+const fn range_left(r: &(usize, usize), m: usize) -> (usize, usize) {
     (r.0, m)
 }
 
-fn range_right(r: &(usize, usize), m: usize) -> (usize, usize) {
+const fn range_right(r: &(usize, usize), m: usize) -> (usize, usize) {
     (m + 1, r.1)
 }
 

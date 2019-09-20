@@ -24,7 +24,7 @@ struct InlineBuffer {
 }
 
 impl InlineBuffer {
-    fn offset(&self) -> u8 {
+    const fn offset(&self) -> u8 {
         self.offset >> 2
     }
 }

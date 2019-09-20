@@ -16,11 +16,11 @@ pub fn push<T: Stack>(s: &mut T, elem: T::Elem) {
 }
 
 pub fn pop<T: Stack>(s: &mut T) -> T::Elem {
-    Stack::pop(s).unwrap()
+    Stack::pop(s).expect("Stack is empty")
 }
 
 pub fn top<T: Stack>(s: &T) -> &T::Elem {
-    Stack::top(s).unwrap()
+    Stack::top(s).expect("Stack is empty")
 }
 
 use alloc::vec::Vec;

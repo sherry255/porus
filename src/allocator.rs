@@ -125,7 +125,7 @@ impl<T, A: Alloc> pool::Pool for Pool<T, A> {
 
     fn add(&mut self, item: T) -> Handle {
         unsafe {
-            let ptr = Alloc::alloc_one::<T>(&mut self.allocator).unwrap();
+            let ptr = Alloc::alloc_one::<T>(&mut self.allocator).expect("alloc faield");
             write(ptr.as_ptr(), item);
             Handle(NonNull::cast(ptr))
         }
