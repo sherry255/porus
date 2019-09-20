@@ -53,7 +53,7 @@ pub struct Bytes<'a> {
 }
 
 impl<'a> Bytes<'a> {
-    pub fn new(s: &'a [u8]) -> Self {
+    pub const fn new(s: &'a [u8]) -> Self {
         Self { s }
     }
 }

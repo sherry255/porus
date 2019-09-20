@@ -18,6 +18,9 @@
 #![deny(clippy::perf)]
 #![deny(clippy::correctness)]
 #![deny(clippy::restriction)]
+#![allow(clippy::implicit_return)]
+#![allow(clippy::missing_docs_in_private_items)]
+#![allow(clippy::missing_inline_in_public_items)]
 #![allow(clippy::use_self)]
 
 //! [`porus`](self) is a library for competitive programming. Since
