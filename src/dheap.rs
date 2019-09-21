@@ -51,16 +51,16 @@ pub fn siftdown<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(
 }
 
 pub fn heapify<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(d: usize, l: &mut L, gt: F) {
-    let size = collection::size(l);
-
-    if size > 1 {
-        let mut n = parent_index(d, size - 1);
-        loop {
-            siftdown(d, l, n, &gt);
-            if n == 0 {
-                break;
+    if let Some(index) = usize::checked_sub(collection::size(l), 1) {
+        if index > 0 {
+            let mut n = parent_index(d, index);
+            loop {
+                siftdown(d, l, n, &gt);
+                if n == 0 {
+                    break;
+                }
+                n -= 1;
             }
-            n -= 1;
         }
     }
 }
@@ -95,14 +95,14 @@ impl<E, L: ListMut<Elem = E> + Stack<Elem = E>, F: Fn(&E, &E) -> bool> Heap for 
     }
 
     fn pop(&mut self) -> Option<E> {
-        let size = collection::size(self);
-        if size == 0 {
-            None
-        } else {
-            list::swap(&mut self.list, 0, size - 1);
-            let result = stack::pop(&mut self.list);
-            siftdown(self.d, &mut self.list, 0, &self.gt);
-            Some(result)
+        match usize::checked_sub(collection::size(self), 1) {
+            None => None,
+            Some(index) => {
+                list::swap(&mut self.list, 0, index);
+                let result = stack::pop(&mut self.list);
+                siftdown(self.d, &mut self.list, 0, &self.gt);
+                Some(result)
+            }
         }
     }
 

@@ -6,6 +6,7 @@
 #![feature(allocator_api)]
 #![feature(alloc_error_handler)]
 #![feature(maybe_uninit_ref)]
+#![feature(ptr_offset_from)]
 #![cfg_attr(feature = "online-judge", feature(lang_items))]
 #![doc(test(attr(feature(proc_macro_hygiene))))]
 #![no_std]
