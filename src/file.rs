@@ -4,7 +4,7 @@ use core::convert::TryFrom;
 use core::iter::Iterator;
 use core::ptr;
 
-pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<*mut u8, libc::Error> {
+fn read(fd: i32, buf: *mut u8, count: usize) -> Result<*mut u8, libc::Error> {
     if count > 0 {
         if let Ok(size) = TryFrom::try_from(unsafe { libc::read(fd, buf, count) }) {
             if size > 0 {
@@ -20,7 +20,7 @@ pub fn read(fd: i32, buf: *mut u8, count: usize) -> Result<*mut u8, libc::Error>
     Ok(buf)
 }
 
-pub fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
+fn write(fd: i32, buf: *const u8, count: usize) -> Result<(), libc::Error> {
     if count > 0 {
         if let Ok(size) = TryFrom::try_from(unsafe { libc::write(fd, buf, count) }) {
             if let Some(remain) = usize::checked_sub(count, size) {

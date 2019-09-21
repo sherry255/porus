@@ -1,5 +1,6 @@
 use crate::io::{PeekableSource, Source};
-use core::convert::TryFrom;
+use core::convert::From;
+use core::intrinsics::powif64;
 use core::ops::{Add, Mul, Neg};
 
 pub trait Consumer {
@@ -70,9 +71,9 @@ fn read_digit<I: Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
     };
 
     let d = match c {
-        b'0'..=b'9' => c - b'0',
-        b'A'..=b'Z' => c - b'A' + 10_u8,
-        b'a'..=b'z' => c - b'a' + 10_u8,
+        b'0'..=b'9' => u8::wrapping_sub(c, b'0'),
+        b'A'..=b'Z' => u8::wrapping_sub(c, b'7'),
+        b'a'..=b'z' => u8::wrapping_sub(c, b'W'),
         _ => {
             return None;
         }
@@ -86,17 +87,17 @@ fn read_digit<I: Source>(s: &mut PeekableSource<I>, radix: u8) -> Option<u8> {
     Some(d)
 }
 
-fn read_unsigned<I: Source, T: Copy + Default + Add<Output = T> + Mul<Output = T> + TryFrom<u8>>(
+fn read_unsigned<I: Source, T: Copy + Default + Add<Output = T> + Mul<Output = T> + From<u8>>(
     s: &mut PeekableSource<I>,
     radix: u8,
 ) -> Option<T> {
     match read_digit(s, radix) {
         None => None,
         Some(d) => {
-            let mut x: T = TryFrom::try_from(d).ok().unwrap();
+            let mut x: T = From::from(d);
 
             while let Some(d) = read_digit(s, radix) {
-                x = x * TryFrom::try_from(10).ok().unwrap() + TryFrom::try_from(d).ok().unwrap();
+                x = x * From::from(10) + From::from(d);
             }
 
             Some(x)
@@ -106,7 +107,7 @@ fn read_unsigned<I: Source, T: Copy + Default + Add<Output = T> + Mul<Output = T
 
 fn read_signed<
     I: Source,
-    T: Copy + Default + Add<Output = T> + Mul<Output = T> + TryFrom<u8> + Neg<Output = T>,
+    T: Copy + Default + Add<Output = T> + Mul<Output = T> + From<u8> + Neg<Output = T>,
 >(
     s: &mut PeekableSource<I>,
     radix: u8,
@@ -115,14 +116,14 @@ fn read_signed<
         None => None,
         Some(&b'-') => {
             s.consume();
-            let x: T = read_unsigned(s, radix).unwrap();
-            Some(-x)
+            let r: Option<T> = read_unsigned(s, radix);
+            r.map(|x| -x)
         }
         Some(_) => read_unsigned(s, radix),
     }
 }
 
-impl<'a, T: 'a + Copy + Default + Add<Output = T> + Mul<Output = T> + TryFrom<u8>> Consumer
+impl<'a, T: 'a + Copy + Default + Add<Output = T> + Mul<Output = T> + From<u8>> Consumer
     for Int<'a, T>
 {
     default fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
@@ -138,7 +139,7 @@ impl<'a, T: 'a + Copy + Default + Add<Output = T> + Mul<Output = T> + TryFrom<u8
 
 impl<
         'a,
-        T: 'a + Copy + Default + Add<Output = T> + Mul<Output = T> + TryFrom<u8> + Neg<Output = T>,
+        T: 'a + Copy + Default + Add<Output = T> + Mul<Output = T> + From<u8> + Neg<Output = T>,
     > Consumer for Int<'a, T>
 {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
@@ -168,15 +169,14 @@ int!(u64);
 int!(u128);
 int!(usize);
 
-int!(i8);
+// int!(i8);
 int!(i16);
 int!(i32);
 int!(i64);
 int!(i128);
 int!(isize);
 
-use core::intrinsics::powif64;
-
+#[allow(clippy::float_arithmetic)]
 impl<'a> Consumer for &'a mut f64 {
     fn consume<I: Source>(self, s: &mut PeekableSource<I>) -> bool {
         let sign: f64 = if let Some(&b'-') = s.peek() {
@@ -274,11 +274,10 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_signed_mismatch() {
         let source = &mut From::from(b"-g" as &_);
         let mut x = 0_isize;
-        fread(source, &mut x);
+        assert!(!fread(source, &mut x));
     }
 
     #[test]
@@ -289,10 +288,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_signed_mismatch_sign() {
         let source = &mut From::from(b"-" as &_);
         let mut x = 0_isize;
-        fread(source, &mut x);
+        assert!(!fread(source, &mut x));
     }
 }

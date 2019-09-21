@@ -66,7 +66,7 @@
 
 use crate::io::Sink;
 use core::convert::TryInto;
-use core::intrinsics::powif64;
+use core::intrinsics::{fabsf64, powif64, roundf64};
 use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
 #[allow(unused_imports)]
@@ -140,8 +140,8 @@ pub trait Int {
 
 fn to_char(d: u8) -> u8 {
     match d {
-        0..=9 => b'0' + d,
-        10..=35 => b'A' + d - 10,
+        0..=9 => u8::wrapping_add(b'0', d),
+        10..=35 => u8::wrapping_add(b'7', d),
         _ => panic!(),
     }
 }
@@ -159,12 +159,19 @@ fn write_unsigned<
     let mut i = 39;
 
     while x > Default::default() {
-        buf[i] = to_char(TryInto::try_into(x % radix).ok().unwrap());
+        *unsafe { buf.get_unchecked_mut(i) } = to_char(
+            TryInto::try_into(x % radix)
+                .ok()
+                .expect("digit greater than 255"),
+        );
         i -= 1;
         x = x / radix;
     }
 
-    i = Ord::min(i + 1, 40 - width);
+    i = Ord::min(
+        usize::saturating_add(i, 1),
+        usize::saturating_sub(40, width),
+    );
     fwrite_str(s, &buf[i..]);
 }
 
@@ -230,11 +237,12 @@ signed!(i128);
 signed!(isize);
 
 pub trait Float {
-    fn write<S: Sink>(self, s: &mut S, prec: usize);
+    fn write<S: Sink>(self, s: &mut S, prec: u32);
 }
 
+#[allow(clippy::float_arithmetic)]
 impl Float for f64 {
-    fn write<S: Sink>(mut self, s: &mut S, prec: usize) {
+    fn write<S: Sink>(mut self, s: &mut S, prec: u32) {
         if self.is_finite() {
             #[cfg(feature = "local-judge")]
             {
@@ -245,18 +253,18 @@ impl Float for f64 {
 
             if self.is_sign_negative() {
                 Sink::write(s, b'-');
-                self = -self;
+                self = unsafe { fabsf64(self) };
             }
 
-            self *= unsafe { powif64(10.0, TryInto::try_into(prec).ok().unwrap()) };
-            let m = 10_u64.pow(TryInto::try_into(prec).ok().unwrap());
+            self *= unsafe { powif64(10.0, TryInto::try_into(prec).ok().expect("prec overflow")) };
+            let m = 10_u64.pow(prec);
 
             if self <= 9_007_199_254_740_992.0 {
                 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-                let i = self as u64;
+                let i = unsafe { roundf64(self) } as u64;
                 write_unsigned(s, i / m, 10, 1);
                 Sink::write(s, b'.');
-                write_unsigned(s, i % m, 10, prec);
+                write_unsigned(s, i % m, 10, prec as usize);
                 return;
             }
         }
@@ -266,7 +274,7 @@ impl Float for f64 {
 }
 
 impl<'a> Float for &'a f64 {
-    fn write<S: Sink>(self, s: &mut S, prec: usize) {
+    fn write<S: Sink>(self, s: &mut S, prec: u32) {
         Float::write(*self, s, prec)
     }
 }

@@ -24,27 +24,20 @@ pub struct DefaultPolicy {}
 
 impl Policy for DefaultPolicy {
     fn initial(size: usize) -> usize {
-        if size < 10 {
-            10
-        } else {
-            size
-        }
+        Ord::max(10, size)
     }
 
     fn grow(capacity: usize) -> usize {
-        capacity + (capacity / 2)
+        usize::saturating_add(capacity, capacity >> 1)
     }
 
     fn shrink(size: usize, capacity: usize) -> usize {
-        let new_capacity = if size * 9 / 4 < capacity {
-            size * 3 / 2
+        let g = Self::grow(size);
+        let new_capacity = if Self::grow(g) < capacity {
+            g
         } else {
             capacity
         };
-        if new_capacity < 10 {
-            10
-        } else {
-            new_capacity
-        }
+        Self::initial(new_capacity)
     }
 }

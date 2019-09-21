@@ -41,7 +41,7 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                     }
                     "f" => {
                         let prec: Box<dyn ToTokens> = match fmt.precision {
-                            Count::CountIs(n) => Box::new(Literal::usize_suffixed(n)),
+                            Count::CountIs(n) => Box::new(Literal::usize_unsuffixed(n)),
                             Count::CountIsName(_name) => panic!("named argument not supported"),
                             Count::CountIsParam(i) => {
                                 let lit = Literal::usize_unsuffixed(i);
