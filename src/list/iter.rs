@@ -33,7 +33,7 @@ where
     T::Elem: Clone,
 {
     fn len(&self) -> usize {
-        self.end - self.start
+        usize::saturating_sub(self.end, self.start)
     }
 }
 

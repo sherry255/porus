@@ -41,36 +41,29 @@ pub fn reverse<L: ListMut>(list: &mut L) {
     let mut l = 0;
     let mut r = collection::size(list);
     while l < r {
-        swap(list, l, r - 1);
-        l += 1;
         r -= 1;
+        swap(list, l, r);
+        l += 1;
     }
 }
 
 pub fn rotate_left<L: ListMut>(list: &mut L, n: usize) {
     let size = collection::size(list);
-    if size == 0 {
-        return;
+    if let Some(n1) = usize::checked_rem(n, size) {
+        let m = usize::wrapping_sub(size, n1);
+        reverse(&mut slice_mut(list, ..m));
+        reverse(&mut slice_mut(list, m..));
+        reverse(list);
     }
-
-    let m = size - n % size;
-
-    reverse(&mut slice_mut(list, ..m));
-    reverse(&mut slice_mut(list, m..));
-    reverse(list);
 }
 
 pub fn rotate_right<L: ListMut>(list: &mut L, n: usize) {
     let size = collection::size(list);
-    if size == 0 {
-        return;
+    if let Some(m) = usize::checked_rem(n, size) {
+        reverse(&mut slice_mut(list, ..m));
+        reverse(&mut slice_mut(list, m..));
+        reverse(list);
     }
-
-    let m = n % size;
-
-    reverse(&mut slice_mut(list, ..m));
-    reverse(&mut slice_mut(list, m..));
-    reverse(list);
 }
 
 pub struct View<'a, L: 'a + List> {
@@ -111,14 +104,14 @@ fn start_bound<T: RangeBounds<usize>>(bound: &T) -> usize {
     match RangeBounds::start_bound(bound) {
         Bound::Unbounded => 0,
         Bound::Included(&x) => x,
-        Bound::Excluded(&x) => x - 1,
+        Bound::Excluded(&x) => usize::checked_add(x, 1).expect("start_bound overflow"),
     }
 }
 
 fn end_bound<T: RangeBounds<usize>>(bound: &T, default: usize) -> usize {
     match RangeBounds::end_bound(bound) {
         Bound::Unbounded => default,
-        Bound::Included(&x) => x + 1,
+        Bound::Included(&x) => usize::checked_add(x, 1).expect("end_bound overflow"),
         Bound::Excluded(&x) => x,
     }
 }
@@ -130,8 +123,8 @@ impl<'a, L: 'a + List> Slice<L> for View<'a, L> {
 
         View {
             list: self.list,
-            start: self.start + start,
-            size: end - start,
+            start: usize::checked_add(self.start, start).expect("slice start overflow"),
+            size: usize::saturating_sub(end, start),
         }
     }
 }
@@ -144,7 +137,7 @@ impl<L: List> Slice<L> for L {
         View {
             list: self,
             start,
-            size: end - start,
+            size: usize::saturating_sub(end, start),
         }
     }
 }
@@ -156,8 +149,8 @@ impl<'a, L: 'a + ListMut> SliceMut<L> for ViewMut<'a, L> {
 
         ViewMut {
             list: self.list,
-            start: self.start + start,
-            size: end - start,
+            start: usize::checked_add(self.start, start).expect("slice start overflow"),
+            size: usize::saturating_sub(end, start),
         }
     }
 }
@@ -170,7 +163,7 @@ impl<L: ListMut> SliceMut<L> for L {
         ViewMut {
             list: self,
             start,
-            size: end - start,
+            size: usize::saturating_sub(end, start),
         }
     }
 }
@@ -192,7 +185,10 @@ impl<'a, L: 'a + List> List for View<'a, L> {
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            Some(get(self.list, self.start + index))
+            Some(get(
+                self.list,
+                usize::checked_add(self.start, index).expect("index overflow"),
+            ))
         } else {
             None
         }
@@ -204,7 +200,10 @@ impl<'a, L: 'a + ListMut> List for ViewMut<'a, L> {
 
     fn get(&self, index: usize) -> Option<&Self::Elem> {
         if index < self.size {
-            Some(get(self.list, self.start + index))
+            Some(get(
+                self.list,
+                usize::checked_add(self.start, index).expect("index overflow"),
+            ))
         } else {
             None
         }
@@ -214,7 +213,10 @@ impl<'a, L: 'a + ListMut> List for ViewMut<'a, L> {
 impl<'a, L: 'a + ListMut> ListMut for ViewMut<'a, L> {
     fn get_mut(&mut self, index: usize) -> Option<&mut Self::Elem> {
         if index < self.size {
-            Some(get_mut(self.list, self.start + index))
+            Some(get_mut(
+                self.list,
+                usize::checked_add(self.start, index).expect("index overflow"),
+            ))
         } else {
             None
         }

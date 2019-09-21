@@ -256,7 +256,7 @@ impl Float for f64 {
                 self = unsafe { fabsf64(self) };
             }
 
-            self *= unsafe { powif64(10.0, TryInto::try_into(prec).ok().expect("prec overflow")) };
+            self *= unsafe { powif64(10.0, TryInto::try_into(prec).expect("prec overflow")) };
             let m = 10_u64.pow(prec);
 
             if self <= 9_007_199_254_740_992.0 {

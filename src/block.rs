@@ -13,7 +13,7 @@ pub struct Block<T, P: Policy, A: Alloc> {
 impl<T, P: Policy, A: Alloc> Block<T, P, A> {
     pub fn new(mut allocator: A, size: usize) -> Self {
         let capacity = P::initial(size);
-        let data = Alloc::alloc_array(&mut allocator, capacity).unwrap();
+        let data = Alloc::alloc_array(&mut allocator, capacity).expect("alloc failed");
         Self {
             capacity,
             data,
@@ -56,41 +56,38 @@ impl<T, P: Policy, A: Alloc> Block<T, P, A> {
         }
     }
 
-    fn move_tail(&mut self, new_capacity: usize, n: usize) {
-        let src = self.capacity - n;
-        self.copy(src, new_capacity - n, n);
-    }
-
     pub fn grow(&mut self, n: usize) -> usize {
-        assert!(n <= self.capacity);
+        let src = usize::checked_sub(self.capacity, n).expect("n greater than capacity");
         let new_capacity = P::grow(self.capacity);
-        assert!(self.capacity <= new_capacity);
+        let grow = usize::checked_sub(new_capacity, self.capacity).expect("grow to a smaller size");
         self.data = unsafe {
             Alloc::realloc_array(&mut self.allocator, self.data, self.capacity, new_capacity)
         }
-        .unwrap();
-        self.move_tail(new_capacity, n);
-        let grow = new_capacity - self.capacity;
+        .expect("realloc failed");
+        let dst = usize::checked_add(src, grow).unwrap_or_else(|| unreachable!());
+        self.copy(src, dst, n);
         self.capacity = new_capacity;
         grow
     }
 
     pub fn shrink(&mut self, size: usize, m: Option<usize>, n: usize) -> usize {
         assert!(n <= size);
+        assert!(size <= self.capacity);
+        let src = usize::checked_sub(self.capacity, n).unwrap_or_else(|| unreachable!());
         let new_capacity = P::shrink(size, self.capacity);
-        assert!(size <= new_capacity);
-        assert!(new_capacity <= self.capacity);
-        if new_capacity < self.capacity {
+        let shrink =
+            usize::checked_sub(self.capacity, new_capacity).expect("shrink to a bigger size");
+        let dst = usize::checked_sub(src, shrink).unwrap_or_else(|| unreachable!());
+        if shrink > 0 {
             match m {
-                None => self.move_tail(new_capacity, n),
+                None => self.copy(src, dst, n),
                 Some(i) => self.copy(i, 0, n),
             }
             self.data = unsafe {
                 Alloc::realloc_array(&mut self.allocator, self.data, self.capacity, new_capacity)
             }
-            .unwrap();
+            .expect("realloc failed");
         }
-        let shrink = self.capacity - new_capacity;
         self.capacity = new_capacity;
         shrink
     }
@@ -104,6 +101,7 @@ impl<T, P: Policy, A: Alloc + Default> Block<T, P, A> {
 
 impl<T, P: Policy, A: Alloc> Drop for Block<T, P, A> {
     fn drop(&mut self) {
-        unsafe { Alloc::dealloc_array(&mut self.allocator, self.data, self.capacity) }.unwrap();
+        unsafe { Alloc::dealloc_array(&mut self.allocator, self.data, self.capacity) }
+            .expect("dealloc failed");
     }
 }
