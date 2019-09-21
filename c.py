@@ -59,6 +59,8 @@ def rustc_argv(mode, target, filename, *libs):
         yield os.path.join(ROOTDIR, 'target/cov/build/rustc-shim.bat')
     else:
         yield 'rustc'
+    yield from ('--edition', '2018')
+
     if VERBOSE:
         yield '-v'
     if mode == 'debug':
@@ -72,7 +74,6 @@ def rustc_argv(mode, target, filename, *libs):
         yield from ("-C", "panic=abort")
 
     yield from ('-Z', 'external-macro-backtrace')
-    yield from os.environ.get("RUSTFLAGS", "-Z borrowck=mir -Z polonius").strip().split(" ")
     if target is not None:
         yield from ('--target', target)
     for feature in features(mode, target):

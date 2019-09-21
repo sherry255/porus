@@ -1,5 +1,3 @@
 [build]
 rustflags = [
-  "-Z", "external-macro-backtrace",
-  "-Z", "borrowck=mir",
-  "-Z", "polonius"]
+  "-Z", "external-macro-backtrace"]

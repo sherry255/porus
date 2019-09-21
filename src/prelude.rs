@@ -66,6 +66,7 @@ macro_rules! prelude {
         use $crate::prelude::*;
 
         pub mod __porus_main {
+            use super::main;
             use $crate::file::{Sink, Source};
             use $crate::stdio::initialize;
 
@@ -73,17 +74,17 @@ macro_rules! prelude {
             static mut STDOUT: [u8; $size] = [0; $size];
 
             #[cfg_attr(not(feature = "online-judge"), main)]
-            fn main() {
+            fn porus_main() {
                 let stdin = &mut Source::new(0, unsafe { &mut STDIN });
                 let stdout = &mut Sink::new(1, unsafe { &mut STDOUT });
                 initialize(stdin, stdout);
-                ::main();
+                main();
             }
 
             #[cfg(feature = "online-judge")]
             #[export_name = "main"]
             pub extern "C" fn porus_start() -> i32 {
-                main();
+                porus_main();
                 0
             }
         }

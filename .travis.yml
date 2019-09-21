@@ -14,8 +14,8 @@ matrix:
     - ./install-lint.sh
     script:
     - cargo fmt --all -- --check
-    - find solutions -name '*.rs' | xargs -I {} rustfmt --check {}
-    - find examples -name '*.rs' | xargs -I {} rustfmt --check {}
+    - find solutions -name '*.rs' | xargs -I {} rustfmt --edition 2018 --check {}
+    - find examples -name '*.rs' | xargs -I {} rustfmt --edition 2018 --check {}
     - cargo clippy --all-features
     - cd porus_macros
     - cargo clippy

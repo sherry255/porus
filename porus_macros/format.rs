@@ -1,4 +1,4 @@
-use common::parse_args;
+use crate::common::parse_args;
 use fmt_macros::{Argument, Count, Parser, Piece, Position};
 use proc_macro2::{Literal, TokenStream};
 use quote::ToTokens;
