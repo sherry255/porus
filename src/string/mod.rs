@@ -198,7 +198,7 @@ impl<A: Alloc> Drop for String<A> {
                         NonNull::cast(self.s.shared.counter),
                         counter_size + self.s.shared.length,
                     )
-                    .unwrap();
+                    .expect("dealloc failed");
                 }
             }
         }

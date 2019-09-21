@@ -147,7 +147,7 @@ impl<P: Policy, A: Alloc> Sink for Buffer<P, A> {
                     let capacity = P::initial(size);
                     let s: NonNull<u8> =
                         Alloc::alloc_array::<u8>(&mut self.allocator, counter_size + capacity)
-                            .unwrap();
+                            .expect("alloc failed");
                     copy_nonoverlapping(
                         self.buffer.inline.s.as_ptr(),
                         s.as_ptr().add(counter_size),
@@ -173,7 +173,7 @@ impl<P: Policy, A: Alloc> Sink for Buffer<P, A> {
                     counter_size + self.buffer.shared.capacity,
                     counter_size + capacity,
                 )
-                .unwrap();
+                .expect("realloc failed");
             }
             *self.buffer.shared.s.as_ptr().add(counter_size + offset) = c;
             self.buffer.shared.offset += 1;
@@ -206,7 +206,7 @@ impl<P: Policy, A: Alloc> Drop for Buffer<P, A> {
                     self.buffer.shared.s,
                     counter_size + self.buffer.shared.capacity,
                 )
-                .unwrap();
+                .expect("dealloc failed");
             }
         }
     }
@@ -247,7 +247,7 @@ impl<P: Policy, A: Alloc> From<Buffer<P, A>> for String<A> {
                     counter_size + buf.buffer.shared.capacity,
                     counter_size + length,
                 )
-                .unwrap();
+                .expect("realloc failed");
                 // #[allow(clippy::cast_ptr_alignment)]
                 let mut counter = NonNull::cast::<usize>(s);
                 *counter.as_mut() = 1;

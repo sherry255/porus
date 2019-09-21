@@ -78,7 +78,6 @@ pub mod heap;
 pub mod list;
 pub mod pool;
 pub mod stack;
-pub mod stream;
 
 pub mod block;
 pub mod chunk;
@@ -96,12 +95,12 @@ pub mod flist;
 #[macro_use]
 pub mod prelude;
 
+#[allow(clippy::missing_const_for_fn)]
 #[cfg(feature = "online-judge")]
 #[lang = "eh_personality"]
 #[no_mangle]
 pub extern "C" fn eh_personality() {}
 
-#[allow(clippy::missing_const_for_fn)]
 #[cfg(feature = "online-judge")]
 #[panic_handler]
 #[no_mangle]
