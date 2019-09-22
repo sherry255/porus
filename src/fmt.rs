@@ -262,9 +262,9 @@ impl Float for f64 {
             if self <= 9_007_199_254_740_992.0 {
                 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
                 let i = unsafe { roundf64(self) } as u64;
-                write_unsigned(s, i / m, 10, 1);
+                write_unsigned(s, u64::wrapping_div(i, m), 10, 1);
                 Sink::write(s, b'.');
-                write_unsigned(s, i % m, 10, prec as usize);
+                write_unsigned(s, u64::wrapping_rem(i, m), 10, prec as usize);
                 return;
             }
         }

@@ -257,7 +257,8 @@ impl<P: Policy, A: Alloc> From<Buffer<P, A>> for String<A> {
                         shared: SharedString {
                             counter,
                             length,
-                            s: NonNull::new(s.as_ptr().add(counter_size)).unwrap(),
+                            s: NonNull::new(s.as_ptr().add(counter_size))
+                                .unwrap_or_else(|| unreachable!()),
                         },
                     },
                     allocator: buf.allocator,

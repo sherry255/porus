@@ -41,10 +41,6 @@ impl<T> Stack for Vec<T> {
     }
 
     fn top(&self) -> Option<&Self::Elem> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(&self[self.len() - 1])
-        }
+        usize::checked_sub(self.len(), 1).map(|i| &self[i])
     }
 }

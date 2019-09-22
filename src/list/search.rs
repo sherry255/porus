@@ -17,7 +17,7 @@ const fn is_empty(r: &(usize, usize)) -> bool {
 }
 
 const fn midpoint(r: &(usize, usize)) -> usize {
-    (r.0 + r.1 - 1) / 2
+    usize::saturating_add(r.0, usize::saturating_sub(r.1, 1)) >> 1
 }
 
 const fn range_left(r: &(usize, usize), m: usize) -> (usize, usize) {
@@ -25,7 +25,7 @@ const fn range_left(r: &(usize, usize), m: usize) -> (usize, usize) {
 }
 
 const fn range_right(r: &(usize, usize), m: usize) -> (usize, usize) {
-    (m + 1, r.1)
+    (usize::saturating_add(m, 1), r.1)
 }
 
 pub fn bsearch<E: Ord, L: List<Elem = E>>(list: &L, elem: &E) -> (usize, usize) {

@@ -1,6 +1,7 @@
 use super::ViewMut;
 use super::{get, iter, slice_mut, swap, List, ListMut};
 use crate::collection::{self, Collection};
+use core::cmp::Ordering::{Greater, Less};
 
 #[allow(clippy::nonminimal_bool)]
 pub fn is_stable_sort<
@@ -13,18 +14,13 @@ pub fn is_stable_sort<
     lt: F,
     index: &I,
 ) -> bool {
-    let size = collection::size(list);
-
-    if size > 0 {
-        for i in 0..(size - 1) {
-            if !lt(get(list, *get(index, i)), get(list, *get(index, i + 1)))
-                && !(get(index, i) < get(index, i + 1))
-            {
-                return false;
-            }
+    iter(index).is_sorted_by(|i, j| {
+        if !lt(get(list, *i), get(list, *j)) && !(i < j) {
+            None
+        } else {
+            Some(Less)
         }
-    }
-    true
+    })
 }
 
 pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
@@ -33,15 +29,12 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
-    if size > 0 {
-        for i in (1..size).rev() {
-            if lt(get(list, i), get(list, i - 1)) {
-                swap(list, i, i - 1);
-                count += 1;
-            }
+    for (i, j) in (0..size).zip(1..size).rev() {
+        if lt(get(list, j), get(list, i)) {
+            swap(list, i, j);
+            count += 1;
         }
     }
-
     count
 }
 
@@ -49,12 +42,10 @@ pub fn bubble_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: F,
 ) -> usize {
-    let mut count = 0;
     let size = collection::size(list);
-    for i in 0..size - 1 {
-        count += bubble(&mut slice_mut(list, i..size), &lt);
-    }
-    count
+    (0..size)
+        .map(|i| bubble(&mut slice_mut(list, i..size), &lt))
+        .sum()
 }
 
 pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
@@ -63,11 +54,12 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
 ) -> usize {
     let mut count = 0;
     let size = collection::size(list);
-    let mut i = size - 1;
-    while (i > 0) && lt(get(list, i), get(list, i - 1)) {
-        swap(list, i, i - 1);
+    for (i, j) in (0..size).zip(1..size).rev() {
+        if !lt(get(list, j), get(list, i)) {
+            break;
+        }
+        swap(list, i, j);
         count += 1;
-        i -= 1;
     }
     count
 }
@@ -96,13 +88,10 @@ pub fn insertion_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     list: &mut L,
     lt: F,
 ) -> usize {
-    // let mut count = 0;
-    // let size = collection::size(list);
-    // for i in 2..size+1 {
-    //     count += bubble_sorted(slice_mut!(list, [0, i]), lt);
-    // }
-    // count
-    insertion_sort_g(list, lt, 1)
+    let size = collection::size(list);
+    (0..size)
+        .map(|i| bubble_sorted(&mut slice_mut(list, 0..i), &lt))
+        .sum()
 }
 
 pub fn shell_sort<
@@ -132,16 +121,19 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     let mut count = 0;
     let size = collection::size(list);
     for i in 0..size {
-        let mut min = i;
-        for j in i + 1..size {
-            if lt(get(list, j), get(list, min)) {
-                min = j;
+        if let Some(min) = (i..size).min_by(|x, y| {
+            if lt(get(list, *y), get(list, *x)) {
+                Greater
+            } else {
+                Less
             }
-        }
-
-        if min != i {
-            swap(list, i, min);
-            count += 1;
+        }) {
+            if min != i {
+                swap(list, i, min);
+                count += 1;
+            }
+        } else {
+            unreachable!();
         }
     }
     count
