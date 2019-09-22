@@ -6,7 +6,7 @@ fn main() {
     let n: usize = read!();
     let q: usize = read!();
 
-    let a: &mut Vec<_> = &mut (0..n).map(|_| Buffer::<_>::new()).collect();
+    let a: &mut Vec<_> = &mut (0..n).map(|_| VecDeque::<_>::new()).collect();
 
     for _ in 0..q {
         let op: usize = read!();

@@ -13,8 +13,8 @@ fn main() {
     for i in 0..h {
         writef!("node {:d}:", i + 1);
         write_key("", i);
-        if i > 0 {
-            write_key("parent", dheap::parent_index(2, i));
+        if let Some(parent) = dheap::parent_index(2, i) {
+            write_key("parent", parent);
         }
         let left = dheap::child_index(2, i, 0);
         let right = dheap::child_index(2, i, 1);

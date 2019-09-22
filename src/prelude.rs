@@ -47,12 +47,9 @@ pub use crate::list::sorting;
 pub use crate::list::{self, List};
 pub use crate::stack::{self, Stack};
 
-pub use crate::array::{array, Array};
-pub use crate::buffer::{buffer, Buffer};
 pub use crate::dheap::{self, DHeap};
 pub use crate::dlist::DoublyLinkedList;
 pub use crate::flist::SinglyLinkedList;
-pub use crate::static_array::static_array;
 pub use crate::string::{stringf, String, StringBuffer};
 
 /// the porus prelude

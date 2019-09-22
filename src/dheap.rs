@@ -3,12 +3,12 @@ use crate::heap::Heap;
 use crate::list::{self, ListMut};
 use crate::stack::{self, Stack};
 
-pub const fn parent_index(d: usize, index: usize) -> usize {
-    (index - 1) / d
+pub fn parent_index(d: usize, index: usize) -> Option<usize> {
+    usize::checked_sub(index, 1).map(|i| usize::wrapping_div(i, d))
 }
 
-pub const fn child_index(d: usize, index: usize, n: usize) -> usize {
-    d * index + 1 + n
+pub fn child_index(d: usize, index: usize, n: usize) -> usize {
+    usize::saturating_add(usize::saturating_mul(d, index), usize::saturating_add(1, n))
 }
 
 pub fn siftup<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(
@@ -17,8 +17,7 @@ pub fn siftup<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(
     n: usize,
     gt: F,
 ) {
-    if n > 0 {
-        let parent = parent_index(d, n);
+    if let Some(parent) = parent_index(d, n) {
         if !gt(list::get(l, n), list::get(l, parent)) {
             return;
         }
@@ -52,8 +51,8 @@ pub fn siftdown<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(
 
 pub fn heapify<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(d: usize, l: &mut L, gt: F) {
     if let Some(index) = usize::checked_sub(collection::size(l), 1) {
-        if index > 0 {
-            let mut n = parent_index(d, index);
+        if let Some(parent) = parent_index(d, index) {
+            let mut n = parent;
             loop {
                 siftdown(d, l, n, &gt);
                 if n == 0 {

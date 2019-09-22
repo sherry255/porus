@@ -57,9 +57,6 @@
 //!
 
 //! ## Data Structures
-//! * [`Array`](type@array) : [`List`](list) + [`Stack`](stack)
-//! * [`Buffer`](type@buffer) : [`List`](list) + [`Deque`](deque)
-//! * [`DoublyLinkedList`](type@dlist) : [`Deque`](deque)
 //!
 
 extern crate alloc;
@@ -85,12 +82,12 @@ pub mod stack;
 pub mod block;
 pub mod chunk;
 pub mod string;
-#[macro_use]
-pub mod static_array;
-#[macro_use]
-pub mod array;
-#[macro_use]
-pub mod buffer;
+// #[macro_use]
+// pub mod static_array;
+// #[macro_use]
+// pub mod array;
+// #[macro_use]
+// pub mod buffer;
 pub mod dheap;
 pub mod dlist;
 pub mod flist;
