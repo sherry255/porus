@@ -32,7 +32,7 @@ pub fn bubble<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     for (i, j) in (0..size).zip(1..size).rev() {
         if lt(get(list, j), get(list, i)) {
             swap(list, i, j);
-            count += 1;
+            count = usize::wrapping_add(count, 1);
         }
     }
     count
@@ -74,8 +74,8 @@ fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>
 
     for i in g..size {
         let mut j = i;
-        while (j >= g) && lt(get(list, j), get(list, j - g)) {
-            swap(list, j, j - g);
+        while (j >= g) && lt(get(list, j), get(list, usize::wrapping_sub(j, g))) {
+            swap(list, j, usize::wrapping_sub(j, g));
             count = usize::wrapping_add(count, 1);
             j = usize::wrapping_sub(j, g);
         }
@@ -109,7 +109,7 @@ pub fn shell_sort<
         // for i in 0..g {
         //     count += insertion_sort(slice_mut!(list, [i,,g]), lt);
         // }
-        count += insertion_sort_g(list, &lt, g);
+        count = usize::wrapping_add(count, insertion_sort_g(list, &lt, g));
     }
     count
 }

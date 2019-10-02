@@ -66,7 +66,7 @@ impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
         let index = match self.next {
             None => {
                 let size = self.size;
-                self.size += 1;
+                self.size = usize::wrapping_add(self.size, 1);
                 if size == self.data.capacity() {
                     assert!(self.data.grow(0) > 0);
                 }
