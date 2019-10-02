@@ -100,7 +100,7 @@ impl Union {
     }
 
     fn as_bytes(&self) -> &[u8] {
-        unsafe { from_raw_parts(self.as_ptr(), self.len() as usize) }
+        unsafe { from_raw_parts(self.as_ptr(), self.len()) }
     }
 }
 
