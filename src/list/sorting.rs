@@ -59,7 +59,7 @@ pub fn bubble_sorted<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool
             break;
         }
         swap(list, i, j);
-        count += 1;
+        count = usize::wrapping_add(count, 1);
     }
     count
 }
@@ -76,8 +76,8 @@ fn insertion_sort_g<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>
         let mut j = i;
         while (j >= g) && lt(get(list, j), get(list, j - g)) {
             swap(list, j, j - g);
-            count += 1;
-            j -= g;
+            count = usize::wrapping_add(count, 1);
+            j = usize::wrapping_sub(j, g);
         }
     }
 
@@ -130,7 +130,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
         }) {
             if min != i {
                 swap(list, i, min);
-                count += 1;
+                count = usize::wrapping_add(count, 1);
             }
         } else {
             unreachable!();

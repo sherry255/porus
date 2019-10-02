@@ -41,9 +41,9 @@ pub fn reverse<L: ListMut>(list: &mut L) {
     let mut l = 0;
     let mut r = collection::size(list);
     while l < r {
-        r -= 1;
+        r = usize::wrapping_sub(r, 1);
         swap(list, l, r);
-        l += 1;
+        l = usize::wrapping_add(l, 1);
     }
 }
 

@@ -7,21 +7,8 @@ pub use core::cmp::Ordering::Greater;
 pub use core::cmp::Ordering::Less;
 
 pub use core::f64::consts::PI;
-use core::intrinsics::cosf64;
-use core::intrinsics::sinf64;
-use core::intrinsics::sqrtf64;
 
-pub fn sin(x: f64) -> f64 {
-    unsafe { sinf64(x) }
-}
-
-pub fn cos(x: f64) -> f64 {
-    unsafe { cosf64(x) }
-}
-
-pub fn sqrt(x: f64) -> f64 {
-    unsafe { sqrtf64(x) }
-}
+pub use crate::math::*;
 
 pub fn default<T: Default>() -> T {
     Default::default()

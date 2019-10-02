@@ -31,20 +31,15 @@
 //! most popular online judges accept only a single file within tens
 //! of kilobytes, solutions have to be preproccessed before submitting
 //! to online judges. Right now, [`porus`](self) piggybacks on
-//! [ix](https://github.com/bhuztez/ix) to do the preprocessing. For
-//! example, to submit to
+//! [wronganswer](https://github.com/bhuztez/wronganswer) to do the
+//! preprocessing. For example, to submit to
 //! [AOJ](http://judge.u-aizu.ac.jp/onlinejudge/) the solution to
 //! [ITP1_1_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_1_A)
 //!
 
 //! ```bash
-//! $ python3 -mix submit -w solutions/AOJ/ITP1/ITP1_1_A.rs
-//! [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs
-//! [COMPILE] target/x86_64-unknown-linux-gnu/release/libporus.rlib
-//! AOJ (judge.u-aizu.ac.jp)
-//! User ID: your_username
-//! Password:
-//! [SUBMIT] solutions/AOJ/ITP1/ITP1_1_A.rs: Accepted (Memory: 2000, Time: 0, Length: 1380)
+//! $ ./c.py submit solutions/judge.u-aizu.ac.jp/ITP1/ITP1_1_A.rs
+//! Memory: 2068, Time: 0, Length: 4344
 //! $
 //! ```
 //!
@@ -62,6 +57,10 @@
 
 extern crate alloc;
 extern crate porus_macros;
+
+pub mod utils;
+
+pub mod math;
 
 pub mod file;
 pub mod libc;
@@ -83,12 +82,7 @@ pub mod stack;
 pub mod block;
 pub mod chunk;
 pub mod string;
-// #[macro_use]
-// pub mod static_array;
-// #[macro_use]
-// pub mod array;
-// #[macro_use]
-// pub mod buffer;
+
 pub mod dheap;
 pub mod dlist;
 pub mod flist;

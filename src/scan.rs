@@ -1,6 +1,7 @@
 use crate::io::{PeekableSource, Source};
+use crate::math::powi;
+use crate::utils::unwrap;
 use core::convert::From;
-use core::intrinsics::powif64;
 use core::ops::{Add, Mul, Neg};
 
 pub trait Consumer {
@@ -196,7 +197,7 @@ impl<'a> Consumer for &'a mut f64 {
 
             while let Some(d) = read_digit(s, 10) {
                 int = int * 10 + u64::from(d);
-                exp -= 1;
+                exp = unwrap(i32::checked_sub(exp, 1));
             }
         }
 
@@ -204,12 +205,12 @@ impl<'a> Consumer for &'a mut f64 {
             s.consume();
             let mut e: i32 = 0;
             fread(s, &mut e);
-            exp += e;
+            exp = unwrap(i32::checked_add(exp, e));
         }
 
         #[allow(clippy::cast_precision_loss)]
         {
-            *self = sign * unsafe { powif64(10.0, exp) } * (int as f64);
+            *self = sign * powi(10.0, exp) * (int as f64);
         }
 
         true

@@ -1,4 +1,5 @@
 use crate::capacity::Policy;
+use crate::utils::unwrap;
 use core::alloc::Alloc;
 use core::marker::PhantomData;
 use core::ptr::{copy, read, write, NonNull};
@@ -64,7 +65,7 @@ impl<T, P: Policy, A: Alloc> Block<T, P, A> {
             Alloc::realloc_array(&mut self.allocator, self.data, self.capacity, new_capacity)
         }
         .expect("realloc failed");
-        let dst = usize::checked_add(src, grow).unwrap_or_else(|| unreachable!());
+        let dst = unwrap(usize::checked_add(src, grow));
         self.copy(src, dst, n);
         self.capacity = new_capacity;
         grow
@@ -73,11 +74,11 @@ impl<T, P: Policy, A: Alloc> Block<T, P, A> {
     pub fn shrink(&mut self, size: usize, m: Option<usize>, n: usize) -> usize {
         assert!(n <= size);
         assert!(size <= self.capacity);
-        let src = usize::checked_sub(self.capacity, n).unwrap_or_else(|| unreachable!());
+        let src = unwrap(usize::checked_sub(self.capacity, n));
         let new_capacity = P::shrink(size, self.capacity);
         let shrink =
             usize::checked_sub(self.capacity, new_capacity).expect("shrink to a bigger size");
-        let dst = usize::checked_sub(src, shrink).unwrap_or_else(|| unreachable!());
+        let dst = unwrap(usize::checked_sub(src, shrink));
         if shrink > 0 {
             match m {
                 None => self.copy(src, dst, n),

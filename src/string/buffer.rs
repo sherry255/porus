@@ -2,6 +2,7 @@ use super::{InlineString, SharedString, String, Union as StringUnion};
 use crate::capacity::{DefaultPolicy, Policy};
 use crate::io::{PeekableSource, Sink, Source};
 use crate::scan::{is_whitespace, Consumer};
+use crate::utils::unwrap;
 use alloc::alloc::{Alloc, Global};
 use core::marker::PhantomData;
 use core::mem::{forget, size_of, transmute_copy};
@@ -257,8 +258,7 @@ impl<P: Policy, A: Alloc> From<Buffer<P, A>> for String<A> {
                         shared: SharedString {
                             counter,
                             length,
-                            s: NonNull::new(s.as_ptr().add(counter_size))
-                                .unwrap_or_else(|| unreachable!()),
+                            s: unwrap(NonNull::new(s.as_ptr().add(counter_size))),
                         },
                     },
                     allocator: buf.allocator,

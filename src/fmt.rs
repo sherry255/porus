@@ -65,8 +65,9 @@
 //! ```
 
 use crate::io::Sink;
+use crate::math::{fabs, powi, round};
+use crate::utils::unwrap;
 use core::convert::TryInto;
-use core::intrinsics::{fabsf64, powif64, roundf64};
 use core::iter::Iterator;
 use core::ops::{Div, Neg, Rem};
 #[allow(unused_imports)]
@@ -164,7 +165,7 @@ fn write_unsigned<
                 .ok()
                 .expect("digit greater than 255"),
         );
-        i -= 1;
+        i = unwrap(usize::checked_sub(i, 1));
         x = x / radix;
     }
 
@@ -253,15 +254,15 @@ impl Float for f64 {
 
             if self.is_sign_negative() {
                 Sink::write(s, b'-');
-                self = unsafe { fabsf64(self) };
+                self = fabs(self);
             }
 
-            self *= unsafe { powif64(10.0, TryInto::try_into(prec).expect("prec overflow")) };
+            self *= powi(10.0, TryInto::try_into(prec).expect("prec overflow"));
             let m = 10_u64.pow(prec);
 
             if self <= 9_007_199_254_740_992.0 {
                 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-                let i = unsafe { roundf64(self) } as u64;
+                let i = round(self) as u64;
                 write_unsigned(s, u64::wrapping_div(i, m), 10, 1);
                 Sink::write(s, b'.');
                 write_unsigned(s, u64::wrapping_rem(i, m), 10, prec as usize);

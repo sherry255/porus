@@ -20,7 +20,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if self.start < self.end {
             let index = self.start;
-            self.start += 1;
+            self.start = usize::wrapping_add(self.start, 1);
             Some(Clone::clone(get(self.list, index)))
         } else {
             None
@@ -43,7 +43,7 @@ where
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.start < self.end {
-            self.end -= 1;
+            self.end = usize::wrapping_sub(self.end, 1);
             let index = self.end;
             Some(Clone::clone(get(self.list, index)))
         } else {

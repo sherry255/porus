@@ -55,10 +55,11 @@ pub fn heapify<E, L: ListMut<Elem = E>, F: Fn(&E, &E) -> bool>(d: usize, l: &mut
             let mut n = parent;
             loop {
                 siftdown(d, l, n, &gt);
-                if n == 0 {
+                if let Some(n1) = usize::checked_sub(n, 1) {
+                    n = n1;
+                } else {
                     break;
                 }
-                n -= 1;
             }
         }
     }
