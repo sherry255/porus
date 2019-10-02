@@ -44,7 +44,7 @@ pub struct Source {
 
 impl Source {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
-        let p = buffer.as_ptr() as *mut u8;
+        let p = buffer.as_mut_ptr();
         let capacity = buffer.len();
         let end = unsafe { p.add(capacity) };
         Self {
@@ -85,7 +85,7 @@ pub struct Sink {
 
 impl Sink {
     pub fn new(fd: i32, buffer: &mut [u8]) -> Self {
-        let p = buffer.as_ptr() as *mut _;
+        let p = buffer.as_mut_ptr();
 
         Self {
             fd,

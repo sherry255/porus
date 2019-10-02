@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use crate::fmt::{self, fwrite_str};
 #[allow(unused_imports)]
 use crate::fmt::{f, fwrite};
@@ -14,18 +13,12 @@ use core::str;
 mod buffer;
 pub use self::buffer::Buffer as StringBuffer;
 
+#[cfg(target_endian = "little")]
 #[derive(Clone, Copy)]
 struct SharedString {
     counter: NonNull<usize>,
     length: usize,
     s: NonNull<u8>,
-}
-
-#[cfg(all(target_endian = "big", target_pointer_width = "64"))]
-#[derive(Clone, Copy)]
-struct InlineString {
-    s: [u8; 23],
-    length: u8,
 }
 
 #[cfg(all(target_endian = "little", target_pointer_width = "64"))]
@@ -35,17 +28,27 @@ struct InlineString {
     s: [u8; 23],
 }
 
-#[cfg(all(target_endian = "big", target_pointer_width = "32"))]
-struct InlineString {
-    s: [u8; 11],
-    length: u8,
+#[cfg(target_endian = "little")]
+#[derive(Clone, Copy)]
+struct StaticString {
+    _padding: usize,
+    length: usize,
+    s: *const u8,
 }
 
-#[cfg(all(target_endian = "little", target_pointer_width = "32"))]
+#[cfg(target_endian = "big")]
+#[derive(Clone, Copy)]
+struct SharedString {
+    s: NonNull<u8>,
+    length: usize,
+    counter: NonNull<usize>,
+}
+
+#[cfg(all(target_endian = "big", target_pointer_width = "64"))]
 #[derive(Clone, Copy)]
 struct InlineString {
+    s: [u8; 23],
     length: u8,
-    s: [u8; 11],
 }
 
 #[cfg(target_endian = "big")]
@@ -54,14 +57,6 @@ struct StaticString {
     s: *const u8,
     length: usize,
     _padding: usize,
-}
-
-#[cfg(target_endian = "little")]
-#[derive(Clone, Copy)]
-struct StaticString {
-    _padding: usize,
-    length: usize,
-    s: *const u8,
 }
 
 union Union {

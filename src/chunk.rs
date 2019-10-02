@@ -5,19 +5,32 @@ use alloc::alloc::{Alloc, Global};
 use core::num::NonZeroUsize;
 
 #[derive(Clone, Copy)]
-pub struct Handle(NonZeroUsize);
+struct Index(NonZeroUsize);
+
+impl Index {
+    pub fn new(x: usize) -> Self {
+        Self(NonZeroUsize::new(!x).expect("index overflow"))
+    }
+
+    pub fn get(self) -> usize {
+        !self.0.get()
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct Handle(Index);
 
 impl pool::Handle for Handle {}
 
 #[allow(unions_with_drop_fields)]
 union Node<T> {
     data: T,
-    next: Option<NonZeroUsize>,
+    next: Option<Index>,
 }
 
 pub struct Chunk<T, P: Policy = DefaultPolicy, A: Alloc = Global> {
     size: usize,
-    next: Option<NonZeroUsize>,
+    next: Option<Index>,
     data: Block<Node<T>, P, A>,
 }
 
@@ -42,11 +55,11 @@ impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
     type Elem = T;
 
     fn get(&self, handle: Handle) -> &T {
-        unsafe { &self.data.get(!handle.0.get()).data }
+        unsafe { &self.data.get(handle.0.get()).data }
     }
 
     fn get_mut(&mut self, handle: Handle) -> &mut T {
-        unsafe { &mut self.data.get_mut(!handle.0.get()).data }
+        unsafe { &mut self.data.get_mut(handle.0.get()).data }
     }
 
     fn add(&mut self, item: T) -> Handle {
@@ -60,17 +73,17 @@ impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
                 size
             }
             Some(handle) => {
-                self.next = unsafe { self.data.get(!handle.get()).next };
-                !handle.get()
+                self.next = unsafe { self.data.get(handle.get()).next };
+                handle.get()
             }
         };
 
         self.data.write(index, Node { data: item });
-        Handle(NonZeroUsize::new(!index).unwrap())
+        Handle(Index::new(index))
     }
 
     fn remove(&mut self, handle: Handle) -> T {
-        let index = !handle.0.get();
+        let index = handle.0.get();
         let node = self.data.read(index);
         self.data.write(index, Node { next: self.next });
         self.next = Some(handle.0);

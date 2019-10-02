@@ -104,7 +104,7 @@ def lru1(func):
     return wrapper
 
 
-@task("compile porus")
+@task("Compile porus")
 @lru1
 def compile_libs(mode='debug', target=None):
     from subprocess import DEVNULL
