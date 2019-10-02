@@ -109,7 +109,8 @@ impl Clone for Union {
         unsafe {
             match self.tag() {
                 Tag::Shared => {
-                    *self.shared.counter.as_ptr() += 1;
+                    *self.shared.counter.as_ptr() =
+                        usize::wrapping_add(*self.shared.counter.as_ref(), 1);
                     Self {
                         shared: Clone::clone(&self.shared),
                     }
@@ -184,14 +185,14 @@ impl<A: Alloc + Clone> Clone for String<A> {
 impl<A: Alloc> Drop for String<A> {
     fn drop(&mut self) {
         if let Tag::Shared = self.s.tag() {
-            let counter_size = size_of::<usize>();
             unsafe {
-                *self.s.shared.counter.as_mut() -= 1;
-                if *self.s.shared.counter.as_ref() == 0 {
+                if let Some(c) = usize::checked_sub(*self.s.shared.counter.as_ref(), 1) {
+                    *self.s.shared.counter.as_mut() = c;
+                } else {
                     Alloc::dealloc_array::<u8>(
                         &mut self.allocator,
-                        NonNull::cast(self.s.shared.counter),
-                        counter_size + self.s.shared.length,
+                        self.s.shared.counter.cast(),
+                        usize::wrapping_add(size_of::<usize>(), self.s.shared.length),
                     )
                     .expect("dealloc failed");
                 }

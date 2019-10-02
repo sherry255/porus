@@ -1,4 +1,4 @@
-use super::Tag::{Inline, Shared};
+use super::Tag::{Inline, Shared, Static};
 use super::{InlineString, SharedString, String, Union};
 use crate::capacity::{DefaultPolicy, Policy};
 use crate::io::{PeekableSource, Sink, Source};
@@ -41,7 +41,7 @@ unsafe fn as_ptr(u: &Union) -> *const u8 {
     match u.tag() {
         Inline => u.inline.s.as_ptr(),
         Shared => u.shared.counter.as_ptr().add(1).cast(),
-        _ => unreachable!(),
+        Static => unreachable!(),
     }
 }
 
@@ -49,7 +49,7 @@ unsafe fn as_mut_ptr(u: &mut Union) -> *mut u8 {
     match u.tag() {
         Inline => u.inline.s.as_mut_ptr(),
         Shared => u.shared.counter.as_ptr().add(1).cast(),
-        _ => unreachable!(),
+        Static => unreachable!(),
     }
 }
 
@@ -57,17 +57,17 @@ unsafe fn capacity(u: &Union) -> usize {
     match u.tag() {
         Inline => u.inline.s.len(),
         Shared => u.shared.length,
-        _ => unreachable!(),
+        Static => unreachable!(),
     }
 }
 
 unsafe fn resize<A: Alloc>(allocator: &mut A, s: &mut SharedString, new_size: usize) {
     let counter_size = size_of::<usize>();
-    s.counter = Alloc::realloc_array(
+    s.counter = Alloc::realloc_array::<u8>(
         allocator,
-        s.counter.cast::<u8>(),
-        counter_size + s.length,
-        counter_size + new_size,
+        s.counter.cast(),
+        usize::wrapping_add(counter_size, s.length),
+        usize::wrapping_add(counter_size, new_size),
     )
     .expect("realloc failed")
     .cast();
@@ -78,7 +78,7 @@ fn len(u: &Union) -> usize {
     match u.tag() {
         Inline => u.len(),
         Shared => unsafe { u.shared.s.as_ptr().offset_from(as_ptr(u)) as usize },
-        _ => unreachable!(),
+        Static => unreachable!(),
     }
 }
 
@@ -105,13 +105,20 @@ impl<P: Policy, A: Alloc> Sink for Buffer<P, A> {
             Inline => unsafe {
                 if offset < capacity {
                     self.buffer.inline.s[offset] = c;
-                    self.buffer.inline.length = ((offset as u8 + 1) << 2) | 1;
+
+                    #[allow(clippy::integer_arithmetic)]
+                    #[allow(clippy::cast_possible_truncation)]
+                    {
+                        self.buffer.inline.length = ((offset as u8 + 1) << 2) | 1;
+                    }
                 } else {
                     let counter_size = size_of::<usize>();
                     let new_capacity = P::grow(P::initial(capacity));
-                    let s =
-                        Alloc::alloc_array::<u8>(&mut self.allocator, counter_size + new_capacity)
-                            .expect("alloc failed");
+                    let s = Alloc::alloc_array::<u8>(
+                        &mut self.allocator,
+                        usize::wrapping_add(counter_size, new_capacity),
+                    )
+                    .expect("alloc failed");
 
                     copy_nonoverlapping(
                         self.buffer.as_ptr(),
@@ -140,7 +147,7 @@ impl<P: Policy, A: Alloc> Sink for Buffer<P, A> {
                 *self.buffer.shared.s.as_mut() = c;
                 self.buffer.shared.s = unwrap(NonNull::new(self.buffer.shared.s.as_ptr().add(1)));
             },
-            _ => unreachable!(),
+            Static => unreachable!(),
         }
     }
 }
@@ -163,12 +170,11 @@ impl<'a, P: Policy, A: Alloc> Consumer for &'a mut Buffer<P, A> {
 impl<P: Policy, A: Alloc> Drop for Buffer<P, A> {
     fn drop(&mut self) {
         if let Shared = self.buffer.tag() {
-            let counter_size = size_of::<usize>();
             unsafe {
-                Alloc::dealloc_array(
+                Alloc::dealloc_array::<u8>(
                     &mut self.allocator,
-                    self.buffer.shared.counter.cast::<u8>(),
-                    counter_size + capacity(&self.buffer),
+                    self.buffer.shared.counter.cast(),
+                    usize::wrapping_add(size_of::<usize>(), capacity(&self.buffer)),
                 )
                 .expect("dealloc failed");
             }
@@ -188,7 +194,11 @@ impl<P: Policy, A: Alloc> From<Buffer<P, A>> for String<A> {
             }
 
             let s = transmute_copy(&x);
-            forget(x);
+
+            #[allow(clippy::mem_forget)]
+            {
+                forget(x);
+            }
             s
         }
     }
