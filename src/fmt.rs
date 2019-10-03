@@ -173,7 +173,8 @@ fn write_unsigned<
         usize::saturating_add(i, 1),
         usize::saturating_sub(40, width),
     );
-    fwrite_str(s, &buf[i..]);
+
+    fwrite_str(s, unsafe { buf.get_unchecked_mut(i..) });
 }
 
 fn write_signed<

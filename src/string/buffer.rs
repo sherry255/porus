@@ -104,7 +104,7 @@ impl<P: Policy, A: Alloc> Sink for Buffer<P, A> {
         match self.buffer.tag() {
             Inline => unsafe {
                 if offset < capacity {
-                    self.buffer.inline.s[offset] = c;
+                    *self.buffer.inline.s.get_unchecked_mut(offset) = c;
 
                     #[allow(clippy::integer_arithmetic)]
                     #[allow(clippy::cast_possible_truncation)]

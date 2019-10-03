@@ -139,6 +139,7 @@ pub fn selection_sort<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> boo
     count
 }
 
+#[allow(clippy::integer_arithmetic)]
 pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &mut L,
     lt: F,
@@ -156,6 +157,7 @@ pub fn partition<E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     i
 }
 
+#[allow(clippy::integer_arithmetic)]
 fn quick_sort_aux<'a, 'b: 'a, E, L: ListMut<Elem = E> + Collection, F: Fn(&E, &E) -> bool>(
     list: &'b mut ViewMut<'a, L>,
     lt: &F,

@@ -196,7 +196,10 @@ impl<'a> Consumer for &'a mut f64 {
             s.consume();
 
             while let Some(d) = read_digit(s, 10) {
-                int = int * 10 + u64::from(d);
+                int = unwrap(u64::checked_add(
+                    unwrap(u64::checked_mul(int, 10)),
+                    u64::from(d),
+                ));
                 exp = unwrap(i32::checked_sub(exp, 1));
             }
         }
