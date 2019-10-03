@@ -28,7 +28,7 @@
 | [ITP1_8_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_8_B) | [Sum of Numbers](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_8_B.rs) |
 | [ITP1_9_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_9_D) | [Transformation](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_9_D.rs) |
 | [ITP1_10_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_10_A) | [Distance](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_10_A.rs) |
-| [ITP1_10_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_10_B) | [Triangle](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_10_B.rs) |
+| [ITP1_10_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_10_B) | [Triangle](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_10_B.rs) |
 
 ## Introduction to Algorithms and Data Structures
 
@@ -74,3 +74,6 @@
 | [ITP2_6_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_B) | [Includes](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_B.rs) |
 | [ITP2_6_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_C) | [Lower Bound](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_C.rs) |
 | [ITP2_6_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_D) | [Equal Range](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_D.rs) |
+| [ITP2_11_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_A) | [Enumeration of Subsets I](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_A.rs) |
+| [ITP2_11_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_B) | [Enumeration of Subsets II](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_B.rs) |
+| [ITP2_11_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_C) | [Enumeration of Subsets III](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_C.rs) |
