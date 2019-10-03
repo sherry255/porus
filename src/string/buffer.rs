@@ -74,6 +74,7 @@ unsafe fn resize<A: Alloc>(allocator: &mut A, s: &mut SharedString, new_size: us
     s.length = new_size;
 }
 
+#[allow(clippy::cast_sign_loss)]
 fn len(u: &Union) -> usize {
     match u.tag() {
         Inline => u.len(),

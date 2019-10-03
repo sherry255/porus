@@ -28,6 +28,7 @@
 | [ITP1_8_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_8_B) | [Sum of Numbers](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_8_B.rs) |
 | [ITP1_9_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_9_D) | [Transformation](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_9_D.rs) |
 | [ITP1_10_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_10_A) | [Distance](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_10_A.rs) |
+| [ITP1_10_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_10_B) | [Triangle](solutions/judge.u-aizu.ac.jp/ITP1/ITP1_10_B.rs) |
 
 ## Introduction to Algorithms and Data Structures
 
