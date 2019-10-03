@@ -1,3 +1,4 @@
+pub use alloc::collections::BTreeMap;
 pub use alloc::collections::BinaryHeap;
 pub use alloc::collections::VecDeque;
 pub use alloc::vec;
@@ -72,5 +73,8 @@ macro_rules! prelude {
             }
         }
     };
-    (leetcode) => {};
+    (leetcode) => {
+        #[allow(unused_imports)]
+        use $crate::prelude::*;
+    };
 }

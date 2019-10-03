@@ -1,9 +1,7 @@
-extern crate alloc;
 #[macro_use]
 extern crate porus;
 prelude!(leetcode);
 
-use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use core::ptr::copy_nonoverlapping;
 use core::slice;
