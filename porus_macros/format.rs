@@ -36,6 +36,18 @@ pub fn format(tokens: TokenStream) -> TokenStream {
                     "s" => {
                         stream = quote! { #stream String::write(#arg, porus_sink); };
                     }
+                    "b" => {
+                        let width: Box<dyn ToTokens> = match fmt.width {
+                            Count::CountIs(n) => Box::new(Literal::usize_unsuffixed(n)),
+                            Count::CountIsName(_name) => panic!("named argument not supported"),
+                            Count::CountIsParam(i) => {
+                                let lit = Literal::usize_unsuffixed(i);
+                                Box::new(quote! { porus_args.#lit })
+                            }
+                            Count::CountImplied => Box::new(Literal::usize_unsuffixed(1)),
+                        };
+                        stream = quote! { #stream Int::write(#arg, porus_sink, 2, #width); };
+                    }
                     "d" => {
                         stream = quote! { #stream Int::write(#arg, porus_sink, 10, 1); };
                     }

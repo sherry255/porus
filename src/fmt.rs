@@ -156,8 +156,8 @@ fn write_unsigned<
     radix: T,
     width: usize,
 ) {
-    let mut buf = [b'0'; 40];
-    let mut i = 39;
+    let mut buf = [b'0'; 128];
+    let mut i = 127;
 
     while x > Default::default() {
         *unsafe { buf.get_unchecked_mut(i) } = to_char(
@@ -171,7 +171,7 @@ fn write_unsigned<
 
     i = Ord::min(
         usize::saturating_add(i, 1),
-        usize::saturating_sub(40, width),
+        usize::saturating_sub(128, width),
     );
 
     fwrite_str(s, unsafe { buf.get_unchecked_mut(i..) });

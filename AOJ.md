@@ -74,6 +74,10 @@
 | [ITP2_6_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_B) | [Includes](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_B.rs) |
 | [ITP2_6_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_C) | [Lower Bound](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_C.rs) |
 | [ITP2_6_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_6_D) | [Equal Range](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_6_D.rs) |
+| [ITP2_10_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_10_A) | [Bit Operation I](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_10_A.rs) |
+| [ITP2_10_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_10_B) | [Bit Operation II](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_10_B.rs) |
+| [ITP2_10_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_10_C) | [Bit Flag](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_10_C.rs) |
+| [ITP2_10_D](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_10_D) | [Bit Mask](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_10_D.rs) |
 | [ITP2_11_A](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_A) | [Enumeration of Subsets I](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_A.rs) |
 | [ITP2_11_B](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_B) | [Enumeration of Subsets II](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_B.rs) |
 | [ITP2_11_C](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP2_11_C) | [Enumeration of Subsets III](solutions/judge.u-aizu.ac.jp/ITP2/ITP2_11_C.rs) |
