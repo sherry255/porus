@@ -3,6 +3,7 @@ use crate::capacity::{DefaultPolicy, Policy};
 use crate::pool::{self, Pool};
 use alloc::alloc::{Alloc, Global};
 use core::num::NonZeroUsize;
+use core::mem::ManuallyDrop;
 
 #[derive(Clone, Copy)]
 struct Index(NonZeroUsize);
@@ -22,9 +23,8 @@ pub struct Handle(Index);
 
 impl pool::Handle for Handle {}
 
-#[allow(unions_with_drop_fields)]
 union Node<T> {
-    data: T,
+    data: ManuallyDrop<T>,
     next: Option<Index>,
 }
 
@@ -78,7 +78,7 @@ impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
             }
         };
 
-        self.data.write(index, Node { data: item });
+        self.data.write(index, Node { data: ManuallyDrop::new(item) });
         Handle(Index::new(index))
     }
 
@@ -87,6 +87,6 @@ impl<T, P: Policy, A: Alloc> Pool for Chunk<T, P, A> {
         let node = self.data.read(index);
         self.data.write(index, Node { next: self.next });
         self.next = Some(handle.0);
-        unsafe { node.data }
+        ManuallyDrop::into_inner(unsafe { node.data })
     }
 }
