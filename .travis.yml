@@ -48,6 +48,7 @@ install:
 - CARGO_TARGET_DIR="${HOME}/.cargo/target" cargo install-update -ag
 - cd "$TRAVIS_BUILD_DIR"
 - pip3 install -r requirements.txt
+- rustup component add rustc-dev
 script:
 - cargo test --verbose
 - cargo test --release --verbose
