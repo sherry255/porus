@@ -24,6 +24,9 @@ don't have to copy and paste library code into your solution.
 $ git clone git://github.com/bhuztez/porus.git
 $ cd porus
 $ pip3 install --user -r requirements.txt
+$ rustup component add rustc-dev
+$ rustup target add x86_64-unknown-linux-gnu
+$ cargo build
 $ ./c.py submit solutions/judge.u-aizu.ac.jp/ITP1/ITP1_1_A.rs
 Memory: 2068, Time: 0, Length: 4344
 $
