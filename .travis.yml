@@ -12,6 +12,7 @@ matrix:
     rust: nightly
     install:
     - ./install-lint.sh
+    - rustup component add rustc-dev
     script:
     - cargo fmt --all -- --check
     - find solutions -name '*.rs' | xargs -I {} rustfmt --edition 2018 --check {}
