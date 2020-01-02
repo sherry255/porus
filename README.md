@@ -24,6 +24,7 @@ don't have to copy and paste library code into your solution.
 $ git clone git://github.com/bhuztez/porus.git
 $ cd porus
 $ pip3 install --user -r requirements.txt
+$ rustup override set nightly
 $ rustup component add rustc-dev
 $ rustup target add x86_64-unknown-linux-gnu
 $ cargo build
